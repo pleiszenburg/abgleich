@@ -5,12 +5,16 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import click
+from ..zfs import get_tree
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-@click.command(short_help = 'list datasets')
-def list():
-
-	print('X')
+@click.command(short_help = 'show dataset tree')
+def tree():
+	datasets = get_tree()
+	for dataset in datasets:
+		print(dataset['NAME'])
+		for snapshot in dataset['SNAPSHOTS']:
+			print('\t' + snapshot['NAME'])

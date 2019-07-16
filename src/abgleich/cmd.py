@@ -46,6 +46,9 @@ def run_chain_command(cmd_list_1, cmd_list_2):
 		raise
 	return output_2
 
+def ssh_command(host, cmd_list, compression = False):
+	return get_ssh_prefix(compression) + [host, ' '.join(cmd_list)]
+
 def get_ssh_prefix(compression = False):
 	return [
 		'ssh', '-T', '-c', 'aes256-gcm@openssh.com', '-o',
