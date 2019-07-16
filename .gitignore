@@ -1,4 +1,5 @@
 __*__
 *.pyc
 env*/
-
+pip-wheel-metadata/
+*.egg-info
