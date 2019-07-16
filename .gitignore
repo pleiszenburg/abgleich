@@ -3,3 +3,4 @@ __*__
 env*/
 pip-wheel-metadata/
 *.egg-info
+.ipynb_checkpoints/
