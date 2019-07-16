@@ -45,3 +45,9 @@ def run_chain_command(cmd_list_1, cmd_list_2):
 		print(errors_2)
 		raise
 	return output_2
+
+def get_ssh_prefix(compression = False):
+	return [
+		'ssh', '-T', '-c', 'aes256-gcm@openssh.com', '-o',
+		'Compression=yes' if compression else 'Compression=no'
+		]
