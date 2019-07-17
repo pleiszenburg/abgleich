@@ -12,8 +12,9 @@ from ..zfs import get_tree
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @click.command(short_help = 'show dataset tree')
-def tree():
-	datasets = get_tree()
+@click.argument('host', default = 'localhost', type = str)
+def tree(host):
+	datasets = get_tree(host if host != 'localhost' else None)
 	for dataset in datasets:
 		print(dataset['NAME'])
 		for snapshot in dataset['SNAPSHOTS']:
