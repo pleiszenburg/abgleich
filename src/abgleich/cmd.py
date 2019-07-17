@@ -10,7 +10,10 @@ import subprocess
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def run_command(cmd_list):
+def run_command(cmd_list, debug = False):
+	if debug:
+		print_commands(cmd_list)
+		return
 	proc = subprocess.Popen(cmd_list, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	outs, errs = proc.communicate()
 	status_value = not bool(proc.returncode)
@@ -21,7 +24,10 @@ def run_command(cmd_list):
 		raise
 	return output
 
-def run_chain_command(cmd_list_1, cmd_list_2):
+def run_chain_command(cmd_list_1, cmd_list_2, debug = False):
+	if debug:
+		print_commands(cmd_list_1, cmd_list_2)
+		return
 	proc_1 = subprocess.Popen(
 		cmd_list_1, stdout = subprocess.PIPE, stderr = subprocess.PIPE
 		)
