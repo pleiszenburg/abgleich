@@ -90,6 +90,7 @@ def get_tree(host = None):
 	if host is not None:
 		cmd_list = ssh_command(host, cmd_list, compression = True)
 		cmd_list_snapshot = ssh_command(host, cmd_list_snapshot, compression = True)
+		cmd_list_property = ssh_command(host, cmd_list_property, compression = True)
 
 	datasets = parse_table(
 		run_command(cmd_list),
