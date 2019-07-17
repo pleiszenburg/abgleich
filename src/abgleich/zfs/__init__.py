@@ -81,24 +81,11 @@ def __merge_lists__(A, B):
 		tmp_b[pos_tmb_b] = A[pos_a]
 	return [item for item in tmp_b if item is not None]
 
-def get_all(element):
-
-	cmd_list_property = ['zfs', 'get', 'all', '-H', '-p', element['NAME']]
-
-	properties = parse_table(
-		run_command(cmd_list_property),
-		['NAME', 'PROPERTY', 'VALUE', 'SOURCE']
-		)
-	properties = {
-		property['PROPERTY']: property['VALUE'] for property in properties
-		}
-
-	element.update(properties)
-
 def get_tree(host = None):
 
 	cmd_list = ['zfs', 'list', '-H', '-p']
 	cmd_list_snapshot = ['zfs', 'list', '-t', 'snapshot', '-H', '-p']
+	cmd_list_property = ['zfs', 'get', 'all', '-H', '-p']
 
 	if host is not None:
 		cmd_list = ssh_command(host, cmd_list, compression = True)
@@ -112,13 +99,21 @@ def get_tree(host = None):
 		run_command(cmd_list_snapshot),
 		['NAME', 'USED', 'AVAIL', 'REFER', 'MOUNTPOINT']
 		)
-	for dataset in datasets:
-		get_all(dataset)
-	for snapshot in snapshots:
-		get_all(snapshot)
+	properties = parse_table(
+		run_command(cmd_list_property),
+		['NAME', 'PROPERTY', 'VALUE', 'SOURCE']
+		)
+	merge_properties(datasets, snapshots, properties)
 	merge_snapshots_into_datasets(datasets, snapshots)
 
 	return datasets
+
+def merge_properties(datasets, snapshots, properties):
+
+	elements = {dataset['NAME']: dataset for dataset in datasets}
+	elements.update({snapshot['NAME']: snapshot for snapshot in snapshots})
+	for property in properties:
+		elements[property['NAME']][property['PROPERTY']] = property['VALUE']
 
 def merge_snapshots_into_datasets(datasets, snapshots):
 
