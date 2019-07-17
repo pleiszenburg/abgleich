@@ -81,6 +81,20 @@ def __merge_lists__(A, B):
 		tmp_b[pos_tmb_b] = A[pos_a]
 	return [item for item in tmp_b if item is not None]
 
+def get_all(element):
+
+	cmd_list_property = ['zfs', 'get', 'all', '-H', '-p', element['NAME']]
+
+	properties = parse_table(
+		run_command(cmd_list_property),
+		['NAME', 'PROPERTY', 'VALUE', 'SOURCE']
+		)
+	properties = {
+		property['PROPERTY']: property['VALUE'] for property in properties
+		}
+
+	element.update(properties)
+
 def get_tree(host = None):
 
 	cmd_list = ['zfs', 'list', '-H', '-p']
@@ -90,8 +104,18 @@ def get_tree(host = None):
 		cmd_list = ssh_command(host, cmd_list, compression = True)
 		cmd_list_snapshot = ssh_command(host, cmd_list_snapshot, compression = True)
 
-	datasets = parse_table(run_command(cmd_list))
-	snapshots = parse_table(run_command(cmd_list_snapshot))
+	datasets = parse_table(
+		run_command(cmd_list),
+		['NAME', 'USED', 'AVAIL', 'REFER', 'MOUNTPOINT']
+		)
+	snapshots = parse_table(
+		run_command(cmd_list_snapshot),
+		['NAME', 'USED', 'AVAIL', 'REFER', 'MOUNTPOINT']
+		)
+	for dataset in datasets:
+		get_all(dataset)
+	for snapshot in snapshots:
+		get_all(snapshot)
 	merge_snapshots_into_datasets(datasets, snapshots)
 
 	return datasets
@@ -105,9 +129,8 @@ def merge_snapshots_into_datasets(datasets, snapshots):
 		dataset_name, snapshot['NAME'] = snapshot['NAME'].split('@')
 		datasets_dict[dataset_name]['SNAPSHOTS'].append(snapshot)
 
-def parse_table(raw):
+def parse_table(raw, head):
 
-	head = ['NAME', 'USED', 'AVAIL', 'REFER', 'MOUNTPOINT']
 	table = [item.split('\t') for item in raw.split('\n') if len(item.strip()) > 0]
 	return [{k: v for k, v in zip(head, line)} for line in table]
 
