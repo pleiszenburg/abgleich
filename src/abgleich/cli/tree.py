@@ -5,6 +5,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import click
+from tabulate import tabulate
+
 from ..zfs import get_tree
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -15,7 +17,13 @@ from ..zfs import get_tree
 @click.argument('host', default = 'localhost', type = str)
 def tree(host):
 	datasets = get_tree(host if host != 'localhost' else None)
+	table = []
 	for dataset in datasets:
-		print(dataset['NAME'])
+		table.append([dataset['NAME']])
 		for snapshot in dataset['SNAPSHOTS']:
-			print('\t' + snapshot['NAME'])
+			table.append(['- ' + snapshot['NAME']])
+	print(tabulate(
+		table,
+		headers = ['NAME'],
+		tablefmt = 'github'
+		))

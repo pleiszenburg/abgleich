@@ -69,6 +69,7 @@ setup(
 	setup_requires = [],
 	install_requires = [
 		'click',
+		'tabulate',
 		],
 	extras_require = {'dev': [
 		# 'pytest',
