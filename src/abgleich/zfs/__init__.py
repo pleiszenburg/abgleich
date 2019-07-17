@@ -24,8 +24,8 @@ def merge_snapshots_into_datasets(datasets, snapshots):
 
 def get_tree(host = None):
 
-	cmd_list = ['zfs', 'list']
-	cmd_list_snapshot = ['zfs', 'list', '-t', 'snapshot']
+	cmd_list = ['zfs', 'list', '-H']
+	cmd_list_snapshot = ['zfs', 'list', '-t', 'snapshot', '-H']
 
 	if host is not None:
 		cmd_list = ssh_command(host, cmd_list, compression = True)
@@ -39,10 +39,6 @@ def get_tree(host = None):
 
 def parse_table(raw):
 
-	lines = raw.split('\n')
-	table = [
-		[item for item in line.split('  ') if len(item.strip()) != 0]
-		for line in lines if len(line.strip()) != 0
-		]
-	head = table.pop(0)
+	head = ['NAME', 'USED', 'AVAIL', 'REFER', 'MOUNTPOINT']
+	table = [item.split('\t') for item in raw.split('\n') if len(item.strip()) > 0]
 	return [{k: v for k, v in zip(head, line)} for line in table]
