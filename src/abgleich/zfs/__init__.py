@@ -5,7 +5,9 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 from ..cmd import (
+	run_chain_command,
 	run_command,
+	print_commands,
 	ssh_command,
 	)
 
@@ -55,7 +57,10 @@ def pull_snapshot(host, src, src_firstsnapshot, dest, debug = False):
 		compression = False
 		)
 	cmd2 = ['zfs', 'receive', dest]
-	run_chain_command(cmd1, cmd2)
+	if debug:
+		print_command(cmd1, cmd2)
+	else:
+		run_chain_command(cmd1, cmd2)
 	print('... PULLING FIRST DONE.')
 
 def pull_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
@@ -66,7 +71,10 @@ def pull_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
 		compression = False
 		)
 	cmd2 = ['zfs', 'receive', dest]
-	run_chain_command(cmd1, cmd2)
+	if debug:
+		print_command(cmd1, cmd2)
+	else:
+		run_chain_command(cmd1, cmd2)
 	print('... PULLING FOLLOW-UP DONE.')
 
 def pull_new(host, dataset_src, dest, debug = False):
@@ -90,7 +98,10 @@ def push_snapshot(host, src, src_firstsnapshot, dest, debug = False):
 		['zfs', 'receive', dest],
 		compression = False
 		)
-	run_chain_command(cmd1, cmd2)
+	if debug:
+		print_command(cmd1, cmd2)
+	else:
+		run_chain_command(cmd1, cmd2)
 	print('... PUSHING FIRST DONE.')
 
 def push_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
@@ -104,7 +115,10 @@ def push_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
 		['zfs', 'receive', dest],
 		compression = False
 		)
-	run_chain_command(cmd1, cmd2)
+	if debug:
+		print_command(cmd1, cmd2)
+	else:
+		run_chain_command(cmd1, cmd2)
 	print('... PUSHING FOLLOW-UP DONE.')
 
 def push_new(host, dataset_src, dest, debug = False):
