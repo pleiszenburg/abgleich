@@ -47,7 +47,9 @@ def run_chain_command(cmd_list_1, cmd_list_2):
 	return output_2
 
 def ssh_command(host, cmd_list, compression = False):
-	return get_ssh_prefix(compression) + [host, ' '.join(cmd_list)]
+	return get_ssh_prefix(compression) + [
+		host, ' '.join([item.replace(' ', '\\ ') for item in cmd_list])
+		]
 
 def get_ssh_prefix(compression = False):
 	return [
