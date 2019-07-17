@@ -30,56 +30,41 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	subdict_a = {dataset['NAME'][len(prefix_a):]: dataset for dataset in subtree_a}
 	subdict_b = {dataset['NAME'][len(prefix_b):]: dataset for dataset in subtree_b}
 	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
-	res = []
+	res = list()
 	for name in tree_names:
 		res.append([name, name in subdict_a.keys(), name in subdict_b.keys()])
 		res.extend(__merge_snapshots__(
-			subdict_a[name]['SNAPSHOTS'] if name in subdict_a else [],
-			subdict_b[name]['SNAPSHOTS'] if name in subdict_b else []
+			subdict_a[name]['SNAPSHOTS'] if name in subdict_a else list(),
+			subdict_b[name]['SNAPSHOTS'] if name in subdict_b else list()
 			))
 	return res
 
 def __merge_snapshots__(snap_a, snap_b):
 	if len(snap_a) == 0 and len(snap_b) == 0:
-		return []
+		return list()
 	names_a = [snapshot['NAME'] for snapshot in snap_a]
 	names_b = [snapshot['NAME'] for snapshot in snap_b]
 	if len(names_a) == 0 and len(names_b) > 0:
 		return [['@' + name, False, True] for name in names_b]
 	if len(names_b) == 0 and len(names_a) > 0:
 		return [['@' + name, True, False] for name in names_a]
-	names = __merge_lists__(names_a, names_b)
-	return [[
-		'@' + name,
-		name in names_a,
-		name in names_b,
-		] for name in names]
-
-def __merge_lists__(A, B):
-
-	assert any([A[0] in B, A[-1] in B, B[0] in A, B[-1] in A])
-	padding = [None for _ in range(len(A) - 1)]
-	tmp_b = padding + B + padding
-	start = None
-	for pos_tmb_b in range(0, len(tmp_b)): # - len(A) ??
-		for pos_a in range(0, len(A)):
-			if tmp_b[pos_tmb_b + pos_a] == A[pos_a]:
-				start = (pos_a, pos_tmb_b + pos_a)
-				break
-		if start is not None:
-			break
-	try:
-		assert start is not None
-	except:
-		print(A)
-		print(B)
-		print(tmp_b)
-		raise
-	pos_a, pos_tmb_b = start
-	start_b = pos_tmb_b - pos_a
-	for pos_a, pos_tmb_b in zip(range(0, len(A)), range(start_b, start_b + len(A))):
-		tmp_b[pos_tmb_b] = A[pos_a]
-	return [item for item in tmp_b if item is not None]
+	creations_a = {snapshot['creation']: snapshot for snapshot in snap_a}
+	creations_b = {snapshot['creation']: snapshot for snapshot in snap_b}
+	creations = list(sorted(creations_a.keys() | creations_b.keys()))
+	ret = list()
+	for creation in creations:
+		if creation in creations_a.keys():
+			name = creations_a[creation]['NAME']
+		else:
+			name = creations_b[creation]['NAME']
+		if creation in creations_a.keys() and creation in creations_b.keys():
+			assert creations_a[creation]['NAME'] == creations_b[creation]['NAME']
+		ret.append([
+			name,
+			creation in creations_a.keys(),
+			creation in creations_b.keys()
+			])
+	return ret
 
 def get_tree(host = None):
 
