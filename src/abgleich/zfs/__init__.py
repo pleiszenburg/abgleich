@@ -60,7 +60,7 @@ def __merge_snapshots__(snap_a, snap_b):
 		if creation in creations_a.keys() and creation in creations_b.keys():
 			assert creations_a[creation]['NAME'] == creations_b[creation]['NAME']
 		ret.append([
-			name,
+			'@' + name,
 			creation in creations_a.keys(),
 			creation in creations_b.keys()
 			])
