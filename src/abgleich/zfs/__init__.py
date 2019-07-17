@@ -24,8 +24,8 @@ def merge_snapshots_into_datasets(datasets, snapshots):
 
 def get_tree(host = None):
 
-	cmd_list = ['zfs', 'list', '-H']
-	cmd_list_snapshot = ['zfs', 'list', '-t', 'snapshot', '-H']
+	cmd_list = ['zfs', 'list', '-H', '-p']
+	cmd_list_snapshot = ['zfs', 'list', '-t', 'snapshot', '-H', '-p']
 
 	if host is not None:
 		cmd_list = ssh_command(host, cmd_list, compression = True)
