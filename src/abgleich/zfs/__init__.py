@@ -30,12 +30,13 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	subdict_a = {dataset['NAME'][len(prefix_a):]: dataset for dataset in subtree_a}
 	subdict_b = {dataset['NAME'][len(prefix_b):]: dataset for dataset in subtree_b}
 	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
-
 	res = []
 	for name in tree_names:
-		res.append([name, name in subdict_a, name in subdict_b])
-		res.extend(__merge_snapshots__([], []))
-
+		res.append([name, name in subdict_a.keys(), name in subdict_b.keys()])
+		res.extend(__merge_snapshots__(
+			subdict_a[name]['SNAPSHOTS'] if name in subdict_a else [],
+			subdict_b[name]['SNAPSHOTS'] if name in subdict_b else []
+			))
 	return res
 
 def __merge_snapshots__(snap_a, snap_b):
