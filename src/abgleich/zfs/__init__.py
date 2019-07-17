@@ -13,15 +13,6 @@ from ..cmd import (
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def merge_snapshots_into_datasets(datasets, snapshots):
-
-	for dataset in datasets:
-		dataset['SNAPSHOTS'] = []
-	datasets_dict = {dataset['NAME']: dataset for dataset in datasets}
-	for snapshot in snapshots:
-		dataset_name, snapshot['NAME'] = snapshot['NAME'].split('@')
-		datasets_dict[dataset_name]['SNAPSHOTS'].append(snapshot)
-
 def get_tree(host = None):
 
 	cmd_list = ['zfs', 'list', '-H', '-p']
@@ -36,6 +27,15 @@ def get_tree(host = None):
 	merge_snapshots_into_datasets(datasets, snapshots)
 
 	return datasets
+
+def merge_snapshots_into_datasets(datasets, snapshots):
+
+	for dataset in datasets:
+		dataset['SNAPSHOTS'] = []
+	datasets_dict = {dataset['NAME']: dataset for dataset in datasets}
+	for snapshot in snapshots:
+		dataset_name, snapshot['NAME'] = snapshot['NAME'].split('@')
+		datasets_dict[dataset_name]['SNAPSHOTS'].append(snapshot)
 
 def parse_table(raw):
 
