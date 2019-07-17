@@ -14,6 +14,36 @@ from ..cmd import (
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
+	assert not prefix_a.endswith('/')
+	assert not prefix_b.endswith('/')
+	prefix_a += '/'
+	prefix_b += '/'
+	subtree_a = [
+		dataset for dataset in tree_a
+		if dataset['NAME'].startswith(prefix_a) and len(dataset['NAME']) > len(prefix_a)
+		]
+	subtree_b = [
+		dataset for dataset in tree_b
+		if dataset['NAME'].startswith(prefix_b) and len(dataset['NAME']) > len(prefix_b)
+		]
+	names_a = {dataset['NAME'][len(prefix_a):] for dataset in subtree_a} - {''}
+	names_b = {dataset['NAME'][len(prefix_b):] for dataset in subtree_b} - {''}
+	tree_names = list(sorted(names_a | names_b))
+
+	res = []
+	for name in tree_names:
+		res.append([name, name in names_a, name in names_b])
+		res.extend(__merge_snapshots__([], []))
+
+	return res
+
+def __merge_snapshots__(snap_a, snap_b):
+
+	res = []
+
+	return res
+
 def get_tree(host = None):
 
 	cmd_list = ['zfs', 'list', '-H', '-p']
