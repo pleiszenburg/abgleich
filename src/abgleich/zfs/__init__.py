@@ -47,7 +47,7 @@ def parse_table(raw):
 # ROUTINES: SEND & RECEIVE
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def pull_snapshot(host, src, src_firstsnapshot, dest):
+def pull_snapshot(host, src, src_firstsnapshot, dest, debug = False):
 	print('PULLING FIRST %s@%s to %s ...' % (src, src_firstsnapshot, dest))
 	cmd1 = ssh_command(
 		host,
@@ -58,7 +58,7 @@ def pull_snapshot(host, src, src_firstsnapshot, dest):
 	run_chain_command(cmd1, cmd2)
 	print('... PULLING FIRST DONE.')
 
-def pull_snapshot_incremental(host, src, src_a, src_b, dest):
+def pull_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
 	print('PULLING FOLLOW-UP %s@[%s - %s] to %s ...' % (src, src_a, src_b, dest))
 	cmd1 = ssh_command(
 		host,
@@ -69,7 +69,7 @@ def pull_snapshot_incremental(host, src, src_a, src_b, dest):
 	run_chain_command(cmd1, cmd2)
 	print('... PULLING FOLLOW-UP DONE.')
 
-def pull_new(host, dataset_src, dest):
+def pull_new(host, dataset_src, dest, debug = False):
 	print('PULLING NEW %s to %s ...' % (dataset_src['NAME'], dest))
 	src = dataset_src['NAME']
 	src_firstsnapshot = dataset_src['SNAPSHOTS'][0]['NAME']
@@ -77,12 +77,12 @@ def pull_new(host, dataset_src, dest):
 		(a['NAME'], b['NAME'])
 		for a, b in zip(dataset_src['SNAPSHOTS'][:-1], dataset_src['SNAPSHOTS'][1:])
 		]
-	pull_snapshot(host, src, src_firstsnapshot, dest)
+	pull_snapshot(host, src, src_firstsnapshot, dest, debug)
 	for src_a, src_b in src_snapshotpairs:
-		pull_snapshot_incremental(host, src, src_a, src_b, dest)
+		pull_snapshot_incremental(host, src, src_a, src_b, dest, debug)
 	print('... PULLING NEW DONE.')
 
-def push_snapshot(host, src, src_firstsnapshot, dest):
+def push_snapshot(host, src, src_firstsnapshot, dest, debug = False):
 	print('PUSHING FIRST %s@%s to %s ...' % (src, src_firstsnapshot, dest))
 	cmd1 = ['zfs', 'send', '-c', '%s@%s' % (src, src_firstsnapshot)]
 	cmd2 = ssh_command(
@@ -93,7 +93,7 @@ def push_snapshot(host, src, src_firstsnapshot, dest):
 	run_chain_command(cmd1, cmd2)
 	print('... PUSHING FIRST DONE.')
 
-def push_snapshot_incremental(host, src, src_a, src_b, dest):
+def push_snapshot_incremental(host, src, src_a, src_b, dest, debug = False):
 	print('PUSHING FOLLOW-UP %s@[%s - %s] to %s ...' % (src, src_a, src_b, dest))
 	cmd1 = [
 		'zfs', 'send', '-c',
@@ -107,7 +107,7 @@ def push_snapshot_incremental(host, src, src_a, src_b, dest):
 	run_chain_command(cmd1, cmd2)
 	print('... PUSHING FOLLOW-UP DONE.')
 
-def push_new(host, dataset_src, dest):
+def push_new(host, dataset_src, dest, debug = False):
 	print('PUSHING NEW %s to %s ...' % (dataset_src['NAME'], dest))
 	src = dataset_src['NAME']
 	src_firstsnapshot = dataset_src['SNAPSHOTS'][0]['NAME']
@@ -115,7 +115,7 @@ def push_new(host, dataset_src, dest):
 		(a['NAME'], b['NAME'])
 		for a, b in zip(dataset_src['SNAPSHOTS'][:-1], dataset_src['SNAPSHOTS'][1:])
 		]
-	push_snapshot(host, src, src_firstsnapshot, dest)
+	push_snapshot(host, src, src_firstsnapshot, dest, debug)
 	for src_a, src_b in src_snapshotpairs:
-		push_snapshot_incremental(host, src, src_a, src_b, dest)
+		push_snapshot_incremental(host, src, src_a, src_b, dest, debug)
 	print('... PUSHING NEW DONE.')
