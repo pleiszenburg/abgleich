@@ -54,6 +54,7 @@ setup(
 	version = __version__,
 	description = 'lbtrfs and zfs sync tool',
 	long_description = long_description,
+	long_description_content_type = 'text/markdown',
 	author = 'Sebastian M. Ernst',
 	author_email = 'ernst@pleiszenburg.de',
 	url = 'https://github.com/pleiszenburg/abgleich',
