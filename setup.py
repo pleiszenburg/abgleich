@@ -52,7 +52,7 @@ setup(
 	packages = find_packages(SRC_DIR),
 	package_dir = {'': SRC_DIR},
 	version = __version__,
-	description = 'lbtrfs and zfs sync tool',
+	description = 'btrfs and zfs sync tool',
 	long_description = long_description,
 	long_description_content_type = 'text/markdown',
 	author = 'Sebastian M. Ernst',
