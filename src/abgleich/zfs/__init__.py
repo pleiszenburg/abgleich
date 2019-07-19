@@ -53,17 +53,18 @@ def __merge_snapshots__(snap_a, snap_b):
 	creations = list(sorted(creations_a.keys() | creations_b.keys()))
 	ret = list()
 	for creation in creations:
-		if creation in creations_a.keys():
+		in_a = creation in creations_a.keys()
+		in_b = creation in creations_b.keys()
+		if in_a:
 			name = creations_a[creation]['NAME']
-		else:
+		elif in_b:
 			name = creations_b[creation]['NAME']
-		if creation in creations_a.keys() and creation in creations_b.keys():
-			assert creations_a[creation]['NAME'] == creations_b[creation]['NAME']
-		ret.append([
-			'@' + name,
-			creation in creations_a.keys(),
-			creation in creations_b.keys()
-			])
+		else:
+			raise ValueError('this should not happen')
+		if in_a and in_b:
+			if creations_a[creation]['NAME'] != creations_b[creation]['NAME']:
+				raise ValueError('snapshot name mismatch for equal creation times')
+		ret.append(['@' + name, in_a, in_b])
 	return ret
 
 def get_tree(host = None):
