@@ -36,6 +36,10 @@ def compare(host, prefix_local, prefix_remote):
 			element[1], element[2] = colorize(element[1], 'green'), colorize(element[2], 'green')
 		elif element[1:] == ['', 'X']:
 			element[2] = colorize(element[2], 'blue')
+		if not element[0].startswith('- '):
+			element[0] = colorize(element[0], 'white')
+		else:
+			element[0] = colorize(element[0], 'grey')
 		table.append(element)
 	print(tabulate(
 		table,
