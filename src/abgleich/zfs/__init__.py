@@ -27,7 +27,7 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	subdict_b = {
 		'/' + dataset['NAME'][len(prefix_b):]: dataset
 		for dataset in tree_b
-		if dataset['NAME'].startswith(prefix_a) or dataset['NAME'] == prefix_b[:-1]
+		if dataset['NAME'].startswith(prefix_b) or dataset['NAME'] == prefix_b[:-1]
 		}
 	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
 	res = list()
