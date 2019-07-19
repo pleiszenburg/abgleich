@@ -6,3 +6,4 @@ pip-wheel-metadata/
 .ipynb_checkpoints/
 *.ipynb
 notes.md
+*.yaml

@@ -71,6 +71,7 @@ setup(
 	install_requires = [
 		'click',
 		'tabulate',
+		'pyyaml',
 		],
 	extras_require = {'dev': [
 		# 'pytest',

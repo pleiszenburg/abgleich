@@ -34,20 +34,21 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	for name in tree_names:
 		res.append([name, name in subdict_a.keys(), name in subdict_b.keys()])
 		res.extend(__merge_snapshots__(
+			name,
 			subdict_a[name]['SNAPSHOTS'] if name in subdict_a else list(),
 			subdict_b[name]['SNAPSHOTS'] if name in subdict_b else list()
 			))
 	return res
 
-def __merge_snapshots__(snap_a, snap_b):
+def __merge_snapshots__(dataset_name, snap_a, snap_b):
 	if len(snap_a) == 0 and len(snap_b) == 0:
 		return list()
 	names_a = [snapshot['NAME'] for snapshot in snap_a]
 	names_b = [snapshot['NAME'] for snapshot in snap_b]
 	if len(names_a) == 0 and len(names_b) > 0:
-		return [['@' + name, False, True] for name in names_b]
+		return [[dataset_name + '@' + name, False, True] for name in names_b]
 	if len(names_b) == 0 and len(names_a) > 0:
-		return [['@' + name, True, False] for name in names_a]
+		return [[dataset_name + '@' + name, True, False] for name in names_a]
 	creations_a = {snapshot['creation']: snapshot for snapshot in snap_a}
 	creations_b = {snapshot['creation']: snapshot for snapshot in snap_b}
 	creations = list(sorted(creations_a.keys() | creations_b.keys()))
@@ -64,7 +65,7 @@ def __merge_snapshots__(snap_a, snap_b):
 		if in_a and in_b:
 			if creations_a[creation]['NAME'] != creations_b[creation]['NAME']:
 				raise ValueError('snapshot name mismatch for equal creation times')
-		ret.append(['@' + name, in_a, in_b])
+		ret.append([dataset_name + '@' + name, in_a, in_b])
 	return ret
 
 def get_tree(host = None):
