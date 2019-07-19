@@ -19,16 +19,16 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	assert not prefix_b.endswith('/')
 	prefix_a += '/'
 	prefix_b += '/'
-	subtree_a = [
-		dataset for dataset in tree_a
-		if dataset['NAME'].startswith(prefix_a) and len(dataset['NAME']) > len(prefix_a)
-		]
-	subtree_b = [
-		dataset for dataset in tree_b
-		if dataset['NAME'].startswith(prefix_b) and len(dataset['NAME']) > len(prefix_b)
-		]
-	subdict_a = {dataset['NAME'][len(prefix_a):]: dataset for dataset in subtree_a}
-	subdict_b = {dataset['NAME'][len(prefix_b):]: dataset for dataset in subtree_b}
+	subdict_a = {
+		'/' + dataset['NAME'][len(prefix_a):]: dataset
+		for dataset in tree_a
+		if dataset['NAME'].startswith(prefix_a) or dataset['NAME'] == prefix_a[:-1]
+		}
+	subdict_b = {
+		'/' + dataset['NAME'][len(prefix_b):]: dataset
+		for dataset in tree_b
+		if dataset['NAME'].startswith(prefix_a) or dataset['NAME'] == prefix_b[:-1]
+		}
 	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
 	res = list()
 	for name in tree_names:
