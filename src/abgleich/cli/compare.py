@@ -7,6 +7,7 @@
 import click
 from tabulate import tabulate
 
+from ..io import colorize
 from ..zfs import (
 	compare_trees,
 	get_tree
@@ -29,6 +30,12 @@ def compare(host, prefix_local, prefix_remote):
 		element = ['' if item == False else item for item in element]
 		element = ['X' if item == True else item for item in element]
 		element = ['- ' + item[1:] if item.startswith('@') else item for item in element]
+		if element[1:] == ['X', '']:
+			element[1] = colorize(element[1], 'red')
+		elif element[1:] == ['X', 'X']:
+			element[1], element[2] = colorize(element[1], 'green'), colorize(element[2], 'green')
+		elif element[1:] == ['', 'X']:
+			element[2] = colorize(element[2], 'blue')
 		table.append(element)
 	print(tabulate(
 		table,
