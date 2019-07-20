@@ -22,12 +22,12 @@ def compare_trees(tree_a, prefix_a, tree_b, prefix_b):
 	subdict_a = {
 		'/' + dataset['NAME'][len(prefix_a):]: dataset
 		for dataset in tree_a
-		if dataset['NAME'].startswith(prefix_a) or dataset['NAME'] == prefix_a[:-1]
+		if dataset['NAME'].startswith(prefix_a) # or dataset['NAME'] == prefix_a[:-1]
 		}
 	subdict_b = {
 		'/' + dataset['NAME'][len(prefix_b):]: dataset
 		for dataset in tree_b
-		if dataset['NAME'].startswith(prefix_b) or dataset['NAME'] == prefix_b[:-1]
+		if dataset['NAME'].startswith(prefix_b) # or dataset['NAME'] == prefix_b[:-1]
 		}
 	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
 	res = list()
@@ -67,6 +67,64 @@ def __merge_snapshots__(dataset_name, snap_a, snap_b):
 				raise ValueError('snapshot name mismatch for equal creation times')
 		ret.append([dataset_name + '@' + name, in_a, in_b])
 	return ret
+
+def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
+	assert not prefix_a.endswith('/')
+	assert not prefix_b.endswith('/')
+	prefix_a += '/'
+	prefix_b += '/'
+	subdict_a = {
+		'/' + dataset['NAME'][len(prefix_a):]: dataset
+		for dataset in tree_a
+		if dataset['NAME'].startswith(prefix_a)
+		}
+	subdict_b = {
+		'/' + dataset['NAME'][len(prefix_b):]: dataset
+		for dataset in tree_b
+		if dataset['NAME'].startswith(prefix_b)
+		}
+	tree_names = list(sorted(subdict_a.keys() | subdict_b.keys()))
+	res = list()
+	for name in tree_names:
+		if name in ignore:
+			continue
+		dataset_in_a = name in subdict_a.keys()
+		dataset_in_b = name in subdict_b.keys()
+		if not dataset_in_a and dataset_in_b:
+			raise ValueError('no source dataset "%s" - only remote' % name)
+		if dataset_in_a and not dataset_in_b and len(subdict_a[name]['SNAPSHOTS']) == 0:
+			raise ValueError('no snapshots in dataset "%s" - can not send' % name)
+		if dataset_in_a and not dataset_in_b:
+			res.append(['push', name + '@' + subdict_a[name]['SNAPSHOTS'][0]['NAME'], name])
+			for snapshot_1, snapshot_2 in zip(
+				subdict_a[name]['SNAPSHOTS'][:-1],
+				subdict_a[name]['SNAPSHOTS'][1:]
+				):
+				res.append([
+					'push -i',
+					name + '@[' + snapshot_1['NAME'] + ' - ' + snapshot_2['NAME'] + ']',
+					name
+					])
+			continue
+		last_remote_shapshot = subdict_b[name]['SNAPSHOTS'][-1]['NAME']
+		source_index = None
+		for index, source_snapshot in enumerate(subdict_a[name]['SNAPSHOTS']):
+			if source_snapshot['NAME'] == last_remote_shapshot:
+				source_index = index
+				break
+		if source_index is None:
+			raise ValueError('no common snapshots in dataset "%s" - can not send incremental' % name)
+		for snapshot_1, snapshot_2 in zip(
+			subdict_a[name]['SNAPSHOTS'][source_index:-1],
+			subdict_a[name]['SNAPSHOTS'][(source_index + 1):]
+			):
+			res.append([
+				'push -i',
+				name + '@[' + snapshot_1['NAME'] + ' - ' + snapshot_2['NAME'] + ']',
+				name
+				])
+
+	return res
 
 def get_tree(host = None):
 
