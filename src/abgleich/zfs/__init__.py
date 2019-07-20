@@ -127,6 +127,27 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 
 	return res
 
+def get_snapshot_tasks(tree):
+
+	res = list()
+
+	for dataset in tree:
+		if dataset['MOUNTPOINT'] == 'none':
+			continue
+		if len(dataset['SNAPSHOTS']) == 0:
+			res.append([dataset['NAME'], int(dataset['written'])])
+			continue
+		if int(dataset['written']) > (1024 ** 2):
+			res.append([dataset['NAME'], int(dataset['written'])])
+			continue
+		diff_out = run_command([
+			'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
+			])
+		if len(diff_out.strip(' \t\n')) > 0:
+			res.append([dataset['NAME'], int(dataset['written'])])
+
+	return res
+
 def get_tree(host = None):
 
 	cmd_list = ['zfs', 'list', '-H', '-p']

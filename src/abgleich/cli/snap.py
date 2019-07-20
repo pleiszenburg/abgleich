@@ -6,33 +6,36 @@
 
 import click
 from tabulate import tabulate
+import yaml
+from yaml import CLoader
 
 from ..io import colorize, humanize_size
-from ..zfs import get_tree
+from ..zfs import (
+	get_tree,
+	get_snapshot_tasks,
+	)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-@click.command(short_help = 'show dataset tree')
-def snap():
-	cols = ['NAME', 'USED', 'REFER', 'compressratio']
-	col_align = ('left', 'right', 'right', 'decimal')
-	size_cols = ['USED', 'REFER']
+@click.command(short_help = 'create snapshots of changed datasets for backups')
+@click.argument('configfile', type = click.File('r', encoding = 'utf-8'))
+def snap(configfile):
+
+	config = yaml.load(configfile.read(), Loader = CLoader)
+
+	cols = ['NAME', 'written']
+	col_align = ('left', 'right')
 	datasets = get_tree()
+	snapshot_tasks = get_snapshot_tasks(datasets)
 
 	table = []
-	for dataset in datasets:
-		table.append([dataset[col] for col in cols])
-		for snapshot in dataset['SNAPSHOTS']:
-			table.append(['- ' + snapshot['NAME']] + [snapshot[col]for col in cols[1:]])
-	for row in table:
-		for col in [1, 2]:
-			row[col] = humanize_size(int(row[col]), add_color = True)
-		if not row[0].startswith('- '):
-			row[0] = colorize(row[0], 'white')
-		else:
-			row[0] = colorize(row[0], 'grey')
+	for name, written in snapshot_tasks:
+		table.append([
+			name[len(config['prefix_local']):],
+			humanize_size(written, add_color = True)
+			])
 
 	print(tabulate(
 		table,
