@@ -40,3 +40,7 @@ def backup(configfile):
 		headers = ['OP', 'PARAM'],
 		tablefmt = 'github'
 		))
+
+	click.confirm('Do you want to continue?', abort = True)
+
+	print('MEH!')
