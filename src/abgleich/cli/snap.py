@@ -56,4 +56,8 @@ def snap(configfile):
 	date = datetime.datetime.now().strftime('%Y%m%d')
 
 	for name, _ in snapshot_tasks:
-		create_snapshot(name, date + config['suffix_snapshot'], debug = True)
+		create_snapshot(
+			config['prefix_local'] + name,
+			date + config['suffix_snapshot'],
+			debug = True
+			)
