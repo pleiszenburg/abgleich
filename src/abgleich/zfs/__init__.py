@@ -134,21 +134,22 @@ def get_snapshot_tasks(tree, prefix, ignore):
 
 	for dataset in tree:
 		name = dataset['NAME'][skip:]
+		written = int(dataset['written'])
 		if name in ignore or len(name) == 0:
 			continue
 		if dataset['MOUNTPOINT'] == 'none':
 			continue
 		if len(dataset['SNAPSHOTS']) == 0:
-			res.append([name, int(dataset['written'])])
+			res.append([name, written])
 			continue
-		if int(dataset['written']) > (1024 ** 2):
-			res.append([name, int(dataset['written'])])
+		if written > (1024 ** 2):
+			res.append([name, written])
 			continue
 		diff_out = run_command([
 			'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
 			])
 		if len(diff_out.strip(' \t\n')) > 0:
-			res.append([name, int(dataset['written'])])
+			res.append([name, written])
 
 	return res
 
