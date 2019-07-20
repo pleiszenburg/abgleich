@@ -12,7 +12,9 @@ from yaml import CLoader
 from ..io import colorize
 from ..zfs import (
 	get_backup_ops,
-	get_tree
+	get_tree,
+	push_snapshot,
+	push_snapshot_incremental,
 	)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -35,8 +37,14 @@ def backup(configfile):
 		config['ignore']
 		)
 
+	table = []
+	for op in ops:
+		row = op.copy()
+		row[0] = colorize(row[0], 'green' if 'incremental' in row[0] else 'blue')
+		table.append(row)
+
 	print(tabulate(
-		ops,
+		table,
 		headers = ['OP', 'PARAM'],
 		tablefmt = 'github'
 		))
