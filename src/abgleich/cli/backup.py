@@ -58,7 +58,7 @@ def backup(configfile):
 				config['prefix_local'] + param[0],
 				param[1],
 				config['prefix_remote'] + param[0],
-				debug = True
+				# debug = True
 				)
 		elif op == 'push_snapshot_incremental':
 			push_snapshot_incremental(
@@ -66,7 +66,7 @@ def backup(configfile):
 				config['prefix_local'] + param[0],
 				param[1], param[2],
 				config['prefix_remote'] + param[0],
-				debug = True
+				# debug = True
 				)
 		else:
 			raise ValueError('unknown operation')
