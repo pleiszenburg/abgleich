@@ -12,7 +12,7 @@ import subprocess
 
 def run_command(cmd_list, debug = False):
 	if debug:
-		print_commands(cmd_list)
+		print_commands([cmd_list])
 		return
 	proc = subprocess.Popen(cmd_list, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	outs, errs = proc.communicate()

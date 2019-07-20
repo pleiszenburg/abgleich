@@ -4,6 +4,8 @@
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import datetime
+
 import click
 from tabulate import tabulate
 import yaml
@@ -11,6 +13,7 @@ from yaml import CLoader
 
 from ..io import colorize, humanize_size
 from ..zfs import (
+	create_snapshot,
 	get_tree,
 	get_snapshot_tasks,
 	)
@@ -47,3 +50,10 @@ def snap(configfile):
 		tablefmt = 'github',
 		colalign = col_align
 		))
+
+	click.confirm('Do you want to continue?', abort = True)
+
+	date = datetime.datetime.now().strftime('%Y%m%d')
+
+	for name, _ in snapshot_tasks:
+		create_snapshot(name, date + config['suffix_snapshot'], debug = True)

@@ -203,6 +203,16 @@ def parse_table(raw, head):
 	return [{k: v for k, v in zip(head, line)} for line in table]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ROUTINES: MODIFY
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def create_snapshot(dataset_name, snapshot_name, debug = False):
+	print('CREATING SNAPSHOT %s@%s ...' % (dataset_name, snapshot_name))
+	cmd = ['zfs', 'snapshot', '%s@%s' % (dataset_name, snapshot_name)]
+	run_command(cmd, debug = debug)
+	print('... CREATING SNAPSHOT DONE.')
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES: SEND & RECEIVE
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
