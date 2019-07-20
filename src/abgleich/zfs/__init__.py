@@ -95,15 +95,17 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 		if dataset_in_a and not dataset_in_b and len(subdict_a[name]['SNAPSHOTS']) == 0:
 			raise ValueError('no snapshots in dataset "%s" - can not send' % name)
 		if dataset_in_a and not dataset_in_b:
-			res.append(['push', name + '@' + subdict_a[name]['SNAPSHOTS'][0]['NAME'], name])
+			res.append([
+				'push_snapshot',
+				(name, subdict_a[name]['SNAPSHOTS'][0]['NAME'])
+				])
 			for snapshot_1, snapshot_2 in zip(
 				subdict_a[name]['SNAPSHOTS'][:-1],
 				subdict_a[name]['SNAPSHOTS'][1:]
 				):
 				res.append([
-					'push -i',
-					name + '@[' + snapshot_1['NAME'] + ' - ' + snapshot_2['NAME'] + ']',
-					name
+					'push_snapshot_incremental',
+					(name, snapshot_1['NAME'], snapshot_2['NAME'])
 					])
 			continue
 		last_remote_shapshot = subdict_b[name]['SNAPSHOTS'][-1]['NAME']
@@ -119,9 +121,8 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 			subdict_a[name]['SNAPSHOTS'][(source_index + 1):]
 			):
 			res.append([
-				'push -i',
-				name + '@[' + snapshot_1['NAME'] + ' - ' + snapshot_2['NAME'] + ']',
-				name
+				'push_snapshot_incremental',
+				(name, snapshot_1['NAME'], snapshot_2['NAME'])
 				])
 
 	return res

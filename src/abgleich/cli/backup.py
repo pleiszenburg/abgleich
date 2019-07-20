@@ -37,6 +37,6 @@ def backup(configfile):
 
 	print(tabulate(
 		ops,
-		headers = ['OP', 'SOURCE', 'DESTINATION'],
+		headers = ['OP', 'PARAM'],
 		tablefmt = 'github'
 		))
