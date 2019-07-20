@@ -4,6 +4,8 @@
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import datetime
+
 from ..cmd import (
 	run_chain_command,
 	run_command,
@@ -131,6 +133,16 @@ def get_snapshot_tasks(tree, prefix, ignore):
 
 	res = list()
 	skip = len(prefix)
+	date = datetime.datetime.now().strftime('%Y%m%d')
+	suffix = '_backup'
+
+	def make_name(snapshots):
+		snapshot_names = [snapshot['NAME'] for snapshot in snapshots]
+		for index in range(1, 100):
+			new_name = '%s%02d%s' % (date, index, suffix)
+			if new_name not in snapshot_names:
+				return new_name
+		raise ValueError('more than 99 snapshots per day')
 
 	for dataset in tree:
 		name = dataset['NAME'][skip:]
@@ -140,16 +152,16 @@ def get_snapshot_tasks(tree, prefix, ignore):
 		if dataset['MOUNTPOINT'] == 'none':
 			continue
 		if len(dataset['SNAPSHOTS']) == 0:
-			res.append([name, written])
+			res.append([name, written, date + '01' + suffix])
 			continue
 		if written > (1024 ** 2):
-			res.append([name, written])
+			res.append([name, written, make_name(dataset['SNAPSHOTS'])])
 			continue
 		diff_out = run_command([
 			'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
 			])
 		if len(diff_out.strip(' \t\n')) > 0:
-			res.append([name, written])
+			res.append([name, written, make_name(dataset['SNAPSHOTS'])])
 
 	return res
 

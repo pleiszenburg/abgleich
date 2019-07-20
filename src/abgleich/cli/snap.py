@@ -4,8 +4,6 @@
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import datetime
-
 import click
 from tabulate import tabulate
 import yaml
@@ -28,7 +26,7 @@ def snap(configfile):
 
 	config = yaml.load(configfile.read(), Loader = CLoader)
 
-	cols = ['NAME', 'written']
+	cols = ['NAME', 'written', 'FUTURE SNAPSHOT']
 	col_align = ('left', 'right')
 	datasets = get_tree()
 	snapshot_tasks = get_snapshot_tasks(
@@ -38,10 +36,11 @@ def snap(configfile):
 		)
 
 	table = []
-	for name, written in snapshot_tasks:
+	for name, written, snapshot_name in snapshot_tasks:
 		table.append([
 			name,
-			humanize_size(written, add_color = True)
+			humanize_size(written, add_color = True),
+			snapshot_name
 			])
 
 	print(tabulate(
@@ -53,11 +52,9 @@ def snap(configfile):
 
 	click.confirm('Do you want to continue?', abort = True)
 
-	date = datetime.datetime.now().strftime('%Y%m%d')
-
-	for name, _ in snapshot_tasks:
+	for name, _, snapshot_name in snapshot_tasks:
 		create_snapshot(
 			config['prefix_local'] + name,
-			date + config['suffix_snapshot'],
+			snapshot_name,
 			debug = True
 			)
