@@ -11,8 +11,10 @@ from yaml import CLoader
 
 from ..io import colorize
 from ..zfs import (
-	compare_trees,
-	get_tree
+	get_backup_ops,
+	get_tree,
+	push_snapshot,
+	push_snapshot_incremental,
 	)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -27,43 +29,44 @@ def backup(configfile):
 
 	datasets_local = get_tree()
 	datasets_remote = get_tree(config['host'])
-	diff = compare_trees(
+	ops = get_backup_ops(
 		datasets_local,
 		config['prefix_local'],
 		datasets_remote,
-		config['prefix_remote']
+		config['prefix_remote'],
+		config['ignore']
 		)
+
 	table = []
-
-	for element in diff:
-
-		if element[0] in config['ignore']:
-			continue
-		if '@' in element[0]:
-			if element[0].split('@')[0] in config['ignore']:
-				continue
-		if element[1] == True and element[2] == True:
-			continue
-		if element[1] == False and element[2] == True:
-			continue
-
-		element = ['' if item == False else item for item in element]
-		element = ['X' if item == True else item for item in element]
-		# element = ['- ' + item.split('@')[1] if '@' in item else item for item in element]
-		if element[1:] == ['X', '']:
-			element[1] = colorize(element[1], 'red')
-		elif element[1:] == ['X', 'X']:
-			element[1], element[2] = colorize(element[1], 'green'), colorize(element[2], 'green')
-		elif element[1:] == ['', 'X']:
-			element[2] = colorize(element[2], 'blue')
-		if '@' not in element[0]:
-			element[0] = colorize(element[0], 'white')
-		else:
-			element[0] = colorize(element[0], 'grey')
-		table.append(element)
+	for op in ops:
+		row = op.copy()
+		row[0] = colorize(row[0], 'green' if 'incremental' in row[0] else 'blue')
+		table.append(row)
 
 	print(tabulate(
 		table,
-		headers = ['NAME', 'LOCAL', 'REMOTE'],
+		headers = ['OP', 'PARAM'],
 		tablefmt = 'github'
 		))
+
+	click.confirm('Do you want to continue?', abort = True)
+
+	for op, param in ops:
+		if op == 'push_snapshot':
+			push_snapshot(
+				config['host'],
+				config['prefix_local'] + param[0],
+				param[1],
+				config['prefix_remote'] + param[0],
+				# debug = True
+				)
+		elif op == 'push_snapshot_incremental':
+			push_snapshot_incremental(
+				config['host'],
+				config['prefix_local'] + param[0],
+				param[1], param[2],
+				config['prefix_remote'] + param[0],
+				# debug = True
+				)
+		else:
+			raise ValueError('unknown operation')
