@@ -51,4 +51,22 @@ def backup(configfile):
 
 	click.confirm('Do you want to continue?', abort = True)
 
-	print('MEH!')
+	for op, param in ops:
+		if op == 'push_snapshot':
+			push_snapshot(
+				config['host'],
+				config['prefix_local'] + param[0],
+				param[1],
+				config['prefix_remote'] + param[0],
+				debug = True
+				)
+		elif op == 'push_snapshot_incremental':
+			push_snapshot_incremental(
+				config['host'],
+				config['prefix_local'] + param[0],
+				param[1], param[2],
+				config['prefix_remote'] + param[0],
+				debug = True
+				)
+		else:
+			raise ValueError('unknown operation')
