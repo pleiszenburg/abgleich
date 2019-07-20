@@ -56,5 +56,5 @@ def snap(configfile):
 		create_snapshot(
 			config['prefix_local'] + name,
 			snapshot_name,
-			debug = True
+			# debug = True
 			)
