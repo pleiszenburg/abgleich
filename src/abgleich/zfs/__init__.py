@@ -127,24 +127,28 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 
 	return res
 
-def get_snapshot_tasks(tree):
+def get_snapshot_tasks(tree, prefix, ignore):
 
 	res = list()
+	skip = len(prefix)
 
 	for dataset in tree:
+		name = dataset['NAME'][skip:]
+		if name in ignore or len(name) == 0:
+			continue
 		if dataset['MOUNTPOINT'] == 'none':
 			continue
 		if len(dataset['SNAPSHOTS']) == 0:
-			res.append([dataset['NAME'], int(dataset['written'])])
+			res.append([name, int(dataset['written'])])
 			continue
 		if int(dataset['written']) > (1024 ** 2):
-			res.append([dataset['NAME'], int(dataset['written'])])
+			res.append([name, int(dataset['written'])])
 			continue
 		diff_out = run_command([
 			'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
 			])
 		if len(diff_out.strip(' \t\n')) > 0:
-			res.append([dataset['NAME'], int(dataset['written'])])
+			res.append([name, int(dataset['written'])])
 
 	return res
 

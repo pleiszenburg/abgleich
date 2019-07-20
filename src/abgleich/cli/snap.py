@@ -28,12 +28,16 @@ def snap(configfile):
 	cols = ['NAME', 'written']
 	col_align = ('left', 'right')
 	datasets = get_tree()
-	snapshot_tasks = get_snapshot_tasks(datasets)
+	snapshot_tasks = get_snapshot_tasks(
+		datasets,
+		config['prefix_local'],
+		config['ignore']
+		)
 
 	table = []
 	for name, written in snapshot_tasks:
 		table.append([
-			name[len(config['prefix_local']):],
+			name,
 			humanize_size(written, add_color = True)
 			])
 
