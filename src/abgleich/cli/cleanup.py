@@ -13,6 +13,7 @@ from ..io import colorize, humanize_size
 from ..zfs import (
 	get_tree,
 	get_cleanup_tasks,
+	delete_snapshot,
 	)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,12 +55,12 @@ def cleanup(configfile):
 
 	click.confirm('Do you want to continue?', abort = True)
 
-	# for name, _, snapshot_name in snapshot_tasks:
-	# 	create_snapshot(
-	# 		config['prefix_local'] + name,
-	# 		snapshot_name,
-	# 		# debug = True
-	# 		)
+	for name, snapshot_name in cleanup_tasks:
+		delete_snapshot(
+			config['prefix_local'] + name,
+			snapshot_name,
+			# debug = True
+			)
 
 	space_after = int(get_tree()[0]['AVAIL'])
 	print('%s available' % humanize_size(space_before, add_color = True))

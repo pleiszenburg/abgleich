@@ -249,6 +249,12 @@ def create_snapshot(dataset_name, snapshot_name, debug = False):
 	run_command(cmd, debug = debug)
 	print('... CREATING SNAPSHOT DONE.')
 
+def delete_snapshot(dataset_name, snapshot_name, debug = False):
+	print('DELETING SNAPSHOT %s@%s ...' % (dataset_name, snapshot_name))
+	cmd = ['zfs', 'destroy', '%s@%s' % (dataset_name, snapshot_name)]
+	run_command(cmd, debug = debug)
+	print('... DELETING SNAPSHOT DONE.')
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES: SEND & RECEIVE
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
