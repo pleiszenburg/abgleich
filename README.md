@@ -18,6 +18,10 @@ Compare local machine with remote host. See what is missing where. Ssh without p
 
 Send (new) datasets and snapshots to remote host. Ssh without password (public key) required. Superuser privileges required.
 
+# `abgleich cleanup config.yaml`
+
+Cleanup older local snapshots. Keep `keep_snapshots` number of snapshots. Superuser privileges required.
+
 # `config.yaml`
 
 Example configuration file:
