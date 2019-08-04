@@ -156,17 +156,18 @@ def get_snapshot_tasks(tree, prefix, ignore):
 			continue
 		if written == 0:
 			continue
-		if written > (1024 ** 2):
-			res.append([name, written, make_name(dataset['SNAPSHOTS'])])
-			continue
-		if dataset['type'] == 'volume':
-			res.append([name, written, make_name(dataset['SNAPSHOTS'])])
-			continue
-		diff_out = run_command([
-			'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
-			])
-		if len(diff_out.strip(' \t\n')) > 0:
-			res.append([name, written, make_name(dataset['SNAPSHOTS'])])
+		res.append([name, written, make_name(dataset['SNAPSHOTS'])])
+		#if written > (1024 ** 2):
+			#res.append([name, written, make_name(dataset['SNAPSHOTS'])])
+			#continue
+		#if dataset['type'] == 'volume':
+			#res.append([name, written, make_name(dataset['SNAPSHOTS'])])
+			#continue
+		#diff_out = run_command([
+			#'zfs', 'diff', dataset['NAME'] + '@' + dataset['SNAPSHOTS'][-1]['NAME']
+			#])
+		#if len(diff_out.strip(' \t\n')) > 0:
+			#res.append([name, written, make_name(dataset['SNAPSHOTS'])])
 
 	return res
 
