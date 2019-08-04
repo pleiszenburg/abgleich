@@ -26,6 +26,7 @@ Example configuration file:
 prefix_local: tank_ssd
 prefix_remote: tank_hdd/BACKUP_SOMEMACHINE
 host: bigdata
+keep_snapshots: 2
 ignore:
     - /ernst/CACHE
     - /ernst/CCACHE

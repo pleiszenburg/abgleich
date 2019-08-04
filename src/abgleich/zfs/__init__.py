@@ -129,6 +129,25 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 
 	return res
 
+def get_cleanup_tasks(tree, prefix, ignore, keep_snapshots):
+
+	res = list()
+	skip = len(prefix)
+
+	for dataset in tree:
+		name = dataset['NAME'][skip:]
+		if name in ignore or len(name) == 0:
+			continue
+		# if dataset['MOUNTPOINT'] == 'none':
+		# 	continue
+		if len(dataset['SNAPSHOTS']) <= keep_snapshots:
+			continue
+		del_snapshots = dataset['SNAPSHOTS'][:(-1 * keep_snapshots)]
+		for snapshot in del_snapshots:
+			res.append([name, snapshot['NAME']])
+
+	return res
+
 def get_snapshot_tasks(tree, prefix, ignore):
 
 	res = list()
