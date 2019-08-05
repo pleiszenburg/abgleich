@@ -7,3 +7,4 @@ pip-wheel-metadata/
 *.ipynb
 notes.md
 *.yaml
+dist/
