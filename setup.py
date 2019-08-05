@@ -68,9 +68,8 @@ setup(
 	author_email = 'ernst@pleiszenburg.de',
 	url = 'https://github.com/pleiszenburg/abgleich',
 	download_url = 'https://github.com/pleiszenburg/abgleich/archive/v%s.tar.gz' % __version__,
-	license = 'proprietary',
+	license = 'LGPLv2',
 	keywords = [
-		'btrfs',
 		'zfs',
 		'ssh',
 		],
@@ -98,17 +97,28 @@ setup(
 			],
 		},
 	classifiers = [
-		'Development Status :: 3 - Alpha',
+		'Development Status :: 5 - Production/Stable',
 		'Environment :: Console',
+		'Intended Audience :: Developers',
 		'Intended Audience :: Education',
+		'Intended Audience :: Information Technology',
 		'Intended Audience :: Science/Research',
+		'Intended Audience :: System Administrators',
+		'License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)',
 		'Operating System :: MacOS',
 		'Operating System :: POSIX :: BSD',
 		'Operating System :: POSIX :: Linux',
 		'Programming Language :: Python :: 3'
 		] + confirmed_python_versions + [
 		'Programming Language :: Python :: 3 :: Only',
-		'Topic :: Education',
+		'Programming Language :: Python :: Implementation :: CPython',
 		'Topic :: Scientific/Engineering',
+		'Topic :: System',
+		'Topic :: System :: Archiving',
+		'Topic :: System :: Archiving :: Backup',
+		'Topic :: System :: Archiving :: Mirroring',
+		'Topic :: System :: Filesystems',
+		'Topic :: System :: Systems Administration',
+		'Topic :: Utilities'
 		]
 	)
