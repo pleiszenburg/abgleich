@@ -1,28 +1,40 @@
 # ABGLEICH
 
-btrfs and zfs sync tool
+## SYNOPSIS
 
-## `abgleich tree [hostname]`
+Simple ZFS sync tool. Shows local and remote ZFS dataset trees / zpools. Creates meaningful snapshots only if datasets have actually been changed. Compares a local dataset tree to a remote, backup dataset tree. Pushes backups to remote. Cleanes up older snapshot on local system. Runs form the command line and produces nice, user-friendly, readable, colorized output.
 
-Show zfs tree with snapshots, disk space and compression ratio. Append `hostname` (optional) for remote tree. Ssh without password (public key) required.
+## INSTALLATION
 
-# `abgleich snap config.yaml`
+```bash
+pip install -vU git+https://github.com/pleiszenburg/abgleich.git@master
+```
+
+Requires (C)Python 3.5 or later. Tested with ZoL 0.7 and 0.8.
+
+## USAGE
+
+### `abgleich tree [hostname]`
+
+Show zfs tree with snapshots, disk space and compression ratio. Append `hostname` (optional) for remote tree. `ssh` without password (public key) required.
+
+### `abgleich snap config.yaml`
 
 Determine which datasets have been changed since last snapshot. Generate snapshots where applicable. Superuser privileges required.
 
-# `abgleich compare config.yaml`
+### `abgleich compare config.yaml`
 
-Compare local machine with remote host. See what is missing where. Ssh without password (public key) required. Superuser privileges required.
+Compare local machine with remote host. See what is missing where. `ssh` without password (public key) required. Superuser privileges required.
 
-# `abgleich backup config.yaml`
+### `abgleich backup config.yaml`
 
-Send (new) datasets and snapshots to remote host. Ssh without password (public key) required. Superuser privileges required.
+Send (new) datasets and snapshots to remote host. `ssh` without password (public key) required. Superuser privileges required.
 
-# `abgleich cleanup config.yaml`
+### `abgleich cleanup config.yaml`
 
 Cleanup older local snapshots. Keep `keep_snapshots` number of snapshots. Superuser privileges required.
 
-# `config.yaml`
+### `config.yaml`
 
 Example configuration file:
 
