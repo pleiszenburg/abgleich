@@ -68,7 +68,6 @@ def cleanup(configfile):
 			name,
 			snapshot_name
 			])
-	print(datasets[0])
 
 	print(tabulate(
 		table,
