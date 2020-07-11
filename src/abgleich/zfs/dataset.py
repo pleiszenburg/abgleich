@@ -73,7 +73,12 @@ class Dataset(DatasetABC):
         return (snapshot for snapshot in self._snapshots)
 
     @classmethod
-    def from_lines(cls, name: str, entities: typing.Dict[str, typing.List[typing.List[str]]], side: str, config: typing.Dict) -> DatasetABC:
+    def from_entities(cls,
+        name: str,
+        entities: typing.Dict[str, typing.List[typing.List[str]]],
+        side: str,
+        config: typing.Dict,
+        ) -> DatasetABC:
 
         properties = {property.name: property for property in (
             Property.from_params(*params)
@@ -82,7 +87,7 @@ class Dataset(DatasetABC):
         entities.pop(name)
 
         snapshots = [
-            Snapshot.from_lines(
+            Snapshot.from_entity(
                 snapshot_name,
                 entities[snapshot_name],
                 side,

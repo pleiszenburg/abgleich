@@ -86,7 +86,11 @@ class Zpool(ZpoolABC):
             ))
 
     @classmethod
-    def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
+    def from_config(
+        cls,
+        side: str,
+        config: typing.Dict,
+        ) -> ZpoolABC:
 
         root = config[side]['zpool']
         if config[side]['prefix'] is not None:
@@ -95,11 +99,11 @@ class Zpool(ZpoolABC):
         output, _ = Command.on_side(["zfs", "get", "all", "-r", "-H", "-p", root], side, config).run()
         output = [line.split('\t') for line in output.split('\n') if len(line.strip()) > 0]
         entities = {name: [] for name in {line[0] for line in output}}
-        for line in output:
-            entities[line[0]].append(line[1:])
+        for line_list in output:
+            entities[line_list[0]].append(line_list[1:])
 
         datasets = [
-            Dataset.from_lines(
+            Dataset.from_entities(
                 name,
                 {k: v for k, v in entities.items() if k == name or k.startswith(f'{name:s}@')},
                 side,
