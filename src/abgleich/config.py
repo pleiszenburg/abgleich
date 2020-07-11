@@ -42,44 +42,39 @@ from yaml import CLoader
 
 @typeguard.typechecked
 class Config(dict):
+
     @classmethod
     def from_fd(cls, fd: typing.TextIO):
 
-        config = yaml.load(fd.read(), Loader=CLoader)
-        cls._validate(config)
-
-        return cls(config)
-
-    @classmethod
-    def _validate(cls, config: typing.Dict):
-
-        schema = {
-            "host": lambda v: isinstance(v, str) and len(v) > 0,
-            "local": cls._validate_location,
-            "remote": cls._validate_location,
-            "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
-            "ignore": lambda v: isinstance(v, list)
-            and all((isinstance(item, str) and len(item) > 0 for item in v)),
+        ssh_schema = {
+            "compression": lambda v: isinstance(v, bool),
+            "cipher": lambda v: isinstance(v, str) or v is None,
         }
 
-        for field, validator in schema.items():
-            if field not in config.keys():
-                raise KeyError(f'missing configuration field "{field:s}"')
-            if not validator(config[field]):
-                raise ValueError(f'invalid value in field "{field:s}"')
-
-    @classmethod
-    def _validate_location(cls, location: typing.Dict):
-
-        schema = {
+        location_schema = {
             "zpool": lambda v: isinstance(v, str) and len(v) > 0,
             "prefix": lambda v: isinstance(v, str) or v is None,
         }
 
-        for field, validator in schema.items():
-            if field not in location.keys():
-                return False
-            if not validator(location[field]):
-                return False
+        root_schema = {
+            "host": lambda v: isinstance(v, str) and len(v) > 0,
+            "local": lambda v: cls._validate(data = v, schema = location_schema),
+            "remote": lambda v: cls._validate(data = v, schema = location_schema),
+            "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
+            "ignore": lambda v: isinstance(v, list)
+            and all((isinstance(item, str) and len(item) > 0 for item in v)),
+            "ssh": lambda v: cls._validate(data = v, schema = ssh_schema),
+        }
 
-        return True
+        config = yaml.load(fd.read(), Loader=CLoader)
+        cls._validate(data = config, schema = root_schema)
+        return cls(config)
+
+    @classmethod
+    def _validate(cls, data: typing.Dict, schema: typing.Dict):
+
+        for field, validator in schema.items():
+            if field not in data.keys():
+                raise KeyError(f'missing configuration field "{field:s}"')
+            if not validator(data[field]):
+                raise ValueError(f'invalid value in field "{field:s}"')
