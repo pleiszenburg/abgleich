@@ -14,9 +14,9 @@ Requires (C)Python 3.5 or later. Tested with ZoL 0.7 and 0.8.
 
 ## USAGE
 
-### `abgleich tree [hostname]`
+### `abgleich tree config.yaml [source|target]`
 
-Show zfs tree with snapshots, disk space and compression ratio. Append `hostname` (optional) for remote tree. `ssh` without password (public key) required.
+Show zfs tree with snapshots, disk space and compression ratio. Append `source` or `target` (optional). `ssh` without password (public key) required.
 
 ### `abgleich snap config.yaml`
 
