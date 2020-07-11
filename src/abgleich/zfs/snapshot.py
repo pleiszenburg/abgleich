@@ -45,7 +45,6 @@ class Snapshot(SnapshotABC):
     def __init__(self):
         pass
 
-
     @classmethod
     def from_line(cls, line: str, side: str, config: typing.Dict) -> SnapshotABC:
 
