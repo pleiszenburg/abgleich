@@ -39,9 +39,9 @@ from yaml import CLoader
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Config(dict):
-
     @classmethod
     def from_fd(cls, fd: typing.TextIO):
 
@@ -54,12 +54,13 @@ class Config(dict):
     def _validate(cls, config: typing.Dict):
 
         schema = {
-            'host': lambda v: isinstance(v, str) and len(v) > 0,
-            'local': cls._validate_location,
-            'remote': cls._validate_location,
-            'keep_snapshots': lambda v: isinstance(v, int) and v >= 1,
-            'ignore': lambda v: isinstance(v, list) and all((isinstance(item, str) and len(item) > 0 for item in v)),
-            }
+            "host": lambda v: isinstance(v, str) and len(v) > 0,
+            "local": cls._validate_location,
+            "remote": cls._validate_location,
+            "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
+            "ignore": lambda v: isinstance(v, list)
+            and all((isinstance(item, str) and len(item) > 0 for item in v)),
+        }
 
         for field, validator in schema.items():
             if field not in config.keys():
@@ -71,9 +72,9 @@ class Config(dict):
     def _validate_location(cls, location: typing.Dict):
 
         schema = {
-            'zpool': lambda v: isinstance(v, str) and len(v) > 0,
-            'prefix': lambda v: isinstance(v, str) or v is None,
-            }
+            "zpool": lambda v: isinstance(v, str) and len(v) > 0,
+            "prefix": lambda v: isinstance(v, str) or v is None,
+        }
 
         for field, validator in schema.items():
             if field not in location.keys():
