@@ -40,6 +40,9 @@ class CloneABC(abc.ABC):
 class FilesystemABC(abc.ABC):
     pass
 
+class PropertyABC(abc.ABC):
+    pass
+
 class SnapshotABC(abc.ABC):
     pass
 
