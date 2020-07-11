@@ -43,10 +43,12 @@ import os
 __version__ = '0.0.2'
 
 # List all versions of Python which are supported
+python_minor_min = 5
+python_minor_max = 8
 confirmed_python_versions = [
-	('Programming Language :: Python :: %s' % x)
-	for x in '3.5 3.6 3.7'.split(' ')
-	]
+    'Programming Language :: Python :: 3.{MINOR:d}'.format(MINOR = minor)
+    for minor in range(python_minor_min, python_minor_max + 1)
+    ]
 
 # Fetch readme file
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
