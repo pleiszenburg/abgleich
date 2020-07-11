@@ -35,6 +35,12 @@ import typeguard
 from .abc import PropertyABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# TYPING
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+PropertyTypes = typing.Union[str, int, float, None]
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -43,8 +49,8 @@ class Property(PropertyABC):
 
     def __init__(self,
         name: str,
-        value: typing.Union[str, int, None],
-        src: typing.Union[str, int, None],
+        value: PropertyTypes,
+        src: PropertyTypes,
         ):
 
         self._name = name
@@ -56,20 +62,28 @@ class Property(PropertyABC):
         return self._name
 
     @property
-    def value(self) -> typing.Union[str, int, None]:
+    def value(self) -> PropertyTypes:
         return self._value
 
     @property
-    def src(self) -> typing.Union[str, int, None]:
+    def src(self) -> PropertyTypes:
         return self._src
 
     @classmethod
-    def _convert(cls, value: str) -> typing.Union[str, int, None]:
+    def _convert(cls, value: str) -> PropertyTypes:
+
+        value = value.strip()
 
         if value.isnumeric():
             return int(value)
+
         if value.strip() == '' or value == '-' or value.lower() == 'none':
             return None
+
+        try:
+            return float(value)
+        except ValueError:
+            pass
 
         return value
 
@@ -80,6 +94,6 @@ class Property(PropertyABC):
 
         return cls(
             name = elements[1],
-            value = cls._convert(elements[1]),
-            src = cls._convert(elements[2]),
+            value = cls._convert(elements[2]),
+            src = cls._convert(elements[3]),
         )
