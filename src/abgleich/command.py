@@ -28,13 +28,66 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import subprocess
 import typing
+
+import typeguard
+
+from .abc import CommandABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Command:
+@typeguard.typechecked
+class Command(CommandABC):
 
-    def __init__(self, cmd_list: typing.List[str]):
-        pass
+    def __init__(self, cmd: typing.List[str]):
+
+        self._cmd = cmd.copy()
+
+    def run(self):
+
+        proc = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, errors = proc.communicate()
+        status = not bool(proc.returncode)
+        output, errors = output.decode("utf-8"), errors.decode("utf-8")
+
+        # TODO logging and raise error ... ?
+
+        return status, output, errors
+
+    def run_pipe(self, other: CommandABC):
+
+        proc_1 = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc_2 = subprocess.Popen(other.cmd, stdin=proc_1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output_1, errors_1 = proc_1.communicate() # TODO no output?
+        output_2, errors_2 = proc_2.communicate()
+        status_1 = not bool(proc_1.returncode)
+        status_2 = not bool(proc_2.returncode)
+        output_1, errors_1 = output_1.decode("utf-8"), errors_1.decode("utf-8")
+        output_2, errors_2 = output_2.decode("utf-8"), errors_2.decode("utf-8")
+
+        # TODO logging and raise error ... ?
+
+        return status_1, output_1, errors_1, status_2, output_2, errors_2
+
+    @property
+    def cmd(self) -> typing.List[str]:
+
+        return self._cmd.copy()
+
+    @classmethod
+    def with_ssh(cls, cmd: typing.List[str], config: typing.Dict) -> CommandABC:
+
+        cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
+        cmd = [
+            "ssh",
+            "-T", # Disable pseudo-terminal allocation
+            "-o", "Compression=yes" if config['compression'] else "Compression=no",
+            ]
+        if config['cipher'] is not None:
+            cmd.extend(("-c", config['cipher']))
+        cmd.append(cmd_str)
+
+        return cls(cmd)
