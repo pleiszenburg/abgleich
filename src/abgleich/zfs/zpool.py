@@ -32,7 +32,9 @@ import typing
 
 import typeguard
 
-from .abc import ZpoolABC
+from .abc import FilesystemABC, ZpoolABC
+from .filesystem import Filesystem
+from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -41,12 +43,26 @@ from .abc import ZpoolABC
 
 @typeguard.typechecked
 class Zpool(ZpoolABC):
+
     def __init__(
-        self, name: str, prefix: typing.Union[str, None] = None, location: str = "localhost"
+        self, filesystems: typing.List[FilesystemABC], side: str, config: typing.Dict,
     ):
-        pass
+
+        self._filesystems = filesystems
+        self._side = side
+        self._config = config
 
     @classmethod
-    def from_shell(cls) -> ZpoolABC:
+    def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
 
-        return cls()
+        status, out, err = Command.on_side(["zfs", "list", "-H", "-p"], side, config).run()
+
+        return cls(
+            filesystems = [
+                Filesystem.from_line(line, side, config)
+                for line in out.split('\n')
+                if len(line.strip()) > 0
+                ],
+            side = side,
+            config = config,
+            )
