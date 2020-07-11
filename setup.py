@@ -85,6 +85,7 @@ setup(
 		'pyyaml',
 		],
 	extras_require = {'dev': [
+		'black',
 		# 'pytest',
 		'python-language-server[all]',
 		'setuptools',
