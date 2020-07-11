@@ -58,6 +58,11 @@ class Filesystem(FilesystemABC):
         self._side = side
         self._config = config
 
+    @property
+    def snapshots(self) -> typing.Generator[SnapshotABC, None, None]:
+
+        return (snapshot for snapshot in self._snapshots)
+
     @classmethod
     def from_line(cls, line: str, side: str, config: typing.Dict) -> FilesystemABC:
 

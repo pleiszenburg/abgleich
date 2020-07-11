@@ -52,6 +52,11 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
+    @property
+    def filesystems(self) -> typing.Generator[FilesystemABC, None, None]:
+
+        return (filesystem for filesystem in self._filesystems)
+
     @classmethod
     def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
 
