@@ -43,7 +43,7 @@ import os
 __version__ = '0.0.2'
 
 # List all versions of Python which are supported
-python_minor_min = 5
+python_minor_min = 6
 python_minor_max = 8
 confirmed_python_versions = [
     'Programming Language :: Python :: 3.{MINOR:d}'.format(MINOR = minor)
