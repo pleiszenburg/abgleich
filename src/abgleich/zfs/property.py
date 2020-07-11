@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# import typing
+import typing
 
 import typeguard
 
@@ -41,15 +41,45 @@ from .abc import PropertyABC
 @typeguard.typechecked
 class Property(PropertyABC):
 
-    def __init__(self):
+    def __init__(self,
+        name: str,
+        value: typing.Union[str, int, None],
+        src: typing.Union[str, int, None],
+        ):
 
-        self._name = '' # TODO
+        self._name = name
+        self._value = value
+        self._src = src
 
     @property
     def name(self) -> str:
         return self._name
 
+    @property
+    def value(self) -> typing.Union[str, int, None]:
+        return self._value
+
+    @property
+    def src(self) -> typing.Union[str, int, None]:
+        return self._src
+
+    @classmethod
+    def _convert(cls, value: str) -> typing.Union[str, int, None]:
+
+        if value.isnumeric():
+            return int(value)
+        if value.strip() == '' or value == '-' or value.lower() == 'none':
+            return None
+
+        return value
+
     @classmethod
     def from_line(cls, line: str) -> PropertyABC:
 
-        return cls()
+        elements = line.split('\t')
+
+        return cls(
+            name = elements[1],
+            value = cls._convert(elements[1]),
+            src = cls._convert(elements[2]),
+        )
