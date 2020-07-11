@@ -55,12 +55,12 @@ class Zpool(ZpoolABC):
     @classmethod
     def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
 
-        status, out, err = Command.on_side(["zfs", "list", "-H", "-p"], side, config).run()
+        output, _ = Command.on_side(["zfs", "list", "-H", "-p"], side, config).run()
 
         return cls(
             filesystems = [
                 Filesystem.from_line(line, side, config)
-                for line in out.split('\n')
+                for line in output.split('\n')
                 if len(line.strip()) > 0
                 ],
             side = side,
