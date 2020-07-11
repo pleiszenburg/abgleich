@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/zfs/filesystem.py: ZFS filesystem
+    src/abgleich/zfs/filesystem.py: ZFS filesystem
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -23,3 +23,23 @@ specific language governing rights and limitations under the License.
 </LICENSE_BLOCK>
 
 """
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# IMPORT
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# TODO
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# CLASS
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+class Filesystem:
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def from_shell(cls, data):
+
+        return cls()
