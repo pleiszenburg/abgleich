@@ -118,7 +118,9 @@ def get_backup_ops(tree_a, prefix_a, tree_b, prefix_b, ignore):
 		dataset_in_a = name in subdict_a.keys()
 		dataset_in_b = name in subdict_b.keys()
 		if not dataset_in_a and dataset_in_b:
-			raise ValueError('no source dataset "%s" - only remote' % name)
+			# raise ValueError('no source dataset "%s" - only remote' % name)
+			print('no source dataset "%s" - only remote' % name)
+			continue
 		if dataset_in_a and not dataset_in_b and len(subdict_a[name]['SNAPSHOTS']) == 0:
 			raise ValueError('no snapshots in dataset "%s" - can not send' % name)
 		if dataset_in_a and not dataset_in_b:
