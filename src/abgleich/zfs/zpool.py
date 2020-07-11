@@ -36,6 +36,7 @@ import typeguard
 from .abc import DatasetABC, ZpoolABC
 from .dataset import Dataset
 from ..command import Command
+from ..io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -63,11 +64,18 @@ class Zpool(ZpoolABC):
         table = []
         for dataset in self._datasets:
             table.append([
-                dataset.name,
-                str(dataset['used'].value),
-                str(dataset['referenced'].value),
+                colorize(dataset.name, "white"),
+                humanize_size(dataset['used'].value, add_color=True),
+                humanize_size(dataset['referenced'].value, add_color=True),
                 f'{dataset["compressratio"].value:.02f}',
             ])
+            for snapshot in dataset.snapshots:
+                table.append([
+                    '- ' + colorize(snapshot.name, "grey"),
+                    humanize_size(snapshot['used'].value, add_color=True),
+                    humanize_size(snapshot['referenced'].value, add_color=True),
+                    f'{snapshot["compressratio"].value:.02f}',
+                ])
 
         print(tabulate(
             table,
