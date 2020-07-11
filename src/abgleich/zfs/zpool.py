@@ -59,7 +59,7 @@ class Zpool(ZpoolABC):
 
         return (dataset for dataset in self._datasets)
 
-    def print_table(self, color: bool = True):
+    def print_table(self):
 
         table = []
         for dataset in self._datasets:
