@@ -56,7 +56,7 @@ class Command(CommandABC):
         if not status or len(errors.strip()) > 0:
             raise SystemError('command failed', self.cmd, output, errors)
 
-        return status, output, errors
+        return output, errors
 
     def run_pipe(self, other: CommandABC):
 
@@ -77,7 +77,7 @@ class Command(CommandABC):
         )):
             raise SystemError('command pipe failed', self.cmd, output_1, errors_1, output_2, errors_2)
 
-        return status_1, output_1, errors_1, status_2, output_2, errors_2
+        return output_1, errors_1, output_2, errors_2
 
     @property
     def cmd(self) -> typing.List[str]:
