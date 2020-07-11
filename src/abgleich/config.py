@@ -58,7 +58,7 @@ class Config(dict):
 
         root_schema = {
             "host": lambda v: isinstance(v, str) and len(v) > 0,
-            "local": lambda v: cls._validate(data = v, schema = location_schema),
+            "localhost": lambda v: cls._validate(data = v, schema = location_schema),
             "remote": lambda v: cls._validate(data = v, schema = location_schema),
             "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
             "ignore": lambda v: isinstance(v, list)

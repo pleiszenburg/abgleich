@@ -40,7 +40,7 @@ import typeguard
 @typeguard.typechecked
 class Zpool:
     def __init__(
-        self, name: str, prefix: typing.Union[str, None] = None, location: str = "local"
+        self, name: str, prefix: typing.Union[str, None] = None, location: str = "localhost"
     ):
         pass
 
