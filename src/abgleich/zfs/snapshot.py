@@ -33,7 +33,7 @@ import typing
 import typeguard
 
 from .abc import PropertyABC, SnapshotABC
-from .property import Property, PropertyTypes
+from .property import Property
 from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -57,7 +57,7 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
-    def __getitem__(self, name: str) -> PropertyTypes:
+    def __getitem__(self, name: str) -> PropertyABC:
 
         return self._properties[name]
 
