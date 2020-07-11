@@ -78,16 +78,26 @@ class Command(CommandABC):
         return self._cmd.copy()
 
     @classmethod
-    def with_ssh(cls, cmd: typing.List[str], config: typing.Dict) -> CommandABC:
+    def on_side(cls, cmd: typing.List[str], side: str, config: typing.Dict) -> CommandABC:
+
+        if config[side]['host'] == 'localhost':
+            return cls(cmd)
+        return cls.with_ssh(cmd, side_config = config[side], ssh_config = config['ssh'])
+
+    @classmethod
+    def with_ssh(cls, cmd: typing.List[str], side_config: typing.Dict, ssh_config: typing.Dict) -> CommandABC:
 
         cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
         cmd = [
             "ssh",
             "-T", # Disable pseudo-terminal allocation
-            "-o", "Compression=yes" if config['compression'] else "Compression=no",
+            "-o", "Compression=yes" if ssh_config['compression'] else "Compression=no",
             ]
-        if config['cipher'] is not None:
-            cmd.extend(("-c", config['cipher']))
-        cmd.append(cmd_str)
+        if ssh_config['cipher'] is not None:
+            cmd.extend(("-c", ssh_config['cipher']))
+        cmd.extend([
+            f'{side_config["user"]:s}@{side_config["host"]:s}',
+            cmd_str
+            ])
 
         return cls(cmd)

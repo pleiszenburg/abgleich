@@ -51,15 +51,16 @@ class Config(dict):
             "cipher": lambda v: isinstance(v, str) or v is None,
         }
 
-        location_schema = {
+        side_schema = {
             "zpool": lambda v: isinstance(v, str) and len(v) > 0,
             "prefix": lambda v: isinstance(v, str) or v is None,
+            "host": lambda v: isinstance(v, str) and len(v) > 0,
+            "user": lambda v: isinstance(v, str) and len(v) > 0,
         }
 
         root_schema = {
-            "host": lambda v: isinstance(v, str) and len(v) > 0,
-            "localhost": lambda v: cls._validate(data = v, schema = location_schema),
-            "remote": lambda v: cls._validate(data = v, schema = location_schema),
+            "source": lambda v: cls._validate(data = v, schema = side_schema),
+            "target": lambda v: cls._validate(data = v, schema = side_schema),
             "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
             "ignore": lambda v: isinstance(v, list)
             and all((isinstance(item, str) and len(item) > 0 for item in v)),
