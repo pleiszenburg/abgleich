@@ -55,7 +55,7 @@ class Config(dict):
             "zpool": lambda v: isinstance(v, str) and len(v) > 0,
             "prefix": lambda v: isinstance(v, str) or v is None,
             "host": lambda v: isinstance(v, str) and len(v) > 0,
-            "user": lambda v: isinstance(v, str) and len(v) > 0,
+            "user": lambda v: isinstance(v, str) or v is None,
         }
 
         root_schema = {
@@ -79,3 +79,5 @@ class Config(dict):
                 raise KeyError(f'missing configuration field "{field:s}"')
             if not validator(data[field]):
                 raise ValueError(f'invalid value in field "{field:s}"')
+
+        return True
