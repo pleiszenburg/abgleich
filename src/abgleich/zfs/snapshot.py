@@ -28,9 +28,12 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import typing
+
 import typeguard
 
 from .abc import SnapshotABC
+from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -42,7 +45,8 @@ class Snapshot(SnapshotABC):
     def __init__(self):
         pass
 
+
     @classmethod
-    def from_shell(cls) -> SnapshotABC:
+    def from_line(cls, line: str, side: str, config: typing.Dict) -> SnapshotABC:
 
         return cls()
