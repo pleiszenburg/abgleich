@@ -32,7 +32,8 @@ import typing
 
 import typeguard
 
-from .abc import SnapshotABC
+from .abc import PropertyABC, SnapshotABC
+from .property import Property
 from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,10 +43,38 @@ from ..command import Command
 @typeguard.typechecked
 class Snapshot(SnapshotABC):
 
-    def __init__(self):
-        pass
+    def __init__(self,
+        name: str,
+        parent: str,
+        properties: typing.Dict[str, PropertyABC],
+        side: str,
+        config: typing.Dict,
+        ):
+
+        self._name = name
+        self._parent = parent
+        self._properties = properties
+        self._side = side
+        self._config = config
 
     @classmethod
     def from_line(cls, line: str, side: str, config: typing.Dict) -> SnapshotABC:
 
-        return cls()
+        name = line.split('\t')[0]
+
+        output, _ = Command.on_side(["zfs", "get", "all", "-H", "-p", name], side, config).run()
+        properties = {property.name: property for property in (
+            Property.from_line(line)
+            for line in output.split('\n')
+            if len(line.strip()) > 0
+            )}
+
+        parent, name = name.split('@')
+
+        return cls(
+            name = name,
+            parent = parent,
+            properties = properties,
+            side = side,
+            config = config,
+        )
