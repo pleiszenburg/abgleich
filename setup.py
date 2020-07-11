@@ -83,7 +83,7 @@ setup(
 		],
 	extras_require = {'dev': [
 		# 'pytest',
-		'python-language-server',
+		'python-language-server[all]',
 		'setuptools',
 		# 'Sphinx',
 		# 'sphinx_rtd_theme',

@@ -20,4 +20,5 @@ release:
 	gpg --detach-sign -a dist/abgleich*.tar.gz
 
 install:
-	pip install -v -e .
+	pip install -vU pip setuptools
+	pip install -v -e .[dev]
