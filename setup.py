@@ -77,7 +77,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.{MINOR:d}".format(MINOR=python_minor_min),
     setup_requires=[],
-    install_requires=["click", "tabulate", "pyyaml",],
+    install_requires=["click", "tabulate", "pyyaml", "typeguard",],
     extras_require={
         "dev": [
             "black",
