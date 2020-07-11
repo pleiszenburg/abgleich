@@ -33,7 +33,7 @@ import typing
 from tabulate import tabulate
 import typeguard
 
-from .abc import DatasetABC, ZpoolABC
+from .abc import DatasetABC, SnapshotABC, ZpoolABC
 from .dataset import Dataset
 from .lib import join
 from ..command import Command
@@ -64,19 +64,9 @@ class Zpool(ZpoolABC):
 
         table = []
         for dataset in self._datasets:
-            table.append([
-                colorize(dataset.name, "white"),
-                humanize_size(dataset['used'].value, add_color=True),
-                humanize_size(dataset['referenced'].value, add_color=True),
-                f'{dataset["compressratio"].value:.02f}',
-            ])
+            table.append(self._table_row(dataset))
             for snapshot in dataset.snapshots:
-                table.append([
-                    '- ' + colorize(snapshot.name, "grey"),
-                    humanize_size(snapshot['used'].value, add_color=True),
-                    humanize_size(snapshot['referenced'].value, add_color=True),
-                    f'{snapshot["compressratio"].value:.02f}',
-                ])
+                table.append(self._table_row(snapshot, snapshot = True))
 
         print(tabulate(
             table,
@@ -84,6 +74,15 @@ class Zpool(ZpoolABC):
             tablefmt="github",
             colalign=("left", "right", "right", "decimal"),
             ))
+
+    @staticmethod
+    def _table_row(entity: typing.Union[SnapshotABC, DatasetABC], snapshot: bool = False) -> typing.List[str]:
+        return [
+            '- ' + colorize(entity.name, "grey") if snapshot else colorize(entity.name, "white"),
+            humanize_size(entity['used'].value, add_color=True),
+            humanize_size(entity['referenced'].value, add_color=True),
+            f'{entity["compressratio"].value:.02f}',
+        ]
 
     @classmethod
     def from_config(
