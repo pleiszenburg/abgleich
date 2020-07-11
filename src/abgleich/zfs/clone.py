@@ -28,18 +28,21 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# TODO
+import typeguard
+
+from .abc import CloneABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Clone:
+@typeguard.typechecked
+class Clone(CloneABC):
 
     def __init__(self):
         pass
 
     @classmethod
-    def from_shell(cls, data):
+    def from_shell(cls) -> CloneABC:
 
         return cls()

@@ -34,4 +34,14 @@ import abc
 # CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# TODO
+class CloneABC(abc.ABC):
+    pass
+
+class FilesystemABC(abc.ABC):
+    pass
+
+class SnapshotABC(abc.ABC):
+    pass
+
+class ZpoolABC(abc.ABC):
+    pass

@@ -28,18 +28,21 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# TODO
+import typeguard
+
+from .abc import SnapshotABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Snapshot:
+@typeguard.typechecked
+class Snapshot(SnapshotABC):
 
     def __init__(self):
         pass
 
     @classmethod
-    def from_shell(cls, data):
+    def from_shell(cls) -> SnapshotABC:
 
         return cls()

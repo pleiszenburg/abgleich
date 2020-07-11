@@ -32,19 +32,21 @@ import typing
 
 import typeguard
 
+from .abc import ZpoolABC
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 @typeguard.typechecked
-class Zpool:
+class Zpool(ZpoolABC):
     def __init__(
         self, name: str, prefix: typing.Union[str, None] = None, location: str = "localhost"
     ):
         pass
 
     @classmethod
-    def from_shell(cls, data):
+    def from_shell(cls) -> ZpoolABC:
 
         return cls()
