@@ -53,7 +53,8 @@ class Command(CommandABC):
         status = not bool(proc.returncode)
         output, errors = output.decode("utf-8"), errors.decode("utf-8")
 
-        # TODO logging and raise error ... ?
+        if not status or len(errors.strip()) > 0:
+            raise SystemError('command failed', self.cmd, output, errors)
 
         return status, output, errors
 
@@ -68,7 +69,13 @@ class Command(CommandABC):
         output_1, errors_1 = output_1.decode("utf-8"), errors_1.decode("utf-8")
         output_2, errors_2 = output_2.decode("utf-8"), errors_2.decode("utf-8")
 
-        # TODO logging and raise error ... ?
+        if any((
+            not status_1,
+            len(errors_1.strip()) > 0,
+            not status_2,
+            len(errors_2.strip()) > 0,
+        )):
+            raise SystemError('command pipe failed', self.cmd, output_1, errors_1, output_2, errors_2)
 
         return status_1, output_1, errors_1, status_2, output_2, errors_2
 
