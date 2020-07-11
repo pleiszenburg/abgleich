@@ -72,6 +72,24 @@ class Snapshot(SnapshotABC):
         return self._parent
 
     @classmethod
+    def from_lines(cls, name: str, lines: typing.List[typing.List[str]], side: str, config: typing.Dict) -> SnapshotABC:
+
+        properties = {property.name: property for property in (
+            Property.from_params(*params)
+            for params in lines
+            )}
+
+        parent, name = name.split('@')
+
+        return cls(
+            name = name,
+            parent = parent,
+            properties = properties,
+            side = side,
+            config = config,
+        )
+
+    @classmethod
     def from_line(cls, line: str, side: str, config: typing.Dict) -> SnapshotABC:
 
         name = line.split('\t')[0]

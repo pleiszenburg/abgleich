@@ -88,6 +88,15 @@ class Property(PropertyABC):
         return value
 
     @classmethod
+    def from_params(cls, name, value, src) -> PropertyABC:
+
+        return cls(
+            name = name,
+            value = cls._convert(value),
+            src = cls._convert(src),
+        )
+
+    @classmethod
     def from_line(cls, line: str) -> PropertyABC:
 
         elements = line.split('\t')

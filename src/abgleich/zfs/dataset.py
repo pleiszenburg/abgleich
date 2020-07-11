@@ -73,6 +73,34 @@ class Dataset(DatasetABC):
         return (snapshot for snapshot in self._snapshots)
 
     @classmethod
+    def from_lines(cls, name: str, entities: typing.Dict[str, typing.List[typing.List[str]]], side: str, config: typing.Dict) -> DatasetABC:
+
+        properties = {property.name: property for property in (
+            Property.from_params(*params)
+            for params in entities[name]
+            )}
+        entities.pop(name)
+
+        snapshots = [
+            Snapshot.from_lines(
+                snapshot_name,
+                entities[snapshot_name],
+                side,
+                config,
+                )
+            for snapshot_name in entities.keys()
+            ]
+        snapshots.sort(key = lambda snapshot: snapshot['creation'].value)
+
+        return cls(
+            name = name,
+            properties = properties,
+            snapshots = snapshots,
+            side = side,
+            config = config,
+            )
+
+    @classmethod
     def from_line(cls, line: str, side: str, config: typing.Dict) -> DatasetABC:
 
         name = line.split('\t')[0]
