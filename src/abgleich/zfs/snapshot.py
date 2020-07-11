@@ -88,25 +88,3 @@ class Snapshot(SnapshotABC):
             side = side,
             config = config,
         )
-
-    @classmethod
-    def from_line(cls, line: str, side: str, config: typing.Dict) -> SnapshotABC:
-
-        name = line.split('\t')[0]
-
-        output, _ = Command.on_side(["zfs", "get", "all", "-H", "-p", name], side, config).run()
-        properties = {property.name: property for property in (
-            Property.from_line(line)
-            for line in output.split('\n')
-            if len(line.strip()) > 0
-            )}
-
-        parent, name = name.split('@')
-
-        return cls(
-            name = name,
-            parent = parent,
-            properties = properties,
-            side = side,
-            config = config,
-        )

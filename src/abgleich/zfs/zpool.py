@@ -115,18 +115,3 @@ class Zpool(ZpoolABC):
             side = side,
             config = config,
             )
-
-    @classmethod
-    def from_config_slow(cls, side: str, config: typing.Dict) -> ZpoolABC:
-
-        output, _ = Command.on_side(["zfs", "list", "-H", "-p"], side, config).run()
-
-        return cls(
-            datasets = [
-                Dataset.from_line(line, side, config)
-                for line in output.split('\n')
-                if len(line.strip()) > 0
-                ],
-            side = side,
-            config = config,
-            )

@@ -95,14 +95,3 @@ class Property(PropertyABC):
             value = cls._convert(value),
             src = cls._convert(src),
         )
-
-    @classmethod
-    def from_line(cls, line: str) -> PropertyABC:
-
-        elements = line.split('\t')
-
-        return cls(
-            name = elements[1],
-            value = cls._convert(elements[2]),
-            src = cls._convert(elements[3]),
-        )

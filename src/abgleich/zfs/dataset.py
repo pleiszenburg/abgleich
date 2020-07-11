@@ -99,30 +99,3 @@ class Dataset(DatasetABC):
             side = side,
             config = config,
             )
-
-    @classmethod
-    def from_line(cls, line: str, side: str, config: typing.Dict) -> DatasetABC:
-
-        name = line.split('\t')[0]
-
-        output, _ = Command.on_side(["zfs", "get", "all", "-H", "-p", name], side, config).run()
-        properties = {property.name: property for property in (
-            Property.from_line(line)
-            for line in output.split('\n')
-            if len(line.strip()) > 0
-            )}
-
-        output, _ = Command.on_side(["zfs", "list", "-t", "snapshot", "-H", "-p", name], side, config).run()
-        snapshots = [
-            Snapshot.from_line(line, side, config)
-            for line in output.split('\n')
-            if len(line.strip()) > 0
-            ]
-
-        return cls(
-            name = name,
-            properties = properties,
-            snapshots = snapshots,
-            side = side,
-            config = config,
-        )
