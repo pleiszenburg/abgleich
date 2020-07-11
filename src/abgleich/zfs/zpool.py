@@ -30,6 +30,7 @@ specific language governing rights and limitations under the License.
 
 import typing
 
+from tabulate import tabulate
 import typeguard
 
 from .abc import DatasetABC, ZpoolABC
@@ -59,7 +60,21 @@ class Zpool(ZpoolABC):
 
     def print_table(self, color: bool = True):
 
-        pass
+        table = []
+        for dataset in self._datasets:
+            table.append([
+                dataset.name,
+                str(dataset['used'].value),
+                str(dataset['referenced'].value),
+                f'{dataset["compressratio"].value:.02f}',
+            ])
+
+        print(tabulate(
+            table,
+            headers=("NAME", "USED", "REFER", "compressratio"),
+            tablefmt="github",
+            colalign=("left", "right", "right", "decimal"),
+            ))
 
     @classmethod
     def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
