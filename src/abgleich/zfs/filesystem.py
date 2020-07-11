@@ -64,11 +64,11 @@ class Filesystem(FilesystemABC):
         name = line.split('\t')[0]
 
         output, _ = Command.on_side(["zfs", "get", "all", "-H", "-p", name], side, config).run()
-        properties = {property.name: property for property in [
+        properties = {property.name: property for property in (
             Property.from_line(line)
             for line in output.split('\n')
             if len(line.strip()) > 0
-            ]}
+            )}
 
         output, _ = Command.on_side(["zfs", "list", "-t", "snapshot", "-H", "-p", name], side, config).run()
         snapshots = [
