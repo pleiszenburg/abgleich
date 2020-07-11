@@ -28,9 +28,14 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import typing
+
 import typeguard
 
-from .abc import FilesystemABC
+from .abc import FilesystemABC, PropertyABC, SnapshotABC
+from .property import Property
+from .snapshot import Snapshot
+from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -39,10 +44,43 @@ from .abc import FilesystemABC
 @typeguard.typechecked
 class Filesystem(FilesystemABC):
 
-    def __init__(self):
-        pass
+    def __init__(self,
+        name: str,
+        properties: typing.Dict[str, PropertyABC],
+        snapshots: typing.List[SnapshotABC],
+        side: str,
+        config: typing.Dict,
+        ):
+
+        self._name = name
+        self._properties = properties
+        self._snapshots = snapshots
+        self._side = side
+        self._config = config
 
     @classmethod
-    def from_shell(cls) -> FilesystemABC:
+    def from_line(cls, line: str, side: str, config: typing.Dict) -> FilesystemABC:
 
-        return cls()
+        name = line.split('\t')[0]
+
+        output, _ = Command.on_side(["zfs", "get", "all", "-H", "-p", name], side, config).run()
+        properties = {property.name: property for property in [
+            Property.from_line(line)
+            for line in output.split('\n')
+            if len(line.strip()) > 0
+            ]}
+
+        output, _ = Command.on_side(["zfs", "list", "-t", "snapshot", "-H", "-p", name], side, config).run()
+        snapshots = [
+            Snapshot.from_line(line, side, config)
+            for line in output.split('\n')
+            if len(line.strip()) > 0
+            ]
+
+        return cls(
+            name = name,
+            properties = properties,
+            snapshots = snapshots,
+            side = side,
+            config = config,
+        )
