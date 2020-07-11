@@ -52,6 +52,7 @@ from ..zfs.zpool import Zpool
 def tree(configfile, side):
 
 	zpool = Zpool.from_config(side, config = Config.from_fd(configfile))
+	zpool.print_table()
 
     # cols = ["NAME", "USED", "REFER", "compressratio"]
     # col_align = ("left", "right", "right", "decimal")

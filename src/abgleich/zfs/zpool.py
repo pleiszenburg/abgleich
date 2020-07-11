@@ -57,6 +57,10 @@ class Zpool(ZpoolABC):
 
         return (filesystem for filesystem in self._filesystems)
 
+    def print_table(self, color: bool = True):
+
+        pass
+
     @classmethod
     def from_config(cls, side: str, config: typing.Dict) -> ZpoolABC:
 
