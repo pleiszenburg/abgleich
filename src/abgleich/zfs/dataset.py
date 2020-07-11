@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/filesystem.py: ZFS filesystem
+    src/abgleich/zfs/dataset.py: ZFS dataset
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -32,7 +32,7 @@ import typing
 
 import typeguard
 
-from .abc import FilesystemABC, PropertyABC, SnapshotABC
+from .abc import DatasetABC, PropertyABC, SnapshotABC
 from .property import Property
 from .snapshot import Snapshot
 from ..command import Command
@@ -42,7 +42,7 @@ from ..command import Command
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @typeguard.typechecked
-class Filesystem(FilesystemABC):
+class Dataset(DatasetABC):
 
     def __init__(self,
         name: str,
@@ -64,7 +64,7 @@ class Filesystem(FilesystemABC):
         return (snapshot for snapshot in self._snapshots)
 
     @classmethod
-    def from_line(cls, line: str, side: str, config: typing.Dict) -> FilesystemABC:
+    def from_line(cls, line: str, side: str, config: typing.Dict) -> DatasetABC:
 
         name = line.split('\t')[0]
 

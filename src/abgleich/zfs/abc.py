@@ -37,7 +37,7 @@ import abc
 class CloneABC(abc.ABC):
     pass
 
-class FilesystemABC(abc.ABC):
+class DatasetABC(abc.ABC):
     pass
 
 class PropertyABC(abc.ABC):

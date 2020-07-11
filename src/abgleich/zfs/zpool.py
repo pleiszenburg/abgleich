@@ -32,8 +32,8 @@ import typing
 
 import typeguard
 
-from .abc import FilesystemABC, ZpoolABC
-from .filesystem import Filesystem
+from .abc import DatasetABC, ZpoolABC
+from .dataset import Dataset
 from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,17 +45,17 @@ from ..command import Command
 class Zpool(ZpoolABC):
 
     def __init__(
-        self, filesystems: typing.List[FilesystemABC], side: str, config: typing.Dict,
+        self, datasets: typing.List[DatasetABC], side: str, config: typing.Dict,
     ):
 
-        self._filesystems = filesystems
+        self._datasets = datasets
         self._side = side
         self._config = config
 
     @property
-    def filesystems(self) -> typing.Generator[FilesystemABC, None, None]:
+    def datasets(self) -> typing.Generator[DatasetABC, None, None]:
 
-        return (filesystem for filesystem in self._filesystems)
+        return (dataset for dataset in self._datasets)
 
     def print_table(self, color: bool = True):
 
@@ -67,8 +67,8 @@ class Zpool(ZpoolABC):
         output, _ = Command.on_side(["zfs", "list", "-H", "-p"], side, config).run()
 
         return cls(
-            filesystems = [
-                Filesystem.from_line(line, side, config)
+            datasets = [
+                Dataset.from_line(line, side, config)
                 for line in output.split('\n')
                 if len(line.strip()) > 0
                 ],
