@@ -36,10 +36,12 @@ import typeguard
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Zpool:
-
-    def __init__(self, name: str, prefix: typing.Union[str, None] = None, location: str = 'local'):
+    def __init__(
+        self, name: str, prefix: typing.Union[str, None] = None, location: str = "local"
+    ):
         pass
 
     @classmethod
