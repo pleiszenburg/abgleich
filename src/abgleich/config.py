@@ -29,13 +29,56 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# TODO
+import typing
+
+import typeguard
+import yaml
+from yaml import CLoader
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Config:
+@typeguard.typechecked
+class Config(dict):
 
-    def __init__(self, path: str):
-        pass
+    @classmethod
+    def from_fd(cls, fd: typing.TextIO):
+
+        config = yaml.load(fd.read(), Loader=CLoader)
+        cls._validate(config)
+
+        return cls(config)
+
+    @classmethod
+    def _validate(cls, config: typing.Dict):
+
+        schema = {
+            'host': lambda v: isinstance(v, str) and len(v) > 0,
+            'local': cls._validate_location,
+            'remote': cls._validate_location,
+            'keep_snapshots': lambda v: isinstance(v, int) and v >= 1,
+            'ignore': lambda v: isinstance(v, list) and all((isinstance(item, str) and len(item) > 0 for item in v)),
+            }
+
+        for field, validator in schema.items():
+            if field not in config.keys():
+                raise KeyError(f'missing configuration field "{field:s}"')
+            if not validator(config[field]):
+                raise ValueError(f'invalid value in field "{field:s}"')
+
+    @classmethod
+    def _validate_location(cls, location: typing.Dict):
+
+        schema = {
+            'zpool': lambda v: isinstance(v, str) and len(v) > 0,
+            'prefix': lambda v: isinstance(v, str) or v is None,
+            }
+
+        for field, validator in schema.items():
+            if field not in location.keys():
+                return False
+            if not validator(location[field]):
+                return False
+
+        return True
