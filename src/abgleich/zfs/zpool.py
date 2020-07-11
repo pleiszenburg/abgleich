@@ -28,15 +28,18 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# TODO
+import typing
+
+import typeguard
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+@typeguard.typechecked
 class Zpool:
 
-    def __init__(self, name: str, location: str = 'localhost'):
+    def __init__(self, name: str, prefix: typing.Union[str, None] = None, location: str = 'local'):
         pass
 
     @classmethod
