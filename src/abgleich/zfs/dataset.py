@@ -58,6 +58,15 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
+    def __getitem__(self, name: str) -> PropertyABC:
+
+        return self._properties[name]
+
+    @property
+    def name(self) -> str:
+
+        return self._name
+
     @property
     def snapshots(self) -> typing.Generator[SnapshotABC, None, None]:
 
