@@ -55,5 +55,8 @@ class SnapshotABC(abc.ABC):
 class TransactionABC(abc.ABC):
     pass
 
+class TransactionListABC(abc.ABC):
+    pass
+
 class ZpoolABC(abc.ABC):
     pass
