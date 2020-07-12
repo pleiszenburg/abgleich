@@ -32,7 +32,7 @@ import typing
 
 import typeguard
 
-from .abc import TransactionABC
+from .abc import TransactionABC, TransactionListABC
 from ..abc import CommandABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -97,3 +97,14 @@ class Transaction(TransactionABC):
         finally:
             self._running = False
             self._complete = True
+
+@typeguard.typechecked
+class TransactionList(TransactionListABC):
+
+    def __init__(self):
+
+        self._transactions = []
+
+    def append(self, transaction: TransactionABC):
+
+        self._transactions.append(transaction)
