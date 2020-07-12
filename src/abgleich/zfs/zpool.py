@@ -66,7 +66,7 @@ class Zpool(ZpoolABC):
         for dataset in self._datasets:
             table.append(self._table_row(dataset))
             for snapshot in dataset.snapshots:
-                table.append(self._table_row(snapshot, snapshot = True))
+                table.append(self._table_row(snapshot))
 
         print(tabulate(
             table,
@@ -76,9 +76,9 @@ class Zpool(ZpoolABC):
             ))
 
     @staticmethod
-    def _table_row(entity: typing.Union[SnapshotABC, DatasetABC], snapshot: bool = False) -> typing.List[str]:
+    def _table_row(entity: typing.Union[SnapshotABC, DatasetABC]) -> typing.List[str]:
         return [
-            '- ' + colorize(entity.name, "grey") if snapshot else colorize(entity.name, "white"),
+            '- ' + colorize(entity.name, "grey") if isinstance(entity, SnapshotABC) else colorize(entity.name, "white"),
             humanize_size(entity['used'].value, add_color=True),
             humanize_size(entity['referenced'].value, add_color=True),
             f'{entity["compressratio"].value:.02f}',
