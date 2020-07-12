@@ -28,14 +28,17 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import datetime
 import typing
 
 import typeguard
 
-from .abc import DatasetABC, PropertyABC, SnapshotABC
+from .abc import DatasetABC, PropertyABC, TransactionABC, SnapshotABC
 from .lib import join
 from .property import Property
+from .transaction import Transaction, TransactionMeta
 from .snapshot import Snapshot
+from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -79,6 +82,24 @@ class Dataset(DatasetABC):
         return self._snapshots[key]
 
     @property
+    def changed(self) -> bool:
+
+        if len(self) == 0:
+            return True
+        if self._properties['written'].value == 0:
+            return False
+        if self._properties['written'].value > (1024 ** 2):
+            return True
+        if self._properties['type'].value == 'volume':
+            return True
+
+        output, _ = Command.on_side(
+            ['zfs', 'diff', f'{self._name:s}@{self._snapshots[-1].name:s}'],
+            self._side, self._config,
+            ).run()
+        return len(output.strip(" \t\n")) > 0
+
+    @property
     def name(self) -> str:
 
         return self._name
@@ -97,6 +118,54 @@ class Dataset(DatasetABC):
     def sortkey(self) -> str:
 
         return self._name
+
+    def get_snapshot_transaction(self) -> TransactionABC:
+
+        snapshot_name = self._new_snapshot_name()
+
+        return Transaction(
+            TransactionMeta(
+                type = 'snapshot',
+                dataset_subname = self._subname,
+                snapshot_name = snapshot_name,
+                written = self._properties['written'].value,
+                ),
+            (Command.on_side(
+                ['zfs', 'snapshot', f'{self._name:s}@{snapshot_name:s}'],
+                self._side, self._config,
+                ),)
+            )
+
+    def _new_snapshot_name(self) -> str:
+
+        suffix = "_backup"
+        digits = 2
+
+        today = datetime.datetime.now().strftime("%Y%m%d")
+        max_snapshots = (10 ** digits) - 1
+
+        todays_names = [
+            snapshot.name for snapshot in self._snapshots
+            if all((
+                snapshot.name.startswith(today),
+                snapshot.name.endswith(suffix),
+                len(snapshot.name) == len(today) + digits + len(suffix),
+                ))
+            ]
+        todays_numbers = [
+            int(name[len(today):len(today)+digits])
+            for name in todays_names
+            if name[len(today):len(today)+digits].isnumeric()
+            ]
+        if len(todays_numbers) != 0:
+            todays_numbers.sort()
+            new_number = todays_numbers[-1] + 1
+            if new_number > max_snapshots:
+                raise ValueError(f"more than {max_snapshots:d} snapshots per day")
+        else:
+            new_number = 1
+
+        return f'{today:s}{new_number:02d}{suffix}'
 
     @classmethod
     def from_entities(cls,
