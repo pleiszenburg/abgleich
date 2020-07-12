@@ -32,7 +32,7 @@ import typing
 
 import typeguard
 
-from .abc import TransactionABC, TransactionListABC
+from .abc import TransactionABC, TransactionListABC, TransactionMetaABC
 from ..abc import CommandABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,13 +44,13 @@ class Transaction(TransactionABC):
 
     def __init__(
         self,
-        description: str,
+        meta: TransactionMetaABC,
         commands: typing.Tuple[CommandABC],
     ):
 
         assert len(commands) in (1, 2)
 
-        self._description, self._commands = description, commands
+        self._meta, self._commands = meta, commands
 
         self._complete = False
         self._running = False
@@ -67,14 +67,14 @@ class Transaction(TransactionABC):
         return self._commands
 
     @property
-    def description(self) -> str:
-
-        return self._description
-
-    @property
     def error(self) -> typing.Union[Exception, None]:
 
         return self._error
+
+    @property
+    def meta(self) -> TransactionMetaABC:
+
+        return self._meta
 
     @property
     def running(self) -> bool:
@@ -98,12 +98,37 @@ class Transaction(TransactionABC):
             self._running = False
             self._complete = True
 
+MetaTypes = typing.Union[str, int, float]
+
+@typeguard.typechecked
+class TransactionMeta(TransactionMetaABC):
+
+    def __init__(self, **kwargs: MetaTypes):
+
+        self._meta = kwargs
+
+    def __getitem__(self, key: str) -> MetaTypes:
+
+        return self._meta[key]
+
+    def __len__(self) -> int:
+
+        return len(self._meta)
+
+    def keys(self) -> typing.Generator[str, None, None]:
+
+        return (key for key in self._meta.keys())
+
 @typeguard.typechecked
 class TransactionList(TransactionListABC):
 
     def __init__(self):
 
         self._transactions = []
+
+    def __len__(self) -> int:
+
+        return len(self._transactions)
 
     def append(self, transaction: TransactionABC):
 
