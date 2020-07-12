@@ -58,9 +58,11 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-    def __getitem__(self, name: str) -> PropertyABC:
+    def __getitem__(self, key: typing.Union[str, int, slice]) -> PropertyABC:
 
-        return self._properties[name]
+        if isinstance(key, str):
+            return self._properties[key]
+        return self._snapshots[key]
 
     @property
     def name(self) -> str:
