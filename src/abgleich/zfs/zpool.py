@@ -55,10 +55,19 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
+    def __eq__(self, other: ZpoolABC) -> bool:
+
+        return self.side == other.side
+
     @property
     def datasets(self) -> typing.Generator[DatasetABC, None, None]:
 
         return (dataset for dataset in self._datasets)
+
+    @property
+    def side(self) -> str:
+
+        return self._side
 
     def print_table(self):
 
