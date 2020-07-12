@@ -33,9 +33,9 @@ import typing
 import typeguard
 
 from .abc import DatasetABC, PropertyABC, SnapshotABC
+from .lib import join
 from .property import Property
 from .snapshot import Snapshot
-from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -58,6 +58,16 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
+        root = config[side]['zpool']
+        if config[side]['prefix'] is not None:
+            root = join(root, config[side]['prefix'])
+        assert self._name.startswith(root)
+        self._subname = self._name[len(root):]
+
+    def __eq__(self, other: DatasetABC) -> bool:
+
+        return self.subname == other.subname
+
     def __getitem__(self, key: typing.Union[str, int, slice]) -> PropertyABC:
 
         if isinstance(key, str):
@@ -68,6 +78,11 @@ class Dataset(DatasetABC):
     def name(self) -> str:
 
         return self._name
+
+    @property
+    def subname(self) -> str:
+
+        return self._subname
 
     @property
     def snapshots(self) -> typing.Generator[SnapshotABC, None, None]:
