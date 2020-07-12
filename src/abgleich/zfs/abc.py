@@ -58,5 +58,8 @@ class TransactionABC(abc.ABC):
 class TransactionListABC(abc.ABC):
     pass
 
+class TransactionMetaABC(abc.ABC):
+    pass
+
 class ZpoolABC(abc.ABC):
     pass
