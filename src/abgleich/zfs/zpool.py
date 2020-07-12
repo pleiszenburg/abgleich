@@ -118,10 +118,10 @@ class Zpool(ZpoolABC):
             ))
 
     @staticmethod
-    def _comparison_table_row(entity: ComparisonItemABC) -> typing.List[str]:
+    def _comparison_table_row(item: ComparisonItemABC) -> typing.List[str]:
 
-        item = entity.get_item()
-        name = item.name
+        entity = item.get_item()
+        name = entity.name if isinstance(entity, SnapshotABC) else entity.subname
 
         if item.a is not None and item.b is not None:
             a, b = colorize("X", "green"), colorize("X", "green")
@@ -131,7 +131,7 @@ class Zpool(ZpoolABC):
             a, b = colorize("X", "red"), ""
 
         return [
-            '- ' + colorize(name, "grey") if isinstance(item, SnapshotABC) else colorize(name, "white"),
+            '- ' + colorize(name, "grey") if isinstance(entity, SnapshotABC) else colorize(name, "white"),
             a,
             b,
         ]
