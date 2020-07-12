@@ -138,24 +138,22 @@ class Dataset(DatasetABC):
 
     def _new_snapshot_name(self) -> str:
 
-        suffix = "_backup"
-        digits = 2
-
         today = datetime.datetime.now().strftime("%Y%m%d")
-        max_snapshots = (10 ** digits) - 1
+        max_snapshots = (10 ** self._config['digits']) - 1
+        suffix = self._config['suffix'] if self._config['suffix'] is not None else ''
 
         todays_names = [
             snapshot.name for snapshot in self._snapshots
             if all((
                 snapshot.name.startswith(today),
                 snapshot.name.endswith(suffix),
-                len(snapshot.name) == len(today) + digits + len(suffix),
+                len(snapshot.name) == len(today) + self._config['digits'] + len(suffix),
                 ))
             ]
         todays_numbers = [
-            int(name[len(today):len(today)+digits])
+            int(name[len(today):len(today)+self._config['digits']])
             for name in todays_names
-            if name[len(today):len(today)+digits].isnumeric()
+            if name[len(today):len(today)+self._config['digits']].isnumeric()
             ]
         if len(todays_numbers) != 0:
             todays_numbers.sort()
