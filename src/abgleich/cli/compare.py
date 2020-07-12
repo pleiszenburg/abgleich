@@ -43,7 +43,9 @@ from ..zfs.zpool import Zpool
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 def compare(configfile):
 
-    source_zpool = Zpool.from_config('source', config = Config.from_fd(configfile))
-    target_zpool = Zpool.from_config('target', config = Config.from_fd(configfile))
+    config = Config.from_fd(configfile)
+
+    source_zpool = Zpool.from_config('source', config = config)
+    target_zpool = Zpool.from_config('target', config = config)
 
     source_zpool.print_comparison_table(target_zpool)
