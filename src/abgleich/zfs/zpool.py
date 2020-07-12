@@ -33,10 +33,11 @@ import typing
 from tabulate import tabulate
 import typeguard
 
-from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, ZpoolABC
+from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, TransactionListABC, ZpoolABC
 from .comparison import Comparison
 from .dataset import Dataset
 from .lib import join
+from .transaction import TransactionList
 from ..command import Command
 from ..io import colorize, humanize_size
 
@@ -69,6 +70,21 @@ class Zpool(ZpoolABC):
     def side(self) -> str:
 
         return self._side
+
+    def get_snapshot_transactions(self) -> TransactionListABC:
+
+        assert self._side == 'source'
+
+        transactions = TransactionList()
+        for dataset in self._datasets:
+            if dataset.subname in self._config['ignore']:
+                continue
+            if dataset['mountpoint'].value is None:
+                continue
+            if dataset.changed:
+                transactions.append(dataset.get_snapshot_transaction())
+
+        return transactions
 
     def print_table(self):
 
