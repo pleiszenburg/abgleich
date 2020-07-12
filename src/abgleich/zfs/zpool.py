@@ -33,7 +33,8 @@ import typing
 from tabulate import tabulate
 import typeguard
 
-from .abc import DatasetABC, SnapshotABC, ZpoolABC
+from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, ZpoolABC
+from .comparison import Comparison
 from .dataset import Dataset
 from .lib import join
 from ..command import Command
@@ -86,11 +87,53 @@ class Zpool(ZpoolABC):
 
     @staticmethod
     def _table_row(entity: typing.Union[SnapshotABC, DatasetABC]) -> typing.List[str]:
+
         return [
             '- ' + colorize(entity.name, "grey") if isinstance(entity, SnapshotABC) else colorize(entity.name, "white"),
             humanize_size(entity['used'].value, add_color=True),
             humanize_size(entity['referenced'].value, add_color=True),
             f'{entity["compressratio"].value:.02f}',
+        ]
+
+    def print_comparison_table(self, other: ZpoolABC):
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+        table = []
+
+        for dataset_item in zpool_comparison.merged:
+            table.append(self._comparison_table_row(dataset_item))
+            if dataset_item.complete:
+                dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
+            elif dataset_item.a is not None:
+                dataset_comparison = Comparison.from_datasets(dataset_item.a, None)
+            else:
+                dataset_comparison = Comparison.from_datasets(None, dataset_item.b)
+            for snapshot_item in dataset_comparison.merged:
+                table.append(self._comparison_table_row(snapshot_item))
+
+        print(tabulate(
+            table,
+            headers=["NAME", self.side, other.side],
+            tablefmt="github",
+            ))
+
+    @staticmethod
+    def _comparison_table_row(entity: ComparisonItemABC) -> typing.List[str]:
+
+        item = entity.get_item()
+        name = item.name
+
+        if item.a is not None and item.b is not None:
+            a, b = colorize("X", "green"), colorize("X", "green")
+        elif item.a is None and item.b is not None:
+            a, b = "", colorize("X", "blue")
+        elif item.a is not None and item.b is None:
+            a, b = colorize("X", "red"), ""
+
+        return [
+            '- ' + colorize(name, "grey") if isinstance(item, SnapshotABC) else colorize(name, "white"),
+            a,
+            b,
         ]
 
     @classmethod
