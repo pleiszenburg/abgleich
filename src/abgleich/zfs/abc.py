@@ -37,6 +37,12 @@ import abc
 class CloneABC(abc.ABC):
     pass
 
+class ComparisonABC(abc.ABC):
+    pass
+
+class ComparisonItemABC(abc.ABC):
+    pass
+
 class DatasetABC(abc.ABC):
     pass
 
