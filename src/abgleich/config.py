@@ -35,6 +35,8 @@ import typeguard
 import yaml
 from yaml import CLoader
 
+from .zfs.lib import valid_name
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -62,6 +64,8 @@ class Config(dict):
             "source": lambda v: cls._validate(data = v, schema = side_schema),
             "target": lambda v: cls._validate(data = v, schema = side_schema),
             "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
+            "suffix": lambda v: v is None or (isinstance(v, str) and valid_name(v)),
+            "digits": lambda v: isinstance(v, int) and v >= 1,
             "ignore": lambda v: isinstance(v, list)
             and all((isinstance(item, str) and len(item) > 0 for item in v)),
             "ssh": lambda v: cls._validate(data = v, schema = ssh_schema),
