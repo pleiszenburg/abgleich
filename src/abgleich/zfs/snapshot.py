@@ -61,7 +61,7 @@ class Snapshot(SnapshotABC):
         if config[side]['prefix'] is not None:
             root = join(root, config[side]['prefix'])
         assert self._parent.startswith(root)
-        self._subparent = self._parent[len(root):]
+        self._subparent = self._parent[len(root):].strip('/')
 
     def __eq__(self, other: SnapshotABC) -> bool:
 
@@ -89,7 +89,7 @@ class Snapshot(SnapshotABC):
     @property
     def sortkey(self) -> int:
 
-        return self._properties['creation']
+        return self._properties['creation'].value
 
     @classmethod
     def from_entity(
