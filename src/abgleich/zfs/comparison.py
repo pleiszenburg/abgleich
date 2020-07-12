@@ -71,7 +71,9 @@ class Comparison(ComparisonABC):
         merged: typing.List[ComparisonItemABC],
         ):
 
-        assert type(a) == type(b)
+        assert a is not None or b is not None
+        if a is not None and b is not None:
+            assert type(a) == type(b)
 
         self._a, self._b, self._merged = a, b, merged
 
@@ -94,10 +96,11 @@ class Comparison(ComparisonABC):
     def _merge_items(
         items_a: ComparisonMergeTypes,
         items_b: ComparisonMergeTypes,
+        attr: str,
         ) -> typing.List[ComparisonItemABC]:
 
-        items_a = {item.name: item for item in items_a}
-        items_b = {item.name: item for item in items_b}
+        items_a = {getattr(item, attr): item for item in items_a}
+        items_b = {getattr(item, attr): item for item in items_b}
 
         names = list(items_a.keys() | items_b.keys())
         merged = [
@@ -142,10 +145,10 @@ class Comparison(ComparisonABC):
         assert zpool_a is not zpool_b
         assert zpool_a != zpool_b
 
-        cls(
+        return cls(
             a = zpool_a,
             b = zpool_b,
-            merged = cls._merge_items(zpool_a.datasets, zpool_b.datasets),
+            merged = cls._merge_items(zpool_a.datasets, zpool_b.datasets, 'subname'),
         )
 
     @classmethod
@@ -170,10 +173,10 @@ class Comparison(ComparisonABC):
         assert dataset_a is not dataset_b
         assert dataset_a == dataset_b
 
-        cls(
+        return cls(
             a = dataset_a,
             b = dataset_b,
-            merged = cls._merge_items(dataset_a.snapshots, dataset_b.snapshots),
+            merged = cls._merge_items(dataset_a.snapshots, dataset_b.snapshots, 'name'),
         )
 
 
