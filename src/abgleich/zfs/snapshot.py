@@ -33,8 +33,8 @@ import typing
 import typeguard
 
 from .abc import PropertyABC, SnapshotABC
+from .lib import join
 from .property import Property
-from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -57,6 +57,16 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
+        root = config[side]['zpool']
+        if config[side]['prefix'] is not None:
+            root = join(root, config[side]['prefix'])
+        assert self._parent.startswith(root)
+        self._subparent = self._parent[len(root):]
+
+    def __eq__(self, other: SnapshotABC) -> bool:
+
+        return self.subparent == other.subparent
+
     def __getitem__(self, name: str) -> PropertyABC:
 
         return self._properties[name]
@@ -70,6 +80,11 @@ class Snapshot(SnapshotABC):
     def parent(self) -> str:
 
         return self._parent
+
+    @property
+    def subparent(self) -> str:
+
+        return self._subparent
 
     @classmethod
     def from_entity(
