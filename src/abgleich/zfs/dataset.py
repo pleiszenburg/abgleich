@@ -62,7 +62,7 @@ class Dataset(DatasetABC):
         if config[side]['prefix'] is not None:
             root = join(root, config[side]['prefix'])
         assert self._name.startswith(root)
-        self._subname = self._name[len(root):]
+        self._subname = self._name[len(root):].strip('/')
 
     def __eq__(self, other: DatasetABC) -> bool:
 
