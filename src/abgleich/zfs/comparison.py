@@ -41,6 +41,7 @@ from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, Zpoo
 ComparisonParentTypes = typing.Union[
     ZpoolABC,
     DatasetABC,
+    None,
     ]
 ComparisonMergeTypes = typing.Union[
     typing.Generator[DatasetABC, None, None],
@@ -107,8 +108,36 @@ class Comparison(ComparisonABC):
 
         return merged
 
+    @staticmethod
+    def _single_items(
+        items_a: typing.Union[ComparisonMergeTypes, None],
+        items_b: typing.Union[ComparisonMergeTypes, None],
+        ) -> typing.List[ComparisonItemABC]:
+
+        assert items_a is not None or items_b is not None
+
+        if items_a is None:
+            return [ComparisonItem(None, item) for item in items_b]
+        return [ComparisonItem(item, None) for item in items_a]
+
     @classmethod
-    def from_zpools(cls, zpool_a: ZpoolABC, zpool_b: ZpoolABC) -> ComparisonABC:
+    def from_zpools(
+        cls,
+        zpool_a: typing.Union[ZpoolABC, None],
+        zpool_b: typing.Union[ZpoolABC, None],
+        ) -> ComparisonABC:
+
+        assert zpool_a is not None or zpool_b is not None
+
+        if zpool_a is None or zpool_b is None:
+            return cls(
+                a = zpool_a,
+                b = zpool_b,
+                merged = cls._single_items(
+                    getattr(zpool_a, 'datasets', None),
+                    getattr(zpool_b, 'datasets', None),
+                ),
+            )
 
         assert zpool_a is not zpool_b
         assert zpool_a != zpool_b
@@ -120,7 +149,23 @@ class Comparison(ComparisonABC):
         )
 
     @classmethod
-    def from_datasets(cls, dataset_a: DatasetABC, dataset_b: DatasetABC) -> ComparisonABC:
+    def from_datasets(
+        cls,
+        dataset_a: typing.Union[DatasetABC, None],
+        dataset_b: typing.Union[DatasetABC, None],
+        ) -> ComparisonABC:
+
+        assert dataset_a is not None or dataset_b is not None
+
+        if dataset_a is None or dataset_b is None:
+            return cls(
+                a = dataset_a,
+                b = dataset_b,
+                merged = cls._single_items(
+                    getattr(dataset_a, 'snapshots', None),
+                    getattr(dataset_b, 'snapshots', None),
+                ),
+            )
 
         assert dataset_a is not dataset_b
         assert dataset_a == dataset_b
