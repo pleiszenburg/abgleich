@@ -93,6 +93,11 @@ class Dataset(DatasetABC):
 
         return (snapshot for snapshot in self._snapshots)
 
+    @property
+    def sortkey(self) -> str:
+
+        return self._name
+
     @classmethod
     def from_entities(cls,
         name: str,
