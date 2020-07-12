@@ -68,6 +68,10 @@ class Dataset(DatasetABC):
 
         return self.subname == other.subname
 
+    def __len__(self) -> int:
+
+        return len(self._snapshots)
+
     def __getitem__(self, key: typing.Union[str, int, slice]) -> PropertyABC:
 
         if isinstance(key, str):
