@@ -28,11 +28,12 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# import typing
+import typing
 
 import typeguard
 
 from .abc import TransactionABC
+from ..abc import CommandABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -41,4 +42,58 @@ from .abc import TransactionABC
 @typeguard.typechecked
 class Transaction(TransactionABC):
 
-    pass
+    def __init__(
+        self,
+        description: str,
+        commands: typing.Tuple[CommandABC],
+    ):
+
+        assert len(commands) in (1, 2)
+
+        self._description, self._commands = description, commands
+
+        self._complete = False
+        self._running = False
+        self._error = None
+
+    @property
+    def complete(self) -> bool:
+
+        return self._complete
+
+    @property
+    def commands(self) -> typing.Tuple[CommandABC]:
+
+        return self._commands
+
+    @property
+    def description(self) -> str:
+
+        return self._description
+
+    @property
+    def error(self) -> typing.Union[Exception, None]:
+
+        return self._error
+
+    @property
+    def running(self) -> bool:
+
+        return self._running
+
+    def run(self):
+
+        if self._complete:
+            return
+        self._running = True
+
+        try:
+            if len(self._commands) == 1:
+                output, errors = self._commands[0].run()
+            else:
+                output_1, errors_1, output_2, errors_2 = self._commands[0].run_pipe(self._commands[1])
+        except SystemError as error:
+            self._error = error
+        finally:
+            self._running = False
+            self._complete = True
