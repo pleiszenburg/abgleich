@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/abc.py: Abstract base classes
+    src/abgleich/zfs/transaction.py: ZFS transactions
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -28,32 +28,17 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import abc
+# import typing
+
+import typeguard
+
+from .abc import TransactionABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# CLASSES
+# CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class CloneABC(abc.ABC):
-    pass
+@typeguard.typechecked
+class Transaction(TransactionABC):
 
-class ComparisonABC(abc.ABC):
-    pass
-
-class ComparisonItemABC(abc.ABC):
-    pass
-
-class DatasetABC(abc.ABC):
-    pass
-
-class PropertyABC(abc.ABC):
-    pass
-
-class SnapshotABC(abc.ABC):
-    pass
-
-class TransactionABC(abc.ABC):
-    pass
-
-class ZpoolABC(abc.ABC):
     pass
