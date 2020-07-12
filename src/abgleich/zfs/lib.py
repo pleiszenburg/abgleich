@@ -28,6 +28,8 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import re
+
 import typeguard
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -46,3 +48,14 @@ def join(*args: str) -> str:
         raise ValueError('can not join empty path elements')
 
     return '/'.join(args)
+
+_name_re = re.compile('^[A-Za-z0-9_]+$')
+
+@typeguard.typechecked
+def valid_name(name: str, min_len: int = 1) -> bool:
+
+    assert min_len >= 0
+
+    if len(name) < min_len:
+        return False
+    return bool(_name_re.match(name))
