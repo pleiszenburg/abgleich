@@ -86,6 +86,11 @@ class Snapshot(SnapshotABC):
 
         return self._subparent
 
+    @property
+    def sortkey(self) -> int:
+
+        return self._properties['creation']
+
     @classmethod
     def from_entity(
         cls,
