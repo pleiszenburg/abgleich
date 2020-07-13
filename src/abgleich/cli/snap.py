@@ -46,7 +46,7 @@ def snap(configfile):
     zpool = Zpool.from_config('source', config = Config.from_fd(configfile))
     transactions = zpool.get_snapshot_transactions()
 
-    if len(transactions):
+    if len(transactions) == 0:
         print('nothing to do')
         return
     transactions.print_table()
