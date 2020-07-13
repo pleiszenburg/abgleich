@@ -35,7 +35,7 @@ import typeguard
 
 from .abc import TransactionABC, TransactionListABC, TransactionMetaABC
 from ..abc import CommandABC
-from ..io import humanize_size
+from ..io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -143,6 +143,9 @@ class TransactionList(TransactionListABC):
 
     def print_table(self):
 
+        if len(self) == 0:
+            return
+
         headers = self._table_headers()
         colalign = self._table_colalign(headers)
 
@@ -205,4 +208,23 @@ class TransactionList(TransactionListABC):
 
     def run(self):
 
-        pass
+        for transaction in self._transactions:
+
+            print(
+                f'({colorize(transaction.meta["type"], "white"):s}) '
+                f'{colorize(" | ".join([str(command) for command in transaction.commands]), "yellow"):s}'
+                )
+
+            assert not transaction.running
+            assert not transaction.complete
+
+            transaction.run()
+
+            assert not transaction.running
+            assert transaction.complete
+
+            if transaction.error is not None:
+                print(colorize('FAILED', 'red'))
+                raise transaction.error
+            else:
+                print(colorize('OK', 'green'))
