@@ -30,10 +30,12 @@ specific language governing rights and limitations under the License.
 
 import typing
 
+from tabulate import tabulate
 import typeguard
 
 from .abc import TransactionABC, TransactionListABC, TransactionMetaABC
 from ..abc import CommandABC
+from ..io import humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -99,6 +101,7 @@ class Transaction(TransactionABC):
             self._complete = True
 
 MetaTypes = typing.Union[str, int, float]
+MetaNoneTypes = typing.Union[str, int, float, None]
 
 @typeguard.typechecked
 class TransactionMeta(TransactionMetaABC):
@@ -114,6 +117,10 @@ class TransactionMeta(TransactionMetaABC):
     def __len__(self) -> int:
 
         return len(self._meta)
+
+    def get(self, key: str) -> MetaNoneTypes:
+
+        return self._meta.get(key, None)
 
     def keys(self) -> typing.Generator[str, None, None]:
 
@@ -133,3 +140,69 @@ class TransactionList(TransactionListABC):
     def append(self, transaction: TransactionABC):
 
         self._transactions.append(transaction)
+
+    def print_table(self):
+
+        headers = self._table_headers()
+        colalign = self._table_colalign(headers)
+
+        table = [
+            [
+                self._table_format_cell(header, transaction.meta.get(header))
+                for header in headers
+            ]
+            for transaction in self._transactions
+        ]
+
+        print(tabulate(
+            table,
+            headers=headers,
+            tablefmt="github",
+            colalign=colalign,
+            ))
+
+    @staticmethod
+    def _table_format_cell(header: str, value: MetaNoneTypes) -> str:
+
+        FORMAT = {
+            'written': lambda v: humanize_size(v, add_color = True),
+        }
+
+        return FORMAT.get(header, str)(value)
+
+    @staticmethod
+    def _table_colalign(headers: typing.List[str]) -> typing.List[str]:
+
+        RIGHT = ('written',)
+        DECIMAL = tuple()
+
+        colalign = []
+        for header in headers:
+            if header in RIGHT:
+                colalign.append('right')
+            elif header in DECIMAL:
+                colalign.append('decimal')
+            else:
+                colalign.append('left')
+
+        return colalign
+
+    def _table_headers(self) -> typing.List[str]:
+
+        headers = set()
+        for transaction in self._transactions:
+            keys = list(transaction.meta.keys())
+            assert 'type' in keys
+            headers.update(keys)
+        headers = list(headers)
+        headers.sort()
+
+        type_index = headers.index('type')
+        if type_index != 0:
+            headers[0], headers[type_index] = headers[type_index], headers[0]
+
+        return headers
+
+    def run(self):
+
+        pass
