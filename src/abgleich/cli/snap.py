@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/cli/snap.py: snap command entry point
+    src/abgleich/cli/snap.py: snap command entry point
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -44,27 +44,9 @@ from ..zfs.zpool import Zpool
 def snap(configfile):
 
     zpool = Zpool.from_config('source', config = Config.from_fd(configfile))
+    transactions = zpool.get_snapshot_transactions()
+    transactions.print_table()
 
-    # config = yaml.load(configfile.read(), Loader=CLoader)
-	#
-    # cols = ["NAME", "written", "FUTURE SNAPSHOT"]
-    # col_align = ("left", "right")
-    # datasets = get_tree()
-    # snapshot_tasks = get_snapshot_tasks(
-    #     datasets, config["prefix_local"], config["ignore"]
-    # )
-	#
-    # table = []
-    # for name, written, snapshot_name in snapshot_tasks:
-    #     table.append([name, humanize_size(written, add_color=True), snapshot_name])
-	#
-    # print(tabulate(table, headers=cols, tablefmt="github", colalign=col_align))
-	#
-    # click.confirm("Do you want to continue?", abort=True)
-	#
-    # for name, _, snapshot_name in snapshot_tasks:
-    #     create_snapshot(
-    #         config["prefix_local"] + name,
-    #         snapshot_name,
-    #         # debug = True
-    #     )
+    click.confirm("Do you want to continue?", abort=True)
+
+    transactions.run()
