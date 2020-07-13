@@ -46,6 +46,10 @@ class Command(CommandABC):
 
         self._cmd = cmd.copy()
 
+    def __str__(self) -> str:
+
+        return ' '.join(self._cmd)
+
     def run(self):
 
         proc = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
