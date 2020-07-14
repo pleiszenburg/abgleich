@@ -20,7 +20,7 @@ All actions involving a remote host assume that `ssh` with public key authentica
 
 Let's assume that everything in `source_tank/data` and below should be synced with `target_tank/some_backup/data`. `source_tank` and `target_tank` are zpools. `data` is the "prefix" for the source zpool, `some_backup/data` is the corresponding "prefix" for the target zpool. For `abgleich` to work, `source_tank/data` and `target_tank/some_backup` must exist. `target_tank/some_backup/data` must not exist. The latter will be created by `abgleich`. It is highly recommended to set the mountpoint of `target_tank/some_backup` to `none` before running `abgleich` for the first time.
 
-Right to run the following commands are required:
+Rights to run the following commands are required:
 
 | command        | source | target |
 |----------------|:------:|:------:|
@@ -45,7 +45,7 @@ target:
     zpool: tank_hdd
     prefix: BACKUP_SOMEMACHINE
     host: bigdata
-    user: root
+    user: zfsadmin
 keep_snapshots: 2
 suffix: _backup
 digits: 2
@@ -57,7 +57,7 @@ ssh:
     cipher: aes256-gcm@openssh.com
 ```
 
-The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `keep_snapshots` is an integer and must be greater or equal to `1` It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `suffix` contains the name suffix for new snapshots. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends.
+The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `suffix` contains the name suffix for new snapshots. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends.
 
 ## USAGE
 
@@ -87,4 +87,4 @@ Cleanup older local snapshots on source side if they are present on both sides. 
 
 `abgleich` uses Python's [type hints](https://docs.python.org/3/library/typing.html) and enforces them with [typeguard](https://github.com/agronholm/typeguard) at runtime. It furthermore makes countless assertions.
 
-The enforcement of types and assertions can be controlled through the `PYTHONOPTIMIZE` environment variable. If set to `0` (the implicit default value), all checks are activated. `abgleich` will run slow. For safety, this mode is highly recommended. For significantly higher speed, all type checks and most assertions can be deactivated by setting the `PYTHONOPTIMIZE` to `1` or `2`, e.g. `PYTHONOPTIMIZE=1 abgleich tree config.yaml`. This is not recommended. You may want to check if another tool has altered this environment variable already by running `echo $PYTHONOPTIMIZE`.
+The enforcement of types and assertions can be controlled through the `PYTHONOPTIMIZE` environment variable. If set to `0` (the implicit default value), all checks are activated. `abgleich` will run slow. For safety, this mode is highly recommended. For significantly higher speed, all type checks and most assertions can be deactivated by setting `PYTHONOPTIMIZE` to `1` or `2`, e.g. `PYTHONOPTIMIZE=1 abgleich tree config.yaml`. This is not recommended. You may want to check if another tool or configuration has altered this environment variable by running `echo $PYTHONOPTIMIZE`.
