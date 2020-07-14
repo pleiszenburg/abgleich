@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.3 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.2 (2020-07-14)
 
 - FEATURE: New, fully object oriented base library

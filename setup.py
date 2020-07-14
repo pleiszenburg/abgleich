@@ -40,7 +40,7 @@ import os
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Package version
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 # List all versions of Python which are supported
 python_minor_min = 6
