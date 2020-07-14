@@ -79,6 +79,31 @@ class Zpool(ZpoolABC):
 
         return self._root
 
+    def get_cleanup_transactions(self, other: ZpoolABC) -> TransactionListABC:
+
+        assert self.side == 'source'
+        assert other.side == 'target'
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+        transactions = TransactionList()
+
+        for dataset_item in zpool_comparison.merged:
+
+            if dataset_item.get_item().subname in self._config['ignore']:
+                continue
+            if dataset_item.a is None or dataset_item.b is None:
+                continue
+
+            if len(dataset_item.a.subname) == 0:
+                continue
+
+            dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
+            snapshots = dataset_comparison.a_overlap_tail[:-self._config['keep_snapshots']]
+
+            transactions.extend((snapshot.get_cleanup_transaction() for snapshot in snapshots))
+
+        return transactions
+
     def get_backup_transactions(self, other: ZpoolABC) -> TransactionListABC:
 
         assert self.side == 'source'
@@ -94,6 +119,9 @@ class Zpool(ZpoolABC):
             if dataset_item.a is None:
                 continue
 
+            if len(dataset_item.a.subname) == 0:
+                continue
+
             if dataset_item.b is None:
                 snapshots = list(dataset_item.a.snapshots)
             else:
@@ -103,8 +131,8 @@ class Zpool(ZpoolABC):
             if len(snapshots) == 0:
                 continue
 
-            source_dataset = self.root if len(dataset_item.a.subname) == 0 else join(self.root, dataset_item.a.subname)
-            target_dataset = other.root if len(dataset_item.a.subname) == 0 else join(other.root, dataset_item.a.subname)
+            source_dataset = join(self.root, dataset_item.a.subname)
+            target_dataset = join(other.root, dataset_item.a.subname)
 
             transactions.extend((
                 snapshot.get_backup_transaction(
@@ -123,6 +151,8 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
         for dataset in self._datasets:
             if dataset.subname in self._config['ignore']:
+                continue
+            if len(dataset.subname) == 0:
                 continue
             if dataset['mountpoint'].value is None:
                 continue
