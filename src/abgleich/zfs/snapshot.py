@@ -74,11 +74,31 @@ class Snapshot(SnapshotABC):
 
         return self._properties[name]
 
+    def get_cleanup_transaction(self) -> TransactionABC:
+
+        assert self._side == 'source'
+
+        return Transaction(
+            meta = TransactionMeta(
+                type = 'cleanup_snapshot',
+                snapshot_subparent = self._subparent,
+                snapshot_name = self._name,
+                ),
+            commands = [
+                Command.on_side(
+                    ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"],
+                    self._side, self._config
+                    )
+                ],
+            )
+
     def get_backup_transaction(
         self,
         source_dataset: str,
         target_dataset: str,
     ) -> TransactionABC:
+
+        assert self._side == 'source'
 
         ancestor = self.ancestor
 
@@ -89,8 +109,8 @@ class Snapshot(SnapshotABC):
                 f"{source_dataset:s}@{self.name:s}",
             ] if ancestor is None else [
                 "zfs", "send", "-c", "-i",
-                f"{source_dataset:s}@%{ancestor.name:s}",
-                f"{source_dataset:s}@%{self.name:s}",
+                f"{source_dataset:s}@{ancestor.name:s}",
+                f"{source_dataset:s}@{self.name:s}",
             ],
             'source', self._config
             ),
