@@ -2,7 +2,7 @@
 
 ## SYNOPSIS
 
-Simple ZFS sync tool. It shows source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. Cleanes up older snapshot on local system. Runs form the command line and produces nice, user-friendly, readable, colorized output.
+`abgleich` is a simple ZFS sync tool. It shows source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on the command line and produces nice, user-friendly, human-readable, colorized output.
 
 ## INSTALLATION
 
@@ -14,7 +14,7 @@ Requires (C)Python 3.6 or later. Tested with [OpenZFS](https://en.wikipedia.org/
 
 ## USAGE
 
-All potentially changing or destructive actions are listed in detail before the user is asked to confirm them. None of the commands listed here will change a zpool, dataset or snapshot on its own without the user's explicit consent.
+All potentially changing or destructive actions are listed in detail before the user is asked to confirm them. None of the commands listed below create, change or destroy a zpool, dataset or snapshot on their own without the user's explicit consent.
 
 ### `abgleich tree config.yaml [source|target]`
 
