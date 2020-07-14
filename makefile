@@ -14,9 +14,9 @@ clean:
 
 release:
 	make clean
-	# python setup.py sdist bdist_wheel
+	python setup.py sdist bdist_wheel
 	python setup.py sdist
-	# gpg --detach-sign -a dist/abgleich*.whl
+	gpg --detach-sign -a dist/abgleich*.whl
 	gpg --detach-sign -a dist/abgleich*.tar.gz
 
 install:
