@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/cli/backup.py: backup command entry point
+    src/abgleich/cli/backup.py: backup command entry point
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -30,17 +30,9 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import click
-from tabulate import tabulate
-import yaml
-from yaml import CLoader
 
-from ..io import colorize
-from ..zfs import (
-    get_backup_ops,
-    get_tree,
-    push_snapshot,
-    push_snapshot_incremental,
-)
+from ..config import Config
+from ..zfs.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
@@ -51,45 +43,18 @@ from ..zfs import (
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 def backup(configfile):
 
-    config = yaml.load(configfile.read(), Loader=CLoader)
+    config = Config.from_fd(configfile)
 
-    datasets_local = get_tree()
-    datasets_remote = get_tree(config["host"])
-    ops = get_backup_ops(
-        datasets_local,
-        config["prefix_local"],
-        datasets_remote,
-        config["prefix_remote"],
-        config["ignore"],
-    )
+    source_zpool = Zpool.from_config('source', config = config)
+    target_zpool = Zpool.from_config('target', config = config)
 
-    table = []
-    for op in ops:
-        row = op.copy()
-        row[0] = colorize(row[0], "green" if "incremental" in row[0] else "blue")
-        table.append(row)
+    transactions = source_zpool.get_backup_transactions(target_zpool)
 
-    print(tabulate(table, headers=["OP", "PARAM"], tablefmt="github"))
+    if len(transactions) == 0:
+        print('nothing to do')
+        return
+    transactions.print_table()
 
     click.confirm("Do you want to continue?", abort=True)
 
-    for op, param in ops:
-        if op == "push_snapshot":
-            push_snapshot(
-                config["host"],
-                config["prefix_local"] + param[0],
-                param[1],
-                config["prefix_remote"] + param[0],
-                # debug = True
-            )
-        elif op == "push_snapshot_incremental":
-            push_snapshot_incremental(
-                config["host"],
-                config["prefix_local"] + param[0],
-                param[1],
-                param[2],
-                config["prefix_remote"] + param[0],
-                # debug = True
-            )
-        else:
-            raise ValueError("unknown operation")
+    transactions.run()
