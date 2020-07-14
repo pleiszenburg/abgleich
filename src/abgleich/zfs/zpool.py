@@ -38,6 +38,7 @@ from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, TransactionListABC,
 from .comparison import Comparison
 from .dataset import Dataset
 from .lib import join, root
+from .property import Property
 from .transaction import TransactionList
 from ..command import Command
 from ..io import colorize, humanize_size
@@ -218,6 +219,20 @@ class Zpool(ZpoolABC):
             a,
             b,
         ]
+
+    @staticmethod
+    def available(
+        side: str,
+        config: typing.Dict,
+        ) -> int:
+
+        output, _ = Command.on_side(
+            ["zfs", "get", "available", "-H", "-p", root(config[side]['zpool'], config[side]['prefix'])],
+            side,
+            config,
+            ).run()
+
+        return Property.from_params(*output.strip().split('\t')[1:]).value
 
     @classmethod
     def from_config(

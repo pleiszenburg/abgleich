@@ -29,10 +29,13 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import time
+
 import click
 
 from ..config import Config
 from ..zfs.zpool import Zpool
+from ..io import humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
@@ -47,6 +50,7 @@ def cleanup(configfile):
 
     source_zpool = Zpool.from_config('source', config = config)
     target_zpool = Zpool.from_config('target', config = config)
+    available_before = Zpool.available('source', config = config)
 
     transactions = source_zpool.get_cleanup_transactions(target_zpool)
 
@@ -58,3 +62,9 @@ def cleanup(configfile):
     click.confirm("Do you want to continue?", abort=True)
 
     transactions.run()
+
+    WAIT = 10
+    print(f'waiting {WAIT:d} seconds ...')
+    time.sleep(WAIT)
+    available_after = Zpool.available('source', config = config)
+    print(f'{humanize_size(available_after, add_color = True):s} available, {humanize_size(available_after - available_before, add_color = True):s} freed')
