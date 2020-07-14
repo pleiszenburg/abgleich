@@ -47,7 +47,7 @@ class Transaction(TransactionABC):
     def __init__(
         self,
         meta: TransactionMetaABC,
-        commands: typing.Tuple[CommandABC],
+        commands: typing.List[CommandABC],
     ):
 
         assert len(commands) in (1, 2)
@@ -126,6 +126,12 @@ class TransactionMeta(TransactionMetaABC):
 
         return (key for key in self._meta.keys())
 
+TransactionIterableTypes = typing.Union[
+    typing.Generator[TransactionABC, None, None],
+    typing.List[TransactionABC],
+    typing.Tuple[TransactionABC],
+]
+
 @typeguard.typechecked
 class TransactionList(TransactionListABC):
 
@@ -140,6 +146,10 @@ class TransactionList(TransactionListABC):
     def append(self, transaction: TransactionABC):
 
         self._transactions.append(transaction)
+
+    def extend(self, transactions: TransactionIterableTypes):
+
+        self._transactions.extend(transactions)
 
     def print_table(self):
 
