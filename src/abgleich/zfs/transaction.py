@@ -212,7 +212,8 @@ class TransactionList(TransactionListABC):
 
         type_index = headers.index('type')
         if type_index != 0:
-            headers[0], headers[type_index] = headers[type_index], headers[0]
+            headers.pop(type_index)
+            headers.insert(0, 'type')
 
         return headers
 
