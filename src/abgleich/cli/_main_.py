@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
 	src/abgleich/cli/_main_.py: CLI auto-detection
 
-	Copyright (C) 2019 Sebastian M. Ernst <ernst@pleiszenburg.de>
+	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -38,19 +38,20 @@ import click
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 def _add_commands(ctx):
-	"""auto-detects sub-commands"""
-	for cmd in (
-		item[:-3] if item.lower().endswith('.py') else item[:]
-		for item in os.listdir(os.path.dirname(__file__))
-		if not item.startswith('_')
-		):
-		ctx.add_command(getattr(importlib.import_module(
-			'abgleich.cli.%s' % cmd
-			), cmd))
+    """auto-detects sub-commands"""
+    for cmd in (
+        item[:-3] if item.lower().endswith(".py") else item[:]
+        for item in os.listdir(os.path.dirname(__file__))
+        if not item.startswith("_")
+    ):
+        ctx.add_command(getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd))
+
 
 @click.group()
 def cli():
-	"""abgleich, zfs sync tool"""
+    """abgleich, zfs sync tool"""
+
 
 _add_commands(cli)

@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/__init__.py: Package root
+	src/abgleich/core/__init__.py: Core package root
 
 	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 

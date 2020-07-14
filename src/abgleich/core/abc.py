@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/cli/compare.py: compare command entry point
+    src/abgleich/core/abc.py: Abstract base classes
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,28 +24,56 @@ specific language governing rights and limitations under the License.
 
 """
 
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import click
-
-from ..core.config import Config
-from ..core.zpool import Zpool
+import abc
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
+# CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@click.command(short_help="compare dataset trees")
-@click.argument("configfile", type=click.File("r", encoding="utf-8"))
-def compare(configfile):
+class CloneABC(abc.ABC):
+    pass
 
-    config = Config.from_fd(configfile)
 
-    source_zpool = Zpool.from_config("source", config=config)
-    target_zpool = Zpool.from_config("target", config=config)
+class CommandABC(abc.ABC):
+    pass
 
-    source_zpool.print_comparison_table(target_zpool)
+
+class ComparisonABC(abc.ABC):
+    pass
+
+
+class ComparisonItemABC(abc.ABC):
+    pass
+
+
+class DatasetABC(abc.ABC):
+    pass
+
+
+class PropertyABC(abc.ABC):
+    pass
+
+
+class SnapshotABC(abc.ABC):
+    pass
+
+
+class TransactionABC(abc.ABC):
+    pass
+
+
+class TransactionListABC(abc.ABC):
+    pass
+
+
+class TransactionMetaABC(abc.ABC):
+    pass
+
+
+class ZpoolABC(abc.ABC):
+    pass

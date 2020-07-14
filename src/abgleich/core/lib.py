@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/io.py: Command line IO
+    src/abgleich/core/lib.py: ZFS library
 
-	Copyright (C) 2019 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -24,54 +24,50 @@ specific language governing rights and limitations under the License.
 
 """
 
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# CONSTANTS
+# IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# https://en.wikipedia.org/wiki/ANSI_escape_code
-c = {
-	'RESET': '\033[0;0m',
-	'BOLD': '\033[;1m',
-	'REVERSE': '\033[;7m',
-	'GREY': '\033[1;30m',
-	'RED': '\033[1;31m',
-	'GREEN': '\033[1;32m',
-	'YELLOW': '\033[1;33m',
-	'BLUE': '\033[1;34m',
-	'MAGENTA': '\033[1;35m',
-	'CYAN': '\033[1;36m',
-	'WHITE': '\033[1;37m'
-	}
+import re
+import typing
 
+import typeguard
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def colorize(text, col):
-	return c.get(col.upper(), c['GREY']) + text + c['RESET']
 
-def humanize_size(size, add_color = False):
+@typeguard.typechecked
+def join(*args: str) -> str:
 
-	suffix = 'B'
+    if len(args) < 2:
+        raise ValueError("not enough elements to join")
 
-	for unit, color in (
-		('', 'cyan'),
-		('Ki', 'green'),
-		('Mi', 'yellow'),
-		('Gi', 'red'),
-		('Ti', 'magenta'),
-		('Pi', 'white'),
-		('Ei', 'white'),
-		('Zi', 'white'),
-		('Yi', 'white')
-		):
-		if abs(size) < 1024.0:
-			text = '%3.1f %s%s' % (size, unit, suffix)
-			if add_color:
-				text = colorize(text, color)
-			return text
-		size /= 1024.0
+    args = [arg.strip("/ \t\n") for arg in args]
 
-	raise ValueError('"size" too large')
+    if any((len(arg) == 0 for arg in args)):
+        raise ValueError("can not join empty path elements")
+
+    return "/".join(args)
+
+
+@typeguard.typechecked
+def root(zpool: str, prefix: typing.Union[str, None]) -> str:
+
+    if prefix is None:
+        return zpool
+    return join(zpool, prefix)
+
+
+_name_re = re.compile("^[A-Za-z0-9_]+$")
+
+
+@typeguard.typechecked
+def valid_name(name: str, min_len: int = 1) -> bool:
+
+    assert min_len >= 0
+
+    if len(name) < min_len:
+        return False
+    return bool(_name_re.match(name))

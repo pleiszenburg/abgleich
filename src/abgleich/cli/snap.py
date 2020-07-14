@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/cli/snap.py: snap command entry point
+    src/abgleich/cli/snap.py: snap command entry point
 
-	Copyright (C) 2019 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -30,56 +30,27 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import click
-from tabulate import tabulate
-import yaml
-from yaml import CLoader
 
-from ..io import colorize, humanize_size
-from ..zfs import (
-	create_snapshot,
-	get_tree,
-	get_snapshot_tasks,
-	)
+from ..core.config import Config
+from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-@click.command(short_help = 'create snapshots of changed datasets for backups')
-@click.argument('configfile', type = click.File('r', encoding = 'utf-8'))
+
+@click.command(short_help="create snapshots of changed datasets for backups")
+@click.argument("configfile", type=click.File("r", encoding="utf-8"))
 def snap(configfile):
 
-	config = yaml.load(configfile.read(), Loader = CLoader)
+    zpool = Zpool.from_config("source", config=Config.from_fd(configfile))
+    transactions = zpool.get_snapshot_transactions()
 
-	cols = ['NAME', 'written', 'FUTURE SNAPSHOT']
-	col_align = ('left', 'right')
-	datasets = get_tree()
-	snapshot_tasks = get_snapshot_tasks(
-		datasets,
-		config['prefix_local'],
-		config['ignore']
-		)
+    if len(transactions) == 0:
+        print("nothing to do")
+        return
+    transactions.print_table()
 
-	table = []
-	for name, written, snapshot_name in snapshot_tasks:
-		table.append([
-			name,
-			humanize_size(written, add_color = True),
-			snapshot_name
-			])
+    click.confirm("Do you want to continue?", abort=True)
 
-	print(tabulate(
-		table,
-		headers = cols,
-		tablefmt = 'github',
-		colalign = col_align
-		))
-
-	click.confirm('Do you want to continue?', abort = True)
-
-	for name, _, snapshot_name in snapshot_tasks:
-		create_snapshot(
-			config['prefix_local'] + name,
-			snapshot_name,
-			# debug = True
-			)
+    transactions.run()
