@@ -127,11 +127,6 @@ class Snapshot(SnapshotABC):
         return self._subparent
 
     @property
-    def sortkey(self) -> int:
-
-        return self._properties['creation'].value
-
-    @property
     def ancestor(self) -> typing.Union[None, SnapshotABC]:
 
         assert self in self._context

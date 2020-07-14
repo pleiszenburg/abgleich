@@ -114,11 +114,6 @@ class Dataset(DatasetABC):
         return (snapshot for snapshot in self._snapshots)
 
     @property
-    def sortkey(self) -> str:
-
-        return self._name
-
-    @property
     def root(self) -> str:
 
         return self._root
