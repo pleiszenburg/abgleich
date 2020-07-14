@@ -36,7 +36,7 @@ import typeguard
 from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, TransactionListABC, ZpoolABC
 from .comparison import Comparison
 from .dataset import Dataset
-from .lib import join
+from .lib import join, root
 from .transaction import TransactionList
 from ..command import Command
 from ..io import colorize, humanize_size
@@ -57,6 +57,8 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
+        self._root = root(config[side]['zpool'], config[side]['prefix'])
+
     def __eq__(self, other: ZpoolABC) -> bool:
 
         return self.side == other.side
@@ -70,6 +72,54 @@ class Zpool(ZpoolABC):
     def side(self) -> str:
 
         return self._side
+
+    @property
+    def root(self) -> str:
+
+        return self._root
+
+    def get_backup_transactions(self, other: ZpoolABC) -> TransactionListABC:
+
+        assert self.side == 'source'
+        assert other.side == 'target'
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+        transactions = TransactionList()
+
+        for dataset_item in zpool_comparison.merged:
+
+            if dataset_item.get_item().subname in self._config['ignore']:
+                continue
+            if dataset_item.a is None:
+                continue
+
+            if len(dataset_item.a.subname) == 0:
+                continue # TODO (???)
+
+            if dataset_item.b is None:
+                snapshots = list(dataset_item.a.snapshots)
+                snapshots.insert(0, None) # no ancestor at the beginning
+            else:
+                dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
+                snapshots = dataset_comparison.a_head
+
+            if len(snapshots) < 2:
+                # raise ValueError('dataset has no snapshots, nothing to back up', dataset_item.a.subname, snapshots)
+                continue
+
+            source_dataset = join(self.root, dataset_item.a.subname)
+            target_dataset = join(other.root, dataset_item.a.subname)
+
+            transactions.extend((
+                snapshot.get_backup_transaction(
+                    source_dataset,
+                    target_dataset,
+                    ancestor,
+                    )
+                for ancestor, snapshot in zip(snapshots[:-1], snapshots[1:])
+            ))
+
+        return transactions
 
     def get_snapshot_transactions(self) -> TransactionListABC:
 
@@ -159,11 +209,11 @@ class Zpool(ZpoolABC):
         config: typing.Dict,
         ) -> ZpoolABC:
 
-        root = config[side]['zpool']
-        if config[side]['prefix'] is not None:
-            root = join(root, config[side]['prefix'])
-
-        output, _ = Command.on_side(["zfs", "get", "all", "-r", "-H", "-p", root], side, config).run()
+        output, _ = Command.on_side(
+            ["zfs", "get", "all", "-r", "-H", "-p", root(config[side]['zpool'], config[side]['prefix'])],
+            side,
+            config,
+            ).run()
         output = [line.split('\t') for line in output.split('\n') if len(line.strip()) > 0]
         entities = {name: [] for name in {line[0] for line in output}}
         for line_list in output:
