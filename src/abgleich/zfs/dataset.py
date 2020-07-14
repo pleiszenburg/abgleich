@@ -172,7 +172,7 @@ class Dataset(DatasetABC):
     @classmethod
     def from_entities(cls,
         name: str,
-        entities: typing.Dict[str, typing.List[typing.List[str]]],
+        entities: typing.OrderedDict[str, typing.List[typing.List[str]]],
         side: str,
         config: typing.Dict,
         ) -> DatasetABC:

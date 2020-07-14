@@ -28,6 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from collections import OrderedDict
 import typing
 
 from tabulate import tabulate
@@ -215,14 +216,14 @@ class Zpool(ZpoolABC):
             config,
             ).run()
         output = [line.split('\t') for line in output.split('\n') if len(line.strip()) > 0]
-        entities = {name: [] for name in {line[0] for line in output}}
+        entities = OrderedDict((line[0], []) for line in output)
         for line_list in output:
             entities[line_list[0]].append(line_list[1:])
 
         datasets = [
             Dataset.from_entities(
                 name,
-                {k: v for k, v in entities.items() if k == name or k.startswith(f'{name:s}@')},
+                OrderedDict((k, v) for k, v in entities.items() if k == name or k.startswith(f'{name:s}@')),
                 side,
                 config,
                 )
