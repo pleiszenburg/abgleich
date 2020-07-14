@@ -192,7 +192,6 @@ class Dataset(DatasetABC):
                 )
             for snapshot_name in entities.keys()
             ]
-        snapshots.sort(key = lambda snapshot: snapshot['creation'].value)
 
         return cls(
             name = name,
