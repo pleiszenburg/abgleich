@@ -96,12 +96,11 @@ class Zpool(ZpoolABC):
 
             if dataset_item.b is None:
                 snapshots = list(dataset_item.a.snapshots)
-                snapshots.insert(0, None) # no ancestor at the beginning
             else:
                 dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
                 snapshots = dataset_comparison.a_head
 
-            if len(snapshots) < 2:
+            if len(snapshots) == 0:
                 continue
 
             source_dataset = self.root if len(dataset_item.a.subname) == 0 else join(self.root, dataset_item.a.subname)
@@ -111,9 +110,8 @@ class Zpool(ZpoolABC):
                 snapshot.get_backup_transaction(
                     source_dataset,
                     target_dataset,
-                    ancestor,
                     )
-                for ancestor, snapshot in zip(snapshots[:-1], snapshots[1:])
+                for snapshot in snapshots
             ))
 
         return transactions

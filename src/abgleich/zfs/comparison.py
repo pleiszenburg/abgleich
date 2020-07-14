@@ -116,9 +116,9 @@ class Comparison(ComparisonABC):
         target: typing.List[ComparisonItemType],
     ) -> typing.List[ComparisonItemType]:
         """
-        Returns last element of target plus new elements from source.
-        If target is empty, returns [None, *source].
-        If head of target and head of source are identical, returns last element.
+        Returns new elements from source.
+        If target is empty, returns source.
+        If head of target and head of source are identical, returns empty list.
         """
 
         source, target = cls._strip_none(source), cls._strip_none(target)
@@ -137,7 +137,6 @@ class Comparison(ComparisonABC):
             raise ValueError('target contains doublicate entires')
 
         if len(target) == 0:
-            source.insert(0, None)
             return source # all of source, target is empty
 
         try:
@@ -154,7 +153,7 @@ class Comparison(ComparisonABC):
             if target != source[source_index+1-len(target):source_index+1]:
                 raise ValueError('no clean match between entire target and beginning of source')
 
-        return source[source_index:]
+        return source[source_index+1:]
 
     @classmethod
     def _strip_none(

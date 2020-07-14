@@ -68,7 +68,7 @@ class Snapshot(SnapshotABC):
 
     def __eq__(self, other: SnapshotABC) -> bool:
 
-        return self.subparent == other.subparent
+        return self.subparent == other.subparent and self.name == other.name
 
     def __getitem__(self, name: str) -> PropertyABC:
 
@@ -78,8 +78,9 @@ class Snapshot(SnapshotABC):
         self,
         source_dataset: str,
         target_dataset: str,
-        ancestor: typing.Union[None, SnapshotABC] = None,
     ) -> TransactionABC:
+
+        ancestor = self.ancestor
 
         commands = [
             Command.on_side(
