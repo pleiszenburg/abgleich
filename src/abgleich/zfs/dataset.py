@@ -34,7 +34,7 @@ import typing
 import typeguard
 
 from .abc import DatasetABC, PropertyABC, TransactionABC, SnapshotABC
-from .lib import join
+from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
 from .snapshot import Snapshot
@@ -61,11 +61,10 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        root = config[side]['zpool']
-        if config[side]['prefix'] is not None:
-            root = join(root, config[side]['prefix'])
-        assert self._name.startswith(root)
-        self._subname = self._name[len(root):].strip('/')
+        self._root = root(config[side]['zpool'], config[side]['prefix'])
+
+        assert self._name.startswith(self._root)
+        self._subname = self._name[len(self._root):].strip('/')
 
     def __eq__(self, other: DatasetABC) -> bool:
 
@@ -119,6 +118,11 @@ class Dataset(DatasetABC):
 
         return self._name
 
+    @property
+    def root(self) -> str:
+
+        return self._root
+
     def get_snapshot_transaction(self) -> TransactionABC:
 
         snapshot_name = self._new_snapshot_name()
@@ -130,10 +134,10 @@ class Dataset(DatasetABC):
                 snapshot_name = snapshot_name,
                 written = self._properties['written'].value,
                 ),
-            (Command.on_side(
+            [Command.on_side(
                 ['zfs', 'snapshot', f'{self._name:s}@{snapshot_name:s}'],
                 self._side, self._config,
-                ),)
+                )]
             )
 
     def _new_snapshot_name(self) -> str:
