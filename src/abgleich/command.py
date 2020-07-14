@@ -66,11 +66,13 @@ class Command(CommandABC):
 
         proc_1 = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc_2 = subprocess.Popen(other.cmd, stdin=proc_1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output_1, errors_1 = proc_1.communicate() # TODO no output?
+
         output_2, errors_2 = proc_2.communicate()
-        status_1 = not bool(proc_1.returncode)
         status_2 = not bool(proc_2.returncode)
-        output_1, errors_1 = output_1.decode("utf-8"), errors_1.decode("utf-8")
+        _, errors_1 = proc_1.communicate()
+        status_1 = not bool(proc_1.returncode)
+
+        errors_1 = errors_1.decode("utf-8")
         output_2, errors_2 = output_2.decode("utf-8"), errors_2.decode("utf-8")
 
         if any((
@@ -79,9 +81,9 @@ class Command(CommandABC):
             not status_2,
             len(errors_2.strip()) > 0,
         )):
-            raise SystemError('command pipe failed', self.cmd, output_1, errors_1, output_2, errors_2)
+            raise SystemError('command pipe failed', self.cmd, other.cmd, errors_1, output_2, errors_2)
 
-        return output_1, errors_1, output_2, errors_2
+        return errors_1, output_2, errors_2
 
     @property
     def cmd(self) -> typing.List[str]:
