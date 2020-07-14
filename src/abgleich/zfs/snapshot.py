@@ -32,9 +32,11 @@ import typing
 
 import typeguard
 
-from .abc import PropertyABC, SnapshotABC
-from .lib import join
+from .abc import PropertyABC, SnapshotABC, TransactionABC
+from .lib import root
 from .property import Property
+from .transaction import Transaction, TransactionMeta
+from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -57,11 +59,10 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
-        root = config[side]['zpool']
-        if config[side]['prefix'] is not None:
-            root = join(root, config[side]['prefix'])
-        assert self._parent.startswith(root)
-        self._subparent = self._parent[len(root):].strip('/')
+        self._root = root(config[side]['zpool'], config[side]['prefix'])
+
+        assert self._parent.startswith(self._root)
+        self._subparent = self._parent[len(self._root):].strip('/')
 
     def __eq__(self, other: SnapshotABC) -> bool:
 
@@ -70,6 +71,43 @@ class Snapshot(SnapshotABC):
     def __getitem__(self, name: str) -> PropertyABC:
 
         return self._properties[name]
+
+    def get_backup_transaction(
+        self,
+        source_dataset: str,
+        target_dataset: str,
+        ancestor: typing.Union[None, SnapshotABC] = None,
+    ) -> TransactionABC:
+
+        commands = [
+            Command.on_side(
+            [
+                "zfs", "send", "-c",
+                f"{source_dataset:s}@{self.name:s}",
+            ] if ancestor is None else [
+                "zfs", "send", "-c", "-i",
+                f"{source_dataset:s}@%{ancestor.name:s}",
+                f"{source_dataset:s}@%{self.name:s}",
+            ],
+            'source', self._config
+            ),
+            Command.on_side(
+            [
+                "zfs", "receive", f"{target_dataset:s}"
+            ],
+            'target', self._config
+            ),
+        ]
+
+        return Transaction(
+            meta = TransactionMeta(
+                type = 'push_snapshot' if ancestor is None else 'push_snapshot_incremental',
+                snapshot_subparent = self._subparent,
+                ancestor_name = "" if ancestor is None else ancestor.name,
+                snapshot_name = self.name,
+                ),
+            commands = commands,
+            )
 
     @property
     def name(self) -> str:
@@ -90,6 +128,11 @@ class Snapshot(SnapshotABC):
     def sortkey(self) -> int:
 
         return self._properties['creation'].value
+
+    @property
+    def root(self) -> str:
+
+        return self._root
 
     @classmethod
     def from_entity(
