@@ -177,25 +177,6 @@ class Comparison(ComparisonABC):
         return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
-    def _merge_items(
-        items_a: ComparisonMergeTypes,
-        items_b: ComparisonMergeTypes,
-        attr: str,
-        ) -> typing.List[ComparisonItemABC]:
-
-        items_a = {getattr(item, attr): item for item in items_a}
-        items_b = {getattr(item, attr): item for item in items_b}
-
-        names = list(items_a.keys() | items_b.keys())
-        merged = [
-            ComparisonItem(items_a.get(name, None), items_b.get(name, None))
-            for name in names
-            ]
-        merged.sort(key = lambda item: item.get_item().sortkey)
-
-        return merged
-
-    @staticmethod
     def _single_items(
         items_a: typing.Union[ComparisonMergeTypes, None],
         items_b: typing.Union[ComparisonMergeTypes, None],
@@ -206,6 +187,24 @@ class Comparison(ComparisonABC):
         if items_a is None:
             return [ComparisonItem(None, item) for item in items_b]
         return [ComparisonItem(item, None) for item in items_a]
+
+    @staticmethod
+    def _merge_datasets(
+        items_a: typing.Generator[DatasetABC, None, None],
+        items_b: typing.Generator[DatasetABC, None, None],
+        ) -> typing.List[ComparisonItemABC]:
+
+        items_a = {item.subname: item for item in items_a}
+        items_b = {item.subname: item for item in items_b}
+
+        names = list(items_a.keys() | items_b.keys())
+        merged = [
+            ComparisonItem(items_a.get(name, None), items_b.get(name, None))
+            for name in names
+            ]
+        merged.sort(key = lambda item: item.get_item().name)
+
+        return merged
 
     @classmethod
     def from_zpools(
@@ -232,8 +231,70 @@ class Comparison(ComparisonABC):
         return cls(
             a = zpool_a,
             b = zpool_b,
-            merged = cls._merge_items(zpool_a.datasets, zpool_b.datasets, 'subname'),
+            merged = cls._merge_datasets(zpool_a.datasets, zpool_b.datasets),
         )
+
+    @staticmethod
+    def _merge_snapshots(
+        items_a: typing.Generator[SnapshotABC, None, None],
+        items_b: typing.Generator[SnapshotABC, None, None],
+    ) -> typing.List[ComparisonItemABC]:
+
+        items_a = list(items_a)
+        items_b = list(items_b)
+        names_a = [item.name for item in items_a]
+        names_b = [item.name for item in items_b]
+
+        assert len(set(names_a)) == len(items_a) # unique names
+        assert len(set(names_b)) == len(items_b) # unique names
+
+        if len(items_a) == 0 and len(items_b) == 0:
+            return []
+        if len(items_a) == 0:
+            return [ComparisonItem(None, item) for item in items_b]
+        if len(items_b) == 0:
+            return [ComparisonItem(item, None) for item in items_a]
+
+        try:
+            start_b = names_a.index(names_b[0])
+        except ValueError:
+            start_b = None
+        try:
+            start_a = names_b.index(names_a[0])
+        except ValueError:
+            start_a = None
+
+        assert start_a is not None or start_b is not None # overlap
+
+        prefix_a = [] if start_a is None else [None for _ in range(start_a)]
+        prefix_b = [] if start_b is None else [None for _ in range(start_b)]
+        items_a = prefix_a + items_a
+        items_b = prefix_b + items_b
+        suffix_a = [] if len(items_a) >= len(items_b) else [None for _ in range(len(items_b) - len(items_a))]
+        suffix_b = [] if len(items_b) >= len(items_a) else [None for _ in range(len(items_a) - len(items_b))]
+        items_a = items_a + suffix_a
+        items_b = items_b + suffix_b
+
+        assert len(items_a) == len(items_b)
+
+        alt_a, alt_b, state_a, state_b = 0, 0, False, False
+        merged = []
+        for item_a, item_b in zip(items_a, items_b):
+            new_state_a, new_state_b = item_a is not None, item_b is not None
+            if new_state_a != state_a:
+                alt_a, state_a = alt_a + 1, new_state_a
+                if alt_a > 2:
+                    raise ValueError('gap in snapshot series')
+            if new_state_b != state_b:
+                alt_b, state_b = alt_b + 1, new_state_b
+                if alt_b > 2:
+                    raise ValueError('gap in snapshot series')
+            if state_a and state_b:
+                if item_a.name != item_b.name:
+                    raise ValueError('inconsistent snapshot names')
+            merged.append(ComparisonItem(item_a, item_b))
+
+        return merged
 
     @classmethod
     def from_datasets(
@@ -260,7 +321,7 @@ class Comparison(ComparisonABC):
         return cls(
             a = dataset_a,
             b = dataset_b,
-            merged = cls._merge_items(dataset_a.snapshots, dataset_b.snapshots, 'name'),
+            merged = cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
         )
 
 
