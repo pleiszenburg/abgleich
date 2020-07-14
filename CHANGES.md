@@ -1,6 +1,6 @@
 # Changes
 
-## 0.0.2 (2020-XX-XX)
+## 0.0.2 (2020-07-14)
 
 - FEATURE: New, fully object oriented base library
 - FEATURE: Python 3.8 support added
