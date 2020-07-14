@@ -115,6 +115,11 @@ class Comparison(ComparisonABC):
         source: typing.List[ComparisonItemType],
         target: typing.List[ComparisonItemType],
     ) -> typing.List[ComparisonItemType]:
+        """
+        Returns last element of target plus new elements from source.
+        If target is empty, returns [None, *source].
+        If head of target and head of source are identical, returns last element.
+        """
 
         source, target = cls._strip_none(source), cls._strip_none(target)
 
