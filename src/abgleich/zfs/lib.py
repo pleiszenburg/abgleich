@@ -29,6 +29,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import re
+import typing
 
 import typeguard
 
@@ -48,6 +49,13 @@ def join(*args: str) -> str:
         raise ValueError('can not join empty path elements')
 
     return '/'.join(args)
+
+@typeguard.typechecked
+def root(zpool: str, prefix: typing.Union[str, None]) -> str:
+
+    if prefix is None:
+        return zpool
+    return join(zpool, prefix)
 
 _name_re = re.compile('^[A-Za-z0-9_]+$')
 
