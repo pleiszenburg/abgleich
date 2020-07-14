@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/io.py: Command line IO
+	src/abgleich/core/io.py: Command line IO
 
 	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 

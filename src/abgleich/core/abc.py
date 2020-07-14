@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/lib.py: ZFS library
+    src/abgleich/core/abc.py: Abstract base classes
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -28,42 +28,41 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import re
-import typing
-
-import typeguard
+import abc
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
+# CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-@typeguard.typechecked
-def join(*args: str) -> str:
+class CloneABC(abc.ABC):
+    pass
 
-    if len(args) < 2:
-        raise ValueError('not enough elements to join')
+class CommandABC(abc.ABC):
+    pass
 
-    args = [arg.strip('/ \t\n') for arg in args]
+class ComparisonABC(abc.ABC):
+    pass
 
-    if any((len(arg) == 0 for arg in args)):
-        raise ValueError('can not join empty path elements')
+class ComparisonItemABC(abc.ABC):
+    pass
 
-    return '/'.join(args)
+class DatasetABC(abc.ABC):
+    pass
 
-@typeguard.typechecked
-def root(zpool: str, prefix: typing.Union[str, None]) -> str:
+class PropertyABC(abc.ABC):
+    pass
 
-    if prefix is None:
-        return zpool
-    return join(zpool, prefix)
+class SnapshotABC(abc.ABC):
+    pass
 
-_name_re = re.compile('^[A-Za-z0-9_]+$')
+class TransactionABC(abc.ABC):
+    pass
 
-@typeguard.typechecked
-def valid_name(name: str, min_len: int = 1) -> bool:
+class TransactionListABC(abc.ABC):
+    pass
 
-    assert min_len >= 0
+class TransactionMetaABC(abc.ABC):
+    pass
 
-    if len(name) < min_len:
-        return False
-    return bool(_name_re.match(name))
+class ZpoolABC(abc.ABC):
+    pass

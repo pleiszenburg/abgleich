@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/command.py: Sub-process wrapper for commands
+    src/abgleich/core/command.py: Sub-process wrapper for commands
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 

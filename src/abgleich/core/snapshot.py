@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/snapshot.py: ZFS snapshot
+    src/abgleich/core/snapshot.py: ZFS snapshot
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -33,10 +33,10 @@ import typing
 import typeguard
 
 from .abc import PropertyABC, SnapshotABC, TransactionABC
+from .command import Command
 from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
-from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

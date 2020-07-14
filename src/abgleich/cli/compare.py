@@ -31,8 +31,8 @@ specific language governing rights and limitations under the License.
 
 import click
 
-from ..config import Config
-from ..zfs.zpool import Zpool
+from ..core.config import Config
+from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES

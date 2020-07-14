@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/comparison.py: ZFS comparison
+    src/abgleich/core/comparison.py: ZFS comparison
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 

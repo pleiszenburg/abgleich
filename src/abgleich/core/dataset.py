@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/dataset.py: ZFS dataset
+    src/abgleich/core/dataset.py: ZFS dataset
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -34,11 +34,11 @@ import typing
 import typeguard
 
 from .abc import DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .command import Command
 from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
 from .snapshot import Snapshot
-from ..command import Command
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

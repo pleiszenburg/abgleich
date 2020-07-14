@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/transaction.py: ZFS transactions
+    src/abgleich/core/transaction.py: ZFS transactions
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -33,9 +33,8 @@ import typing
 from tabulate import tabulate
 import typeguard
 
-from .abc import TransactionABC, TransactionListABC, TransactionMetaABC
-from ..abc import CommandABC
-from ..io import colorize, humanize_size
+from .abc import CommandABC, TransactionABC, TransactionListABC, TransactionMetaABC
+from .io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

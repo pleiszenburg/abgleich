@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/zfs/zpool.py: ZFS zpool
+    src/abgleich/core/zpool.py: ZFS zpool
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -35,13 +35,13 @@ from tabulate import tabulate
 import typeguard
 
 from .abc import ComparisonItemABC, DatasetABC, SnapshotABC, TransactionListABC, ZpoolABC
+from .command import Command
 from .comparison import Comparison
 from .dataset import Dataset
+from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
 from .transaction import TransactionList
-from ..command import Command
-from ..io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/config.py: Handles configuration data
+    src/abgleich/core/config.py: Handles configuration data
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -35,7 +35,7 @@ import typeguard
 import yaml
 from yaml import CLoader
 
-from .zfs.lib import valid_name
+from .lib import valid_name
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

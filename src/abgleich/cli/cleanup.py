@@ -33,9 +33,9 @@ import time
 
 import click
 
-from ..config import Config
-from ..zfs.zpool import Zpool
-from ..io import humanize_size
+from ..core.config import Config
+from ..core.io import humanize_size
+from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
