@@ -183,15 +183,17 @@ class Dataset(DatasetABC):
             )}
         entities.pop(name)
 
-        snapshots = [
+        snapshots = []
+        snapshots.extend((
             Snapshot.from_entity(
                 snapshot_name,
                 entities[snapshot_name],
+                snapshots,
                 side,
                 config,
                 )
             for snapshot_name in entities.keys()
-            ]
+            ))
 
         return cls(
             name = name,

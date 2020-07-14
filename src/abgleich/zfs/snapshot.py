@@ -49,6 +49,7 @@ class Snapshot(SnapshotABC):
         name: str,
         parent: str,
         properties: typing.Dict[str, PropertyABC],
+        context: typing.List[SnapshotABC],
         side: str,
         config: typing.Dict,
         ):
@@ -56,6 +57,7 @@ class Snapshot(SnapshotABC):
         self._name = name
         self._parent = parent
         self._properties = properties
+        self._context = context
         self._side = side
         self._config = config
 
@@ -130,6 +132,16 @@ class Snapshot(SnapshotABC):
         return self._properties['creation'].value
 
     @property
+    def ancestor(self) -> typing.Union[None, SnapshotABC]:
+
+        assert self in self._context
+        self_index = self._context.index(self)
+
+        if self_index == 0:
+            return None
+        return self._context[self_index - 1]
+
+    @property
     def root(self) -> str:
 
         return self._root
@@ -139,6 +151,7 @@ class Snapshot(SnapshotABC):
         cls,
         name: str,
         entity: typing.List[typing.List[str]],
+        context: typing.List[SnapshotABC],
         side: str,
         config: typing.Dict,
         ) -> SnapshotABC:
@@ -154,6 +167,7 @@ class Snapshot(SnapshotABC):
             name = name,
             parent = parent,
             properties = properties,
+            context = context,
             side = side,
             config = config,
         )
