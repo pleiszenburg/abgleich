@@ -44,14 +44,12 @@ PropertyTypes = typing.Union[str, int, float, None]
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Property(PropertyABC):
-
-    def __init__(self,
-        name: str,
-        value: PropertyTypes,
-        src: PropertyTypes,
-        ):
+    def __init__(
+        self, name: str, value: PropertyTypes, src: PropertyTypes,
+    ):
 
         self._name = name
         self._value = value
@@ -77,7 +75,7 @@ class Property(PropertyABC):
         if value.isnumeric():
             return int(value)
 
-        if value.strip() == '' or value == '-' or value.lower() == 'none':
+        if value.strip() == "" or value == "-" or value.lower() == "none":
             return None
 
         try:
@@ -90,8 +88,4 @@ class Property(PropertyABC):
     @classmethod
     def from_params(cls, name, value, src) -> PropertyABC:
 
-        return cls(
-            name = name,
-            value = cls._convert(value),
-            src = cls._convert(src),
-        )
+        return cls(name=name, value=cls._convert(value), src=cls._convert(src),)

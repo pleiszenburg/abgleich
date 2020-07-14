@@ -42,17 +42,18 @@ from .transaction import Transaction, TransactionMeta
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Snapshot(SnapshotABC):
-
-    def __init__(self,
+    def __init__(
+        self,
         name: str,
         parent: str,
         properties: typing.Dict[str, PropertyABC],
         context: typing.List[SnapshotABC],
         side: str,
         config: typing.Dict,
-        ):
+    ):
 
         self._name = name
         self._parent = parent
@@ -61,10 +62,10 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]['zpool'], config[side]['prefix'])
+        self._root = root(config[side]["zpool"], config[side]["prefix"])
 
         assert self._parent.startswith(self._root)
-        self._subparent = self._parent[len(self._root):].strip('/')
+        self._subparent = self._parent[len(self._root) :].strip("/")
 
     def __eq__(self, other: SnapshotABC) -> bool:
 
@@ -76,61 +77,62 @@ class Snapshot(SnapshotABC):
 
     def get_cleanup_transaction(self) -> TransactionABC:
 
-        assert self._side == 'source'
+        assert self._side == "source"
 
         return Transaction(
-            meta = TransactionMeta(
-                type = 'cleanup_snapshot',
-                snapshot_subparent = self._subparent,
-                snapshot_name = self._name,
-                ),
-            commands = [
+            meta=TransactionMeta(
+                type="cleanup_snapshot",
+                snapshot_subparent=self._subparent,
+                snapshot_name=self._name,
+            ),
+            commands=[
                 Command.on_side(
                     ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"],
-                    self._side, self._config
-                    )
-                ],
-            )
+                    self._side,
+                    self._config,
+                )
+            ],
+        )
 
     def get_backup_transaction(
-        self,
-        source_dataset: str,
-        target_dataset: str,
+        self, source_dataset: str, target_dataset: str,
     ) -> TransactionABC:
 
-        assert self._side == 'source'
+        assert self._side == "source"
 
         ancestor = self.ancestor
 
         commands = [
             Command.on_side(
-            [
-                "zfs", "send", "-c",
-                f"{source_dataset:s}@{self.name:s}",
-            ] if ancestor is None else [
-                "zfs", "send", "-c", "-i",
-                f"{source_dataset:s}@{ancestor.name:s}",
-                f"{source_dataset:s}@{self.name:s}",
-            ],
-            'source', self._config
+                ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
+                if ancestor is None
+                else [
+                    "zfs",
+                    "send",
+                    "-c",
+                    "-i",
+                    f"{source_dataset:s}@{ancestor.name:s}",
+                    f"{source_dataset:s}@{self.name:s}",
+                ],
+                "source",
+                self._config,
             ),
             Command.on_side(
-            [
-                "zfs", "receive", f"{target_dataset:s}"
-            ],
-            'target', self._config
+                ["zfs", "receive", f"{target_dataset:s}"], "target", self._config
             ),
         ]
 
         return Transaction(
-            meta = TransactionMeta(
-                type = 'push_snapshot' if ancestor is None else 'push_snapshot_incremental',
-                snapshot_subparent = self._subparent,
-                ancestor_name = "" if ancestor is None else ancestor.name,
-                snapshot_name = self.name,
-                ),
-            commands = commands,
-            )
+            meta=TransactionMeta(
+                type="push_snapshot"
+                if ancestor is None
+                else "push_snapshot_incremental",
+                snapshot_subparent=self._subparent,
+                ancestor_name="" if ancestor is None else ancestor.name,
+                snapshot_name=self.name,
+            ),
+            commands=commands,
+        )
 
     @property
     def name(self) -> str:
@@ -170,20 +172,20 @@ class Snapshot(SnapshotABC):
         context: typing.List[SnapshotABC],
         side: str,
         config: typing.Dict,
-        ) -> SnapshotABC:
+    ) -> SnapshotABC:
 
-        properties = {property.name: property for property in (
-            Property.from_params(*params)
-            for params in entity
-            )}
+        properties = {
+            property.name: property
+            for property in (Property.from_params(*params) for params in entity)
+        }
 
-        parent, name = name.split('@')
+        parent, name = name.split("@")
 
         return cls(
-            name = name,
-            parent = parent,
-            properties = properties,
-            context = context,
-            side = side,
-            config = config,
+            name=name,
+            parent=parent,
+            properties=properties,
+            context=context,
+            side=side,
+            config=config,
         )

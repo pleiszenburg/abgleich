@@ -40,13 +40,11 @@ from .io import colorize, humanize_size
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Transaction(TransactionABC):
-
     def __init__(
-        self,
-        meta: TransactionMetaABC,
-        commands: typing.List[CommandABC],
+        self, meta: TransactionMetaABC, commands: typing.List[CommandABC],
     ):
 
         assert len(commands) in (1, 2)
@@ -92,19 +90,22 @@ class Transaction(TransactionABC):
             if len(self._commands) == 1:
                 output, errors = self._commands[0].run()
             else:
-                errors_1, output_2, errors_2 = self._commands[0].run_pipe(self._commands[1])
+                errors_1, output_2, errors_2 = self._commands[0].run_pipe(
+                    self._commands[1]
+                )
         except SystemError as error:
             self._error = error
         finally:
             self._running = False
             self._complete = True
 
+
 MetaTypes = typing.Union[str, int, float]
 MetaNoneTypes = typing.Union[str, int, float, None]
 
+
 @typeguard.typechecked
 class TransactionMeta(TransactionMetaABC):
-
     def __init__(self, **kwargs: MetaTypes):
 
         self._meta = kwargs
@@ -125,15 +126,16 @@ class TransactionMeta(TransactionMetaABC):
 
         return (key for key in self._meta.keys())
 
+
 TransactionIterableTypes = typing.Union[
     typing.Generator[TransactionABC, None, None],
     typing.List[TransactionABC],
     typing.Tuple[TransactionABC],
 ]
 
+
 @typeguard.typechecked
 class TransactionList(TransactionListABC):
-
     def __init__(self):
 
         self._transactions = []
@@ -166,18 +168,13 @@ class TransactionList(TransactionListABC):
             for transaction in self._transactions
         ]
 
-        print(tabulate(
-            table,
-            headers=headers,
-            tablefmt="github",
-            colalign=colalign,
-            ))
+        print(tabulate(table, headers=headers, tablefmt="github", colalign=colalign,))
 
     @staticmethod
     def _table_format_cell(header: str, value: MetaNoneTypes) -> str:
 
         FORMAT = {
-            'written': lambda v: humanize_size(v, add_color = True),
+            "written": lambda v: humanize_size(v, add_color=True),
         }
 
         return FORMAT.get(header, str)(value)
@@ -185,17 +182,17 @@ class TransactionList(TransactionListABC):
     @staticmethod
     def _table_colalign(headers: typing.List[str]) -> typing.List[str]:
 
-        RIGHT = ('written',)
+        RIGHT = ("written",)
         DECIMAL = tuple()
 
         colalign = []
         for header in headers:
             if header in RIGHT:
-                colalign.append('right')
+                colalign.append("right")
             elif header in DECIMAL:
-                colalign.append('decimal')
+                colalign.append("decimal")
             else:
-                colalign.append('left')
+                colalign.append("left")
 
         return colalign
 
@@ -204,15 +201,15 @@ class TransactionList(TransactionListABC):
         headers = set()
         for transaction in self._transactions:
             keys = list(transaction.meta.keys())
-            assert 'type' in keys
+            assert "type" in keys
             headers.update(keys)
         headers = list(headers)
         headers.sort()
 
-        type_index = headers.index('type')
+        type_index = headers.index("type")
         if type_index != 0:
             headers.pop(type_index)
-            headers.insert(0, 'type')
+            headers.insert(0, "type")
 
         return headers
 
@@ -223,7 +220,7 @@ class TransactionList(TransactionListABC):
             print(
                 f'({colorize(transaction.meta["type"], "white"):s}) '
                 f'{colorize(" | ".join([str(command) for command in transaction.commands]), "yellow"):s}'
-                )
+            )
 
             assert not transaction.running
             assert not transaction.complete
@@ -234,7 +231,7 @@ class TransactionList(TransactionListABC):
             assert transaction.complete
 
             if transaction.error is not None:
-                print(colorize('FAILED', 'red'))
+                print(colorize("FAILED", "red"))
                 raise transaction.error
             else:
-                print(colorize('OK', 'green'))
+                print(colorize("OK", "green"))

@@ -43,11 +43,11 @@ from ..core.zpool import Zpool
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 def snap(configfile):
 
-    zpool = Zpool.from_config('source', config = Config.from_fd(configfile))
+    zpool = Zpool.from_config("source", config=Config.from_fd(configfile))
     transactions = zpool.get_snapshot_transactions()
 
     if len(transactions) == 0:
-        print('nothing to do')
+        print("nothing to do")
         return
     transactions.print_table()
 

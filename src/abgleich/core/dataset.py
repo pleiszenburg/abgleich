@@ -44,16 +44,17 @@ from .snapshot import Snapshot
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Dataset(DatasetABC):
-
-    def __init__(self,
+    def __init__(
+        self,
         name: str,
         properties: typing.Dict[str, PropertyABC],
         snapshots: typing.List[SnapshotABC],
         side: str,
         config: typing.Dict,
-        ):
+    ):
 
         self._name = name
         self._properties = properties
@@ -61,10 +62,10 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]['zpool'], config[side]['prefix'])
+        self._root = root(config[side]["zpool"], config[side]["prefix"])
 
         assert self._name.startswith(self._root)
-        self._subname = self._name[len(self._root):].strip('/')
+        self._subname = self._name[len(self._root) :].strip("/")
 
     def __eq__(self, other: DatasetABC) -> bool:
 
@@ -85,17 +86,18 @@ class Dataset(DatasetABC):
 
         if len(self) == 0:
             return True
-        if self._properties['written'].value == 0:
+        if self._properties["written"].value == 0:
             return False
-        if self._properties['written'].value > (1024 ** 2):
+        if self._properties["written"].value > (1024 ** 2):
             return True
-        if self._properties['type'].value == 'volume':
+        if self._properties["type"].value == "volume":
             return True
 
         output, _ = Command.on_side(
-            ['zfs', 'diff', f'{self._name:s}@{self._snapshots[-1].name:s}'],
-            self._side, self._config,
-            ).run()
+            ["zfs", "diff", f"{self._name:s}@{self._snapshots[-1].name:s}"],
+            self._side,
+            self._config,
+        ).run()
         return len(output.strip(" \t\n")) > 0
 
     @property
@@ -124,36 +126,43 @@ class Dataset(DatasetABC):
 
         return Transaction(
             TransactionMeta(
-                type = 'snapshot',
-                dataset_subname = self._subname,
-                snapshot_name = snapshot_name,
-                written = self._properties['written'].value,
-                ),
-            [Command.on_side(
-                ['zfs', 'snapshot', f'{self._name:s}@{snapshot_name:s}'],
-                self._side, self._config,
-                )]
-            )
+                type="snapshot",
+                dataset_subname=self._subname,
+                snapshot_name=snapshot_name,
+                written=self._properties["written"].value,
+            ),
+            [
+                Command.on_side(
+                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],
+                    self._side,
+                    self._config,
+                )
+            ],
+        )
 
     def _new_snapshot_name(self) -> str:
 
         today = datetime.datetime.now().strftime("%Y%m%d")
-        max_snapshots = (10 ** self._config['digits']) - 1
-        suffix = self._config['suffix'] if self._config['suffix'] is not None else ''
+        max_snapshots = (10 ** self._config["digits"]) - 1
+        suffix = self._config["suffix"] if self._config["suffix"] is not None else ""
 
         todays_names = [
-            snapshot.name for snapshot in self._snapshots
-            if all((
-                snapshot.name.startswith(today),
-                snapshot.name.endswith(suffix),
-                len(snapshot.name) == len(today) + self._config['digits'] + len(suffix),
-                ))
-            ]
+            snapshot.name
+            for snapshot in self._snapshots
+            if all(
+                (
+                    snapshot.name.startswith(today),
+                    snapshot.name.endswith(suffix),
+                    len(snapshot.name)
+                    == len(today) + self._config["digits"] + len(suffix),
+                )
+            )
+        ]
         todays_numbers = [
-            int(name[len(today):len(today)+self._config['digits']])
+            int(name[len(today) : len(today) + self._config["digits"]])
             for name in todays_names
-            if name[len(today):len(today)+self._config['digits']].isnumeric()
-            ]
+            if name[len(today) : len(today) + self._config["digits"]].isnumeric()
+        ]
         if len(todays_numbers) != 0:
             todays_numbers.sort()
             new_number = todays_numbers[-1] + 1
@@ -162,38 +171,37 @@ class Dataset(DatasetABC):
         else:
             new_number = 1
 
-        return f'{today:s}{new_number:02d}{suffix}'
+        return f"{today:s}{new_number:02d}{suffix}"
 
     @classmethod
-    def from_entities(cls,
+    def from_entities(
+        cls,
         name: str,
         entities: typing.OrderedDict[str, typing.List[typing.List[str]]],
         side: str,
         config: typing.Dict,
-        ) -> DatasetABC:
+    ) -> DatasetABC:
 
-        properties = {property.name: property for property in (
-            Property.from_params(*params)
-            for params in entities[name]
-            )}
+        properties = {
+            property.name: property
+            for property in (Property.from_params(*params) for params in entities[name])
+        }
         entities.pop(name)
 
         snapshots = []
-        snapshots.extend((
-            Snapshot.from_entity(
-                snapshot_name,
-                entities[snapshot_name],
-                snapshots,
-                side,
-                config,
+        snapshots.extend(
+            (
+                Snapshot.from_entity(
+                    snapshot_name, entities[snapshot_name], snapshots, side, config,
                 )
-            for snapshot_name in entities.keys()
-            ))
+                for snapshot_name in entities.keys()
+            )
+        )
 
         return cls(
-            name = name,
-            properties = properties,
-            snapshots = snapshots,
-            side = side,
-            config = config,
-            )
+            name=name,
+            properties=properties,
+            snapshots=snapshots,
+            side=side,
+            config=config,
+        )

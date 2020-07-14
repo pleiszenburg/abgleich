@@ -44,7 +44,6 @@ from .lib import valid_name
 
 @typeguard.typechecked
 class Config(dict):
-
     @classmethod
     def from_fd(cls, fd: typing.TextIO):
 
@@ -61,18 +60,18 @@ class Config(dict):
         }
 
         root_schema = {
-            "source": lambda v: cls._validate(data = v, schema = side_schema),
-            "target": lambda v: cls._validate(data = v, schema = side_schema),
+            "source": lambda v: cls._validate(data=v, schema=side_schema),
+            "target": lambda v: cls._validate(data=v, schema=side_schema),
             "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
             "suffix": lambda v: v is None or (isinstance(v, str) and valid_name(v)),
             "digits": lambda v: isinstance(v, int) and v >= 1,
             "ignore": lambda v: isinstance(v, list)
             and all((isinstance(item, str) and len(item) > 0 for item in v)),
-            "ssh": lambda v: cls._validate(data = v, schema = ssh_schema),
+            "ssh": lambda v: cls._validate(data=v, schema=ssh_schema),
         }
 
         config = yaml.load(fd.read(), Loader=CLoader)
-        cls._validate(data = config, schema = root_schema)
+        cls._validate(data=config, schema=root_schema)
         return cls(config)
 
     @classmethod

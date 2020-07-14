@@ -45,13 +45,13 @@ def backup(configfile):
 
     config = Config.from_fd(configfile)
 
-    source_zpool = Zpool.from_config('source', config = config)
-    target_zpool = Zpool.from_config('target', config = config)
+    source_zpool = Zpool.from_config("source", config=config)
+    target_zpool = Zpool.from_config("target", config=config)
 
     transactions = source_zpool.get_backup_transactions(target_zpool)
 
     if len(transactions) == 0:
-        print('nothing to do')
+        print("nothing to do")
         return
     transactions.print_table()
 

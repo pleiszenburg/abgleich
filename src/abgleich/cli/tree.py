@@ -38,10 +38,11 @@ from ..core.zpool import Zpool
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @click.command(short_help="show dataset tree")
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 @click.argument("side", default="source", type=str)
 def tree(configfile, side):
 
-    zpool = Zpool.from_config(side, config = Config.from_fd(configfile))
+    zpool = Zpool.from_config(side, config=Config.from_fd(configfile))
     zpool.print_table()

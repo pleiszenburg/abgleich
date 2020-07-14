@@ -45,7 +45,7 @@ def compare(configfile):
 
     config = Config.from_fd(configfile)
 
-    source_zpool = Zpool.from_config('source', config = config)
-    target_zpool = Zpool.from_config('target', config = config)
+    source_zpool = Zpool.from_config("source", config=config)
+    target_zpool = Zpool.from_config("target", config=config)
 
     source_zpool.print_comparison_table(target_zpool)

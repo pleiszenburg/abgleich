@@ -37,18 +37,20 @@ import typeguard
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 def join(*args: str) -> str:
 
     if len(args) < 2:
-        raise ValueError('not enough elements to join')
+        raise ValueError("not enough elements to join")
 
-    args = [arg.strip('/ \t\n') for arg in args]
+    args = [arg.strip("/ \t\n") for arg in args]
 
     if any((len(arg) == 0 for arg in args)):
-        raise ValueError('can not join empty path elements')
+        raise ValueError("can not join empty path elements")
 
-    return '/'.join(args)
+    return "/".join(args)
+
 
 @typeguard.typechecked
 def root(zpool: str, prefix: typing.Union[str, None]) -> str:
@@ -57,7 +59,9 @@ def root(zpool: str, prefix: typing.Union[str, None]) -> str:
         return zpool
     return join(zpool, prefix)
 
-_name_re = re.compile('^[A-Za-z0-9_]+$')
+
+_name_re = re.compile("^[A-Za-z0-9_]+$")
+
 
 @typeguard.typechecked
 def valid_name(name: str, min_len: int = 1) -> bool:

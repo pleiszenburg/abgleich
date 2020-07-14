@@ -48,14 +48,14 @@ def cleanup(configfile):
 
     config = Config.from_fd(configfile)
 
-    source_zpool = Zpool.from_config('source', config = config)
-    target_zpool = Zpool.from_config('target', config = config)
-    available_before = Zpool.available('source', config = config)
+    source_zpool = Zpool.from_config("source", config=config)
+    target_zpool = Zpool.from_config("target", config=config)
+    available_before = Zpool.available("source", config=config)
 
     transactions = source_zpool.get_cleanup_transactions(target_zpool)
 
     if len(transactions) == 0:
-        print('nothing to do')
+        print("nothing to do")
         return
     transactions.print_table()
 
@@ -64,7 +64,9 @@ def cleanup(configfile):
     transactions.run()
 
     WAIT = 10
-    print(f'waiting {WAIT:d} seconds ...')
+    print(f"waiting {WAIT:d} seconds ...")
     time.sleep(WAIT)
-    available_after = Zpool.available('source', config = config)
-    print(f'{humanize_size(available_after, add_color = True):s} available, {humanize_size(available_after - available_before, add_color = True):s} freed')
+    available_after = Zpool.available("source", config=config)
+    print(
+        f"{humanize_size(available_after, add_color = True):s} available, {humanize_size(available_after - available_before, add_color = True):s} freed"
+    )

@@ -40,37 +40,31 @@ from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, Zpoo
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ComparisonParentTypes = typing.Union[
-    ZpoolABC,
-    DatasetABC,
-    None,
-    ]
+    ZpoolABC, DatasetABC, None,
+]
 ComparisonMergeTypes = typing.Union[
-    typing.Generator[DatasetABC, None, None],
-    typing.Generator[SnapshotABC, None, None],
-    ]
+    typing.Generator[DatasetABC, None, None], typing.Generator[SnapshotABC, None, None],
+]
 ComparisonItemType = typing.Union[
-    DatasetABC,
-    SnapshotABC,
-    None,
-    ]
+    DatasetABC, SnapshotABC, None,
+]
 ComparisonStrictItemType = typing.Union[
-    DatasetABC,
-    SnapshotABC,
-    ]
+    DatasetABC, SnapshotABC,
+]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class Comparison(ComparisonABC):
-
     def __init__(
         self,
         a: ComparisonParentTypes,
         b: ComparisonParentTypes,
         merged: typing.List[ComparisonItemABC],
-        ):
+    ):
 
         assert a is not None or b is not None
         if a is not None and b is not None:
@@ -87,16 +81,16 @@ class Comparison(ComparisonABC):
     def a_head(self) -> typing.List[ComparisonStrictItemType]:
 
         return self._head(
-            source = [item.a for item in self._merged],
-            target = [item.b for item in self._merged],
+            source=[item.a for item in self._merged],
+            target=[item.b for item in self._merged],
         )
 
     @property
     def a_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
 
         return self._overlap_tail(
-            source = [item.a for item in self._merged],
-            target = [item.b for item in self._merged],
+            source=[item.a for item in self._merged],
+            target=[item.b for item in self._merged],
         )
 
     @property
@@ -108,16 +102,16 @@ class Comparison(ComparisonABC):
     def b_head(self) -> typing.List[ComparisonStrictItemType]:
 
         return self._head(
-            source = [item.b for item in self._merged],
-            target = [item.a for item in self._merged],
+            source=[item.b for item in self._merged],
+            target=[item.a for item in self._merged],
         )
 
     @property
     def b_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
 
         return self._overlap_tail(
-            source = [item.b for item in self._merged],
-            target = [item.a for item in self._merged],
+            source=[item.b for item in self._merged],
+            target=[item.a for item in self._merged],
         )
 
     @property
@@ -140,36 +134,40 @@ class Comparison(ComparisonABC):
         source, target = cls._strip_none(source), cls._strip_none(target)
 
         if any((element is None for element in source)):
-            raise ValueError('source is not consecutive')
+            raise ValueError("source is not consecutive")
         if any((element is None for element in target)):
-            raise ValueError('target is not consecutive')
+            raise ValueError("target is not consecutive")
 
         if len(source) == 0:
-            raise ValueError('source must not be empty')
+            raise ValueError("source must not be empty")
 
         if len(set([item.name for item in source])) != len(source):
-            raise ValueError('source contains doublicate entires')
+            raise ValueError("source contains doublicate entires")
         if len(set([item.name for item in target])) != len(target):
-            raise ValueError('target contains doublicate entires')
+            raise ValueError("target contains doublicate entires")
 
         if len(target) == 0:
-            return source # all of source, target is empty
+            return source  # all of source, target is empty
 
         try:
             source_index = [item.name for item in source].index(target[-1].name)
         except ValueError:
-            raise ValueError('last target element not in source')
+            raise ValueError("last target element not in source")
 
-        old_source = source[:source_index+1]
+        old_source = source[: source_index + 1]
 
         if len(old_source) <= len(target):
-            if target[-len(old_source):] != old_source:
-                raise ValueError('no clean match between end of target and beginning of source')
+            if target[-len(old_source) :] != old_source:
+                raise ValueError(
+                    "no clean match between end of target and beginning of source"
+                )
         else:
-            if target != source[source_index+1-len(target):source_index+1]:
-                raise ValueError('no clean match between entire target and beginning of source')
+            if target != source[source_index + 1 - len(target) : source_index + 1]:
+                raise ValueError(
+                    "no clean match between entire target and beginning of source"
+                )
 
-        return source[source_index+1:]
+        return source[source_index + 1 :]
 
     @classmethod
     def _overlap_tail(
@@ -187,17 +185,17 @@ class Comparison(ComparisonABC):
             return []
 
         if any((element is None for element in source)):
-            raise ValueError('source is not consecutive')
+            raise ValueError("source is not consecutive")
         if any((element is None for element in target)):
-            raise ValueError('target is not consecutive')
+            raise ValueError("target is not consecutive")
 
         source_names = {item.name for item in source}
         target_names = {item.name for item in target}
 
         if len(source_names) != len(source):
-            raise ValueError('source contains doublicate entires')
+            raise ValueError("source contains doublicate entires")
         if len(target_names) != len(target):
-            raise ValueError('target contains doublicate entires')
+            raise ValueError("target contains doublicate entires")
 
         overlap_tail = []
         for item in source:
@@ -209,27 +207,26 @@ class Comparison(ComparisonABC):
             return overlap_tail
 
         target_index = target.index(overlap_tail[0])
-        if overlap_tail != target[target_index:target_index+len(overlap_tail)]:
-            raise ValueError('no clean match in overlap area')
+        if overlap_tail != target[target_index : target_index + len(overlap_tail)]:
+            raise ValueError("no clean match in overlap area")
 
         return overlap_tail
 
     @classmethod
     def _strip_none(
-        cls,
-        elements: typing.List[ComparisonItemType]
+        cls, elements: typing.List[ComparisonItemType]
     ) -> typing.List[ComparisonItemType]:
 
-        elements = cls._left_strip_none(elements) # left strip
-        elements.reverse() # flip into reverse
-        elements = cls._left_strip_none(elements) # right strip
-        elements.reverse() # flip back
+        elements = cls._left_strip_none(elements)  # left strip
+        elements.reverse()  # flip into reverse
+        elements = cls._left_strip_none(elements)  # right strip
+        elements.reverse()  # flip back
 
         return elements
 
     @staticmethod
     def _left_strip_none(
-        elements: typing.List[ComparisonItemType]
+        elements: typing.List[ComparisonItemType],
     ) -> typing.List[ComparisonItemType]:
 
         return list(itertools.dropwhile(lambda element: element is None, elements))
@@ -238,7 +235,7 @@ class Comparison(ComparisonABC):
     def _single_items(
         items_a: typing.Union[ComparisonMergeTypes, None],
         items_b: typing.Union[ComparisonMergeTypes, None],
-        ) -> typing.List[ComparisonItemABC]:
+    ) -> typing.List[ComparisonItemABC]:
 
         assert items_a is not None or items_b is not None
 
@@ -250,7 +247,7 @@ class Comparison(ComparisonABC):
     def _merge_datasets(
         items_a: typing.Generator[DatasetABC, None, None],
         items_b: typing.Generator[DatasetABC, None, None],
-        ) -> typing.List[ComparisonItemABC]:
+    ) -> typing.List[ComparisonItemABC]:
 
         items_a = {item.subname: item for item in items_a}
         items_b = {item.subname: item for item in items_b}
@@ -259,8 +256,8 @@ class Comparison(ComparisonABC):
         merged = [
             ComparisonItem(items_a.get(name, None), items_b.get(name, None))
             for name in names
-            ]
-        merged.sort(key = lambda item: item.get_item().name)
+        ]
+        merged.sort(key=lambda item: item.get_item().name)
 
         return merged
 
@@ -269,17 +266,17 @@ class Comparison(ComparisonABC):
         cls,
         zpool_a: typing.Union[ZpoolABC, None],
         zpool_b: typing.Union[ZpoolABC, None],
-        ) -> ComparisonABC:
+    ) -> ComparisonABC:
 
         assert zpool_a is not None or zpool_b is not None
 
         if zpool_a is None or zpool_b is None:
             return cls(
-                a = zpool_a,
-                b = zpool_b,
-                merged = cls._single_items(
-                    getattr(zpool_a, 'datasets', None),
-                    getattr(zpool_b, 'datasets', None),
+                a=zpool_a,
+                b=zpool_b,
+                merged=cls._single_items(
+                    getattr(zpool_a, "datasets", None),
+                    getattr(zpool_b, "datasets", None),
                 ),
             )
 
@@ -287,9 +284,9 @@ class Comparison(ComparisonABC):
         assert zpool_a != zpool_b
 
         return cls(
-            a = zpool_a,
-            b = zpool_b,
-            merged = cls._merge_datasets(zpool_a.datasets, zpool_b.datasets),
+            a=zpool_a,
+            b=zpool_b,
+            merged=cls._merge_datasets(zpool_a.datasets, zpool_b.datasets),
         )
 
     @staticmethod
@@ -303,8 +300,8 @@ class Comparison(ComparisonABC):
         names_a = [item.name for item in items_a]
         names_b = [item.name for item in items_b]
 
-        assert len(set(names_a)) == len(items_a) # unique names
-        assert len(set(names_b)) == len(items_b) # unique names
+        assert len(set(names_a)) == len(items_a)  # unique names
+        assert len(set(names_b)) == len(items_b)  # unique names
 
         if len(items_a) == 0 and len(items_b) == 0:
             return []
@@ -322,14 +319,22 @@ class Comparison(ComparisonABC):
         except ValueError:
             start_a = None
 
-        assert start_a is not None or start_b is not None # overlap
+        assert start_a is not None or start_b is not None  # overlap
 
         prefix_a = [] if start_a is None else [None for _ in range(start_a)]
         prefix_b = [] if start_b is None else [None for _ in range(start_b)]
         items_a = prefix_a + items_a
         items_b = prefix_b + items_b
-        suffix_a = [] if len(items_a) >= len(items_b) else [None for _ in range(len(items_b) - len(items_a))]
-        suffix_b = [] if len(items_b) >= len(items_a) else [None for _ in range(len(items_a) - len(items_b))]
+        suffix_a = (
+            []
+            if len(items_a) >= len(items_b)
+            else [None for _ in range(len(items_b) - len(items_a))]
+        )
+        suffix_b = (
+            []
+            if len(items_b) >= len(items_a)
+            else [None for _ in range(len(items_a) - len(items_b))]
+        )
         items_a = items_a + suffix_a
         items_b = items_b + suffix_b
 
@@ -342,14 +347,14 @@ class Comparison(ComparisonABC):
             if new_state_a != state_a:
                 alt_a, state_a = alt_a + 1, new_state_a
                 if alt_a > 2:
-                    raise ValueError('gap in snapshot series')
+                    raise ValueError("gap in snapshot series")
             if new_state_b != state_b:
                 alt_b, state_b = alt_b + 1, new_state_b
                 if alt_b > 2:
-                    raise ValueError('gap in snapshot series')
+                    raise ValueError("gap in snapshot series")
             if state_a and state_b:
                 if item_a.name != item_b.name:
-                    raise ValueError('inconsistent snapshot names')
+                    raise ValueError("inconsistent snapshot names")
             merged.append(ComparisonItem(item_a, item_b))
 
         return merged
@@ -359,17 +364,17 @@ class Comparison(ComparisonABC):
         cls,
         dataset_a: typing.Union[DatasetABC, None],
         dataset_b: typing.Union[DatasetABC, None],
-        ) -> ComparisonABC:
+    ) -> ComparisonABC:
 
         assert dataset_a is not None or dataset_b is not None
 
         if dataset_a is None or dataset_b is None:
             return cls(
-                a = dataset_a,
-                b = dataset_b,
-                merged = cls._single_items(
-                    getattr(dataset_a, 'snapshots', None),
-                    getattr(dataset_b, 'snapshots', None),
+                a=dataset_a,
+                b=dataset_b,
+                merged=cls._single_items(
+                    getattr(dataset_a, "snapshots", None),
+                    getattr(dataset_b, "snapshots", None),
                 ),
             )
 
@@ -377,15 +382,14 @@ class Comparison(ComparisonABC):
         assert dataset_a == dataset_b
 
         return cls(
-            a = dataset_a,
-            b = dataset_b,
-            merged = cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
+            a=dataset_a,
+            b=dataset_b,
+            merged=cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
         )
 
 
 @typeguard.typechecked
 class ComparisonItem(ComparisonItemABC):
-
     def __init__(self, a: ComparisonItemType, b: ComparisonItemType):
 
         assert a is not None or b is not None
