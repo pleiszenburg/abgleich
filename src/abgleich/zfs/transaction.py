@@ -93,7 +93,7 @@ class Transaction(TransactionABC):
             if len(self._commands) == 1:
                 output, errors = self._commands[0].run()
             else:
-                output_1, errors_1, output_2, errors_2 = self._commands[0].run_pipe(self._commands[1])
+                errors_1, output_2, errors_2 = self._commands[0].run_pipe(self._commands[1])
         except SystemError as error:
             self._error = error
         finally:
