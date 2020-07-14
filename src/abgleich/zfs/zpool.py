@@ -94,9 +94,6 @@ class Zpool(ZpoolABC):
             if dataset_item.a is None:
                 continue
 
-            if len(dataset_item.a.subname) == 0:
-                continue # TODO (???)
-
             if dataset_item.b is None:
                 snapshots = list(dataset_item.a.snapshots)
                 snapshots.insert(0, None) # no ancestor at the beginning
@@ -105,11 +102,10 @@ class Zpool(ZpoolABC):
                 snapshots = dataset_comparison.a_head
 
             if len(snapshots) < 2:
-                # raise ValueError('dataset has no snapshots, nothing to back up', dataset_item.a.subname, snapshots)
                 continue
 
-            source_dataset = join(self.root, dataset_item.a.subname)
-            target_dataset = join(other.root, dataset_item.a.subname)
+            source_dataset = self.root if len(dataset_item.a.subname) == 0 else join(self.root, dataset_item.a.subname)
+            target_dataset = other.root if len(dataset_item.a.subname) == 0 else join(other.root, dataset_item.a.subname)
 
             transactions.extend((
                 snapshot.get_backup_transaction(
