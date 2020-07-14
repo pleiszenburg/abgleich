@@ -8,3 +8,4 @@ pip-wheel-metadata/
 notes.md
 *.yaml
 dist/
+build/
