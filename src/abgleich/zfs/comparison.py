@@ -28,6 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import itertools
 import typing
 
 import typeguard
@@ -83,14 +84,92 @@ class Comparison(ComparisonABC):
         return self._a
 
     @property
+    def a_head(self) -> typing.List[ComparisonStrictItemType]:
+
+        return self._head(
+            source = [item.a for item in self._merged],
+            target = [item.b for item in self._merged],
+        )
+
+    @property
     def b(self) -> ComparisonParentTypes:
 
         return self._b
 
     @property
+    def b_head(self) -> typing.List[ComparisonStrictItemType]:
+
+        return self._head(
+            source = [item.b for item in self._merged],
+            target = [item.a for item in self._merged],
+        )
+
+    @property
     def merged(self) -> typing.Generator[ComparisonItemABC, None, None]:
 
         return (item for item in self._merged)
+
+    @classmethod
+    def _head(
+        cls,
+        source: typing.List[ComparisonItemType],
+        target: typing.List[ComparisonItemType],
+    ) -> typing.List[ComparisonItemType]:
+
+        source, target = cls._strip_none(source), cls._strip_none(target)
+
+        if any((element is None for element in source)):
+            raise ValueError('source is not consecutive')
+        if any((element is None for element in target)):
+            raise ValueError('target is not consecutive')
+
+        if len(source) == 0:
+            raise ValueError('source must not be empty')
+
+        if len(set([item.name for item in source])) != len(source):
+            raise ValueError('source contains doublicate entires')
+        if len(set([item.name for item in target])) != len(target):
+            raise ValueError('target contains doublicate entires')
+
+        if len(target) == 0:
+            source.insert(0, None)
+            return source # all of source, target is empty
+
+        try:
+            source_index = [item.name for item in source].index(target[-1].name)
+        except ValueError:
+            raise ValueError('last target element not in source')
+
+        old_source = source[:source_index+1]
+
+        if len(old_source) <= len(target):
+            if target[-len(old_source):] != old_source:
+                raise ValueError('no clean match between end of target and beginning of source')
+        else:
+            if target != source[source_index+1-len(target):source_index+1]:
+                raise ValueError('no clean match between entire target and beginning of source')
+
+        return source[source_index:]
+
+    @classmethod
+    def _strip_none(
+        cls,
+        elements: typing.List[ComparisonItemType]
+    ) -> typing.List[ComparisonItemType]:
+
+        elements = cls._left_strip_none(elements) # left strip
+        elements.reverse() # flip into reverse
+        elements = cls._left_strip_none(elements) # right strip
+        elements.reverse() # flip back
+
+        return elements
+
+    @staticmethod
+    def _left_strip_none(
+        elements: typing.List[ComparisonItemType]
+    ) -> typing.List[ComparisonItemType]:
+
+        return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
     def _merge_items(
