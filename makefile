@@ -22,3 +22,8 @@ release:
 install:
 	pip install -vU pip setuptools
 	pip install -v -e .[dev]
+
+upload:
+	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
+		twine upload $$filename $$filename.asc ; \
+	done
