@@ -7,6 +7,12 @@
 ## INSTALLATION
 
 ```bash
+pip install -vU abgleich
+```
+
+or
+
+```bash
 pip install -vU git+https://github.com/pleiszenburg/abgleich.git@master
 ```
 
