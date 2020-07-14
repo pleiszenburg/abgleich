@@ -92,6 +92,14 @@ class Comparison(ComparisonABC):
         )
 
     @property
+    def a_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
+
+        return self._overlap_tail(
+            source = [item.a for item in self._merged],
+            target = [item.b for item in self._merged],
+        )
+
+    @property
     def b(self) -> ComparisonParentTypes:
 
         return self._b
@@ -100,6 +108,14 @@ class Comparison(ComparisonABC):
     def b_head(self) -> typing.List[ComparisonStrictItemType]:
 
         return self._head(
+            source = [item.b for item in self._merged],
+            target = [item.a for item in self._merged],
+        )
+
+    @property
+    def b_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
+
+        return self._overlap_tail(
             source = [item.b for item in self._merged],
             target = [item.a for item in self._merged],
         )
@@ -154,6 +170,49 @@ class Comparison(ComparisonABC):
                 raise ValueError('no clean match between entire target and beginning of source')
 
         return source[source_index+1:]
+
+    @classmethod
+    def _overlap_tail(
+        cls,
+        source: typing.List[ComparisonItemType],
+        target: typing.List[ComparisonItemType],
+    ) -> typing.List[ComparisonItemType]:
+        """
+        Overlap must include first element of source.
+        """
+
+        source, target = cls._strip_none(source), cls._strip_none(target)
+
+        if len(source) == 0 or len(target) == 0:
+            return []
+
+        if any((element is None for element in source)):
+            raise ValueError('source is not consecutive')
+        if any((element is None for element in target)):
+            raise ValueError('target is not consecutive')
+
+        source_names = {item.name for item in source}
+        target_names = {item.name for item in target}
+
+        if len(source_names) != len(source):
+            raise ValueError('source contains doublicate entires')
+        if len(target_names) != len(target):
+            raise ValueError('target contains doublicate entires')
+
+        overlap_tail = []
+        for item in source:
+            if item.name not in target_names:
+                break
+            overlap_tail.append(item)
+
+        if len(overlap_tail) == 0:
+            return overlap_tail
+
+        target_index = target.index(overlap_tail[0])
+        if overlap_tail != target[target_index:target_index+len(overlap_tail)]:
+            raise ValueError('no clean match in overlap area')
+
+        return overlap_tail
 
     @classmethod
     def _strip_none(
