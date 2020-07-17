@@ -31,11 +31,12 @@ specific language governing rights and limitations under the License.
 from typeguard import typechecked
 
 from .abc import WizardUiABC
+from .wizard_base import WizardUiBase
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @typechecked
-class WizardUi(WizardUiABC):
+class WizardUi(WizardUiABC, WizardUiBase):
     pass
