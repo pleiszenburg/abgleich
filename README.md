@@ -2,20 +2,22 @@
 
 ## SYNOPSIS
 
-`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output.
+`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes an experimental GUI.
 
 ![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo.png?raw=true "demo")
 
 ## INSTALLATION
 
+The base CLI tool can be installed as follows:
+
 ```bash
 pip install -vU abgleich
 ```
 
-or
+An installation also including an experimental GUI can be triggered by running:
 
 ```bash
-pip install -vU git+https://github.com/pleiszenburg/abgleich.git@master
+pip install -vU abgleich[gui]
 ```
 
 Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.6 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
