@@ -42,7 +42,7 @@ class WizardUiBase(QDialog):
 
         super().__init__() # skip WizardUiBaseABC
 
-        self.setWindowTitle('Wizard')
+        self.setWindowTitle('abgleich wizard')
 
         self._ui = {
             'layout_0_v_root': QVBoxLayout(), # dialog
