@@ -64,6 +64,16 @@ class TransactionListModel(QAbstractTableModel):
                 return humanize_size(self._transactions[row].meta[col_key])
             return self._transactions[row].meta[col_key]
 
+        if role == Qt.ForegroundRole:
+            if col_key != 'written':
+                return
+            return QColor('#808080')
+
+        if role == Qt.BackgroundRole:
+            if col_key != 'written':
+                return
+            return QColor(humanize_size(self._transactions[row].meta[col_key], get_rgb=True))
+
         if role == Qt.DecorationRole:
             if col_key != 'type':
                 return
