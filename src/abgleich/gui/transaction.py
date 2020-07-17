@@ -32,6 +32,7 @@ import typing
 
 import typeguard
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtWidgets import QApplication
 
 from ..core.abc import TransactionListABC
 
@@ -83,6 +84,7 @@ class TransactionListModel(QAbstractTableModel):
         self._update_labels()
         if old_rows != self._rows:
             self.layoutChanged.emit()
+            QApplication.processEvents()
 
         # self.dataChanged.emit(index, index) # TODO
 
