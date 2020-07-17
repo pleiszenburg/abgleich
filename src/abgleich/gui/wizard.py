@@ -44,3 +44,21 @@ class WizardUi(WizardUiBase):
 
         super().__init__()
         self._config = config
+
+        self._ui['button_cancel'].setEnabled(False)
+        self._ui['button_continue'].setEnabled(False)
+
+        self._ui['button_cancel'].clicked.connect(self._cancel_click)
+        self._ui['button_continue'].clicked.connect(self._continue_click)
+
+        self._ui['button_cancel'].setText('Cancel')
+        self._ui['button_continue'].setText('Continue')
+
+
+    def _continue_click(self):
+
+        pass
+
+    def _cancel_click(self):
+
+        pass
