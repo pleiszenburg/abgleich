@@ -35,6 +35,7 @@ import typeguard
 import yaml
 from yaml import CLoader
 
+from .abc import ConfigABC
 from .lib import valid_name
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -43,7 +44,7 @@ from .lib import valid_name
 
 
 @typeguard.typechecked
-class Config(dict):
+class Config(ConfigABC, dict):
     @classmethod
     def from_fd(cls, fd: typing.TextIO):
 
