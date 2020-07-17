@@ -31,6 +31,10 @@ specific language governing rights and limitations under the License.
 
 import click
 
+from ..core.config import Config
+from ..gui.lib import run_app
+from ..gui.wizard import WizardUi
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -40,4 +44,4 @@ import click
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 def wizard(configfile):
 
-    pass
+    run_app(WizardUi, config=Config.from_fd(configfile))
