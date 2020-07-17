@@ -86,13 +86,18 @@ class Zpool(ZpoolABC):
 
         return self._root
 
-    def get_cleanup_transactions(self, other: ZpoolABC) -> TransactionListABC:
+    def get_cleanup_transactions(
+        self,
+        other: ZpoolABC,
+        transactions: typing.Union[None, TransactionListABC] = None,
+    ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
 
         zpool_comparison = Comparison.from_zpools(self, other)
-        transactions = TransactionList()
+        if transactions is None:
+            transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
 
@@ -114,13 +119,18 @@ class Zpool(ZpoolABC):
 
         return transactions
 
-    def get_backup_transactions(self, other: ZpoolABC) -> TransactionListABC:
+    def get_backup_transactions(
+        self,
+        other: ZpoolABC,
+        transactions: typing.Union[None, TransactionListABC] = None,
+    ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
 
         zpool_comparison = Comparison.from_zpools(self, other)
-        transactions = TransactionList()
+        if transactions is None:
+            transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
 
@@ -160,11 +170,16 @@ class Zpool(ZpoolABC):
 
         return transactions
 
-    def get_snapshot_transactions(self) -> TransactionListABC:
+    def get_snapshot_transactions(
+        self,
+        transactions: typing.Union[None, TransactionListABC] = None,
+    ) -> TransactionListABC:
 
         assert self._side == "source"
 
-        transactions = TransactionList()
+        if transactions is None:
+            transactions = TransactionList()
+
         for dataset in self._datasets:
             if dataset.subname in self._config["ignore"]:
                 continue
