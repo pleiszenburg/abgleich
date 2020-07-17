@@ -28,6 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from PyQt5.QtWidgets import QApplication
 from typeguard import typechecked
 
 from .transaction import TransactionListModel
@@ -107,6 +108,7 @@ class WizardUi(WizardUiBase):
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
+        QApplication.processEvents()
         self._steps[index]['prepare']()
         self._ui['label'].setText(self._steps[index]['run_text'])
         self._continue = lambda: self._run_step(index)
