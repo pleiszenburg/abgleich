@@ -46,7 +46,7 @@ class TransactionListModel(QAbstractTableModel):
 
         super().__init__()
         self._transactions = transactions
-        self._transactions.changed = self._changed
+        self._transactions.changed = self._transactions_changed
         self._parent_changed = parent_changed
 
         self._rows, self._cols = None, None
@@ -78,7 +78,7 @@ class TransactionListModel(QAbstractTableModel):
 
         return len(self._cols)
 
-    def _changed(self):
+    def _transactions_changed(self):
 
         old_rows, old_cols = self._rows, self._cols
         self._update_labels()
