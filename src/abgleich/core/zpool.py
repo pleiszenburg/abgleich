@@ -36,6 +36,7 @@ import typeguard
 
 from .abc import (
     ComparisonItemABC,
+    ConfigABC,
     DatasetABC,
     SnapshotABC,
     TransactionListABC,
@@ -57,7 +58,7 @@ from .transaction import TransactionList
 @typeguard.typechecked
 class Zpool(ZpoolABC):
     def __init__(
-        self, datasets: typing.List[DatasetABC], side: str, config: typing.Dict,
+        self, datasets: typing.List[DatasetABC], side: str, config: ConfigABC,
     ):
 
         self._datasets = datasets
@@ -247,7 +248,7 @@ class Zpool(ZpoolABC):
         ]
 
     @staticmethod
-    def available(side: str, config: typing.Dict,) -> int:
+    def available(side: str, config: ConfigABC,) -> int:
 
         output, _ = Command.on_side(
             [
@@ -265,7 +266,7 @@ class Zpool(ZpoolABC):
         return Property.from_params(*output.strip().split("\t")[1:]).value
 
     @classmethod
-    def from_config(cls, side: str, config: typing.Dict,) -> ZpoolABC:
+    def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
 
         output, _ = Command.on_side(
             [

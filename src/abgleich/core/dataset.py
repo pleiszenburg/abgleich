@@ -33,7 +33,7 @@ import typing
 
 import typeguard
 
-from .abc import DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
 from .command import Command
 from .lib import root
 from .property import Property
@@ -53,7 +53,7 @@ class Dataset(DatasetABC):
         properties: typing.Dict[str, PropertyABC],
         snapshots: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ):
 
         self._name = name
@@ -179,7 +179,7 @@ class Dataset(DatasetABC):
         name: str,
         entities: typing.OrderedDict[str, typing.List[typing.List[str]]],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ) -> DatasetABC:
 
         properties = {

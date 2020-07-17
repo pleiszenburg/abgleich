@@ -32,7 +32,7 @@ import typing
 
 import typeguard
 
-from .abc import PropertyABC, SnapshotABC, TransactionABC
+from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
 from .command import Command
 from .lib import root
 from .property import Property
@@ -52,7 +52,7 @@ class Snapshot(SnapshotABC):
         properties: typing.Dict[str, PropertyABC],
         context: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ):
 
         self._name = name
@@ -171,7 +171,7 @@ class Snapshot(SnapshotABC):
         entity: typing.List[typing.List[str]],
         context: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ) -> SnapshotABC:
 
         properties = {
