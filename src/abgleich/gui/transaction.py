@@ -32,6 +32,7 @@ import typing
 
 import typeguard
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtGui import QColor
 
 from ..core.abc import TransactionListABC
 
@@ -52,13 +53,24 @@ class TransactionListModel(QAbstractTableModel):
         self._rows, self._cols = None, None
         self._update_labels()
 
-    def data(self, index: QModelIndex, role: int) -> typing.Union[None, str]: # TODO return type
+    def data(self, index: QModelIndex, role: int) -> typing.Union[None, str, QColor]: # TODO return type
 
         row, col = index.row(), index.column()
         col_key = self._cols[col]
 
         if role == Qt.DisplayRole:
             return str(self._transactions[row].meta[col_key]) # TODO format ...
+
+        if role == Qt.DecorationRole:
+            if col_key != 'type':
+                return
+            if self._transactions[row].error is not None:
+                return QColor('#FF0000')
+            if self._transactions[row].running:
+                return QColor('#FFFF00')
+            if self._transactions[row].complete:
+                return QColor('#00FF00')
+            return QColor('#0000FF')
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int) -> typing.Union[None, str]:
 
