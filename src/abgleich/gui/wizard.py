@@ -32,6 +32,7 @@ from typeguard import typechecked
 
 from .abc import WizardUiABC
 from .wizard_base import WizardUiBase
+from ..core.abc import ConfigABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -39,4 +40,8 @@ from .wizard_base import WizardUiBase
 
 @typechecked
 class WizardUi(WizardUiABC, WizardUiBase):
-    pass
+
+    def __init__(self, config: ConfigABC):
+
+        super(WizardUiABC, self).__init__()
+        self._config = config
