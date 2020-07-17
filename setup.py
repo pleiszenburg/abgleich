@@ -59,18 +59,12 @@ SRC_DIR = "src"
 
 # Requirements
 extras_require = {
-    "dev": [
-        "black",
-        "python-language-server[all]",
-        "setuptools",
-        "twine",
-        "wheel",
-    ],
-    "gui": [
-        "pyqt5",
-    ],
+    "dev": ["black", "python-language-server[all]", "setuptools", "twine", "wheel",],
+    "gui": ["pyqt5",],
 }
-extras_require["all"] = list({rq for target in extras_require.keys() for rq in extras_require[target]})
+extras_require["all"] = list(
+    {rq for target in extras_require.keys() for rq in extras_require[target]}
+)
 
 # Install package
 setup(
