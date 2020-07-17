@@ -59,3 +59,5 @@ class WizardUiBase(QDialog):
         self._ui['layout_1_h_buttons'].addWidget(self._ui['button_left'])
         self._ui['layout_1_h_buttons'].addWidget(self._ui['button_right'])
         self._ui['layout_0_v_root'].addLayout(self._ui['layout_1_h_buttons'])
+
+        self._ui['button_right'].setDefault(True)
