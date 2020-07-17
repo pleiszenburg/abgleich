@@ -49,7 +49,7 @@ class TransactionListModel(QAbstractTableModel):
         self._transactions.changed = self._changed
 
         self._rows, self._cols = None, None
-        self._update()
+        self._update_labels()
 
     def data(self, index: QModelIndex, role: int) -> typing.Union[None, str]: # TODO return type
 
@@ -57,10 +57,7 @@ class TransactionListModel(QAbstractTableModel):
         col_key = self._cols[col]
 
         if role == Qt.DisplayRole:
-            if col_key != 'status':
-                return str(self._transactions[row].meta[col_key]) # TODO format ...
-            else:
-                return 'no idea' # TODO actual
+            return str(self._transactions[row].meta[col_key]) # TODO format ...
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int) -> typing.Union[None, str]:
 
@@ -82,12 +79,14 @@ class TransactionListModel(QAbstractTableModel):
 
     def _changed(self):
 
-        self._update()
-        self.layoutChanged.emit()
-        # self.model.dataChanged.emit(index, index)
+        old_rows, old_cols = self._rows, self._cols
+        self._update_labels()
+        if old_rows != self._rows:
+            self.layoutChanged.emit()
 
-    def _update(self):
+        # self.dataChanged.emit(index, index) # TODO
+
+    def _update_labels(self):
 
         self._rows = self._transactions.table_rows
         self._cols = self._transactions.table_columns
-        self._cols.append('status')
