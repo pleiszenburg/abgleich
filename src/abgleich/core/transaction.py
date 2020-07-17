@@ -139,18 +139,33 @@ class TransactionList(TransactionListABC):
     def __init__(self):
 
         self._transactions = []
+        self._changed = None
 
     def __len__(self) -> int:
 
         return len(self._transactions)
 
+    @property
+    def changed(self) -> typing.Union[None, typing.Callable]:
+
+        return self._changed
+
+    @changed.setter
+    def changed(self, value: typing.Union[None, typing.Callable]):
+
+        self._changed = value
+
     def append(self, transaction: TransactionABC):
 
         self._transactions.append(transaction)
+        if self._changed is not None:
+            self._changed()
 
     def extend(self, transactions: TransactionIterableTypes):
 
         self._transactions.extend(transactions)
+        if self._changed is not None:
+            self._changed()
 
     def print_table(self):
 
