@@ -145,6 +145,10 @@ class TransactionList(TransactionListABC):
 
         return len(self._transactions)
 
+    def __getitem__(self, index: int) -> TransactionABC:
+
+        return self._transactions[index]
+
     @property
     def changed(self) -> typing.Union[None, typing.Callable]:
 
@@ -154,6 +158,32 @@ class TransactionList(TransactionListABC):
     def changed(self, value: typing.Union[None, typing.Callable]):
 
         self._changed = value
+
+    @property
+    def table_columns(self) -> typing.List[str]:
+
+        headers = set()
+        for transaction in self._transactions:
+            keys = list(transaction.meta.keys())
+            assert "type" in keys
+            headers.update(keys)
+        headers = list(headers)
+        headers.sort()
+
+        if len(headers) == 0:
+            return headers
+
+        type_index = headers.index("type")
+        if type_index != 0:
+            headers.pop(type_index)
+            headers.insert(0, "type")
+
+        return headers
+
+    @property
+    def table_rows(self) -> typing.List[str]:
+
+        return [f'transaction #{index:d}' for index in range(1, len(self) + 1)]
 
     def append(self, transaction: TransactionABC):
 
@@ -172,18 +202,18 @@ class TransactionList(TransactionListABC):
         if len(self) == 0:
             return
 
-        headers = self._table_headers()
-        colalign = self._table_colalign(headers)
+        table_columns = self.table_columns
+        colalign = self._table_colalign(table_columns)
 
         table = [
             [
                 self._table_format_cell(header, transaction.meta.get(header))
-                for header in headers
+                for header in table_columns
             ]
             for transaction in self._transactions
         ]
 
-        print(tabulate(table, headers=headers, tablefmt="github", colalign=colalign,))
+        print(tabulate(table, headers=table_columns, tablefmt="github", colalign=colalign,))
 
     @staticmethod
     def _table_format_cell(header: str, value: MetaNoneTypes) -> str:
@@ -210,23 +240,6 @@ class TransactionList(TransactionListABC):
                 colalign.append("left")
 
         return colalign
-
-    def _table_headers(self) -> typing.List[str]:
-
-        headers = set()
-        for transaction in self._transactions:
-            keys = list(transaction.meta.keys())
-            assert "type" in keys
-            headers.update(keys)
-        headers = list(headers)
-        headers.sort()
-
-        type_index = headers.index("type")
-        if type_index != 0:
-            headers.pop(type_index)
-            headers.insert(0, "type")
-
-        return headers
 
     def run(self):
 
