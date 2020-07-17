@@ -37,3 +37,7 @@ import abc
 
 class WizardUiABC(abc.ABC):
     pass
+
+
+class WizardUiBaseABC(abc.ABC):
+    pass
