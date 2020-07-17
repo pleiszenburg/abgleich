@@ -49,15 +49,15 @@ class WizardUiBase(QDialog):
             'layout_1_h_buttons': QHBoxLayout(), # for buttons
             'label': QLabel(),
             'table': QTableView(),
-            'button_left': QPushButton(),
-            'button_right': QPushButton(),
+            'button_continue': QPushButton(),
+            'button_cancel': QPushButton(),
             }
         self.setLayout(self._ui['layout_0_v_root'])
 
         self._ui['layout_0_v_root'].addWidget(self._ui['label'])
         self._ui['layout_0_v_root'].addWidget(self._ui['table'])
-        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_left'])
-        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_right'])
+        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_continue'])
+        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_cancel'])
         self._ui['layout_0_v_root'].addLayout(self._ui['layout_1_h_buttons'])
 
-        self._ui['button_right'].setDefault(True)
+        self._ui['button_cancel'].setDefault(True)
