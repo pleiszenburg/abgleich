@@ -32,7 +32,6 @@ import typing
 
 import typeguard
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtWidgets import QApplication
 
 from ..core.abc import TransactionListABC
 
@@ -43,11 +42,12 @@ from ..core.abc import TransactionListABC
 @typeguard.typechecked
 class TransactionListModel(QAbstractTableModel):
 
-    def __init__(self, transactions: TransactionListABC):
+    def __init__(self, transactions: TransactionListABC, parent_changed: typing.Callable):
 
         super().__init__()
         self._transactions = transactions
         self._transactions.changed = self._changed
+        self._parent_changed = parent_changed
 
         self._rows, self._cols = None, None
         self._update_labels()
@@ -84,8 +84,8 @@ class TransactionListModel(QAbstractTableModel):
         self._update_labels()
         if old_rows != self._rows:
             self.layoutChanged.emit()
-            QApplication.processEvents()
 
+        self._parent_changed()
         # self.dataChanged.emit(index, index) # TODO
 
     def _update_labels(self):

@@ -86,6 +86,11 @@ class WizardUi(WizardUiBase):
         ]
         self._init_step(0)
 
+    def _changed(self):
+
+        self._ui['table'].resizeColumnsToContents()
+        QApplication.processEvents()
+
     def _continue_click(self):
 
         self._continue()
@@ -98,7 +103,7 @@ class WizardUi(WizardUiBase):
 
         self._ui['label'].setText(self._steps[index]['prepare_text'])
         self._transactions = TransactionList()
-        self._model = TransactionListModel(self._transactions)
+        self._model = TransactionListModel(self._transactions, self._changed)
         self._ui['table'].setModel(self._model)
         self._continue = lambda: self._prepare_step(index)
         self._ui["button_cancel"].setEnabled(True)
