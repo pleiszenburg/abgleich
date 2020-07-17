@@ -1,4 +1,7 @@
 
+black:
+	black .
+
 clean:
 	-rm -r build/*
 	find src/ -name '*.pyc' -exec sudo rm -f {} +
