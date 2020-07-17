@@ -40,6 +40,7 @@ from ..core.abc import ConfigABC
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 def run_app(Window: typing.Type[QDialog], config: ConfigABC):
 

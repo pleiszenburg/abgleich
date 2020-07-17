@@ -47,8 +47,10 @@ def _add_commands(ctx):
         if not item.startswith("_")
     ):
         try:
-            ctx.add_command(getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd))
-        except ModuleNotFoundError: # likely no gui support
+            ctx.add_command(
+                getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd)
+            )
+        except ModuleNotFoundError:  # likely no gui support
             continue
 
 

@@ -28,36 +28,43 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QTableView, QVBoxLayout
+from PyQt5.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+)
 from typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class WizardUiBase(QDialog):
-
     def __init__(self):
 
-        super().__init__() # skip WizardUiBaseABC
+        super().__init__()  # skip WizardUiBaseABC
 
-        self.setWindowTitle('abgleich wizard')
+        self.setWindowTitle("abgleich wizard")
 
         self._ui = {
-            'layout_0_v_root': QVBoxLayout(), # dialog
-            'layout_1_h_buttons': QHBoxLayout(), # for buttons
-            'label': QLabel(),
-            'table': QTableView(),
-            'button_continue': QPushButton(),
-            'button_cancel': QPushButton(),
-            }
-        self.setLayout(self._ui['layout_0_v_root'])
+            "layout_0_v_root": QVBoxLayout(),  # dialog
+            "layout_1_h_buttons": QHBoxLayout(),  # for buttons
+            "label": QLabel(),
+            "table": QTableView(),
+            "button_continue": QPushButton(),
+            "button_cancel": QPushButton(),
+        }
+        self.setLayout(self._ui["layout_0_v_root"])
 
-        self._ui['layout_0_v_root'].addWidget(self._ui['label'])
-        self._ui['layout_0_v_root'].addWidget(self._ui['table'])
-        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_continue'])
-        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_cancel'])
-        self._ui['layout_0_v_root'].addLayout(self._ui['layout_1_h_buttons'])
+        self._ui["layout_0_v_root"].addWidget(self._ui["label"])
+        self._ui["layout_0_v_root"].addWidget(self._ui["table"])
+        self._ui["layout_1_h_buttons"].addWidget(self._ui["button_continue"])
+        self._ui["layout_1_h_buttons"].addWidget(self._ui["button_cancel"])
+        self._ui["layout_0_v_root"].addLayout(self._ui["layout_1_h_buttons"])
 
-        self._ui['button_cancel'].setDefault(True)
+        self._ui["button_cancel"].setDefault(True)
