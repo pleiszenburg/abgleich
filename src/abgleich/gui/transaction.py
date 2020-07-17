@@ -35,6 +35,7 @@ from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt5.QtGui import QColor
 
 from ..core.abc import TransactionListABC
+from ..core.io import humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -59,7 +60,9 @@ class TransactionListModel(QAbstractTableModel):
         col_key = self._cols[col]
 
         if role == Qt.DisplayRole:
-            return str(self._transactions[row].meta[col_key]) # TODO format ...
+            if col_key == 'written':
+                return humanize_size(self._transactions[row].meta[col_key])
+            return self._transactions[row].meta[col_key]
 
         if role == Qt.DecorationRole:
             if col_key != 'type':
