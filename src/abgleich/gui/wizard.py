@@ -30,7 +30,6 @@ specific language governing rights and limitations under the License.
 
 from typeguard import typechecked
 
-from .abc import WizardUiABC
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
 
@@ -39,9 +38,9 @@ from ..core.abc import ConfigABC
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @typechecked
-class WizardUi(WizardUiABC, WizardUiBase):
+class WizardUi(WizardUiBase):
 
     def __init__(self, config: ConfigABC):
 
-        super(WizardUiABC, self).__init__()
+        super().__init__()
         self._config = config

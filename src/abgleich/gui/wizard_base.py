@@ -31,18 +31,16 @@ specific language governing rights and limitations under the License.
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout
 from typeguard import typechecked
 
-from .abc import WizardUiBaseABC
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @typechecked
-class WizardUiBase(WizardUiBaseABC, QDialog):
+class WizardUiBase(QDialog):
 
     def __init__(self):
 
-        super(WizardUiBaseABC, self).__init__() # skip WizardUiBaseABC
+        super().__init__() # skip WizardUiBaseABC
 
         self.setWindowTitle('Wizard')
 
