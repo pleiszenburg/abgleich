@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	setup.py: Used for package distribution
+    setup.py: Used for package distribution
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -57,6 +57,21 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:
 # Define source directory (path)
 SRC_DIR = "src"
 
+# Requirements
+extras_require = {
+    "dev": [
+        "black",
+        "python-language-server[all]",
+        "setuptools",
+        "twine",
+        "wheel",
+    ],
+    "gui": [
+        "pyqt5",
+    ],
+}
+extras_require["all"] = list({rq for target in extras_require.keys() for rq in extras_require[target]})
+
 # Install package
 setup(
     name="abgleich",
@@ -78,15 +93,7 @@ setup(
     python_requires=">=3.{MINOR:d}".format(MINOR=python_minor_min),
     setup_requires=[],
     install_requires=["click", "tabulate", "pyyaml", "typeguard",],
-    extras_require={
-        "dev": [
-            "black",
-            "python-language-server[all]",
-            "setuptools",
-            "twine",
-            "wheel",
-        ]
-    },
+    extras_require=extras_require,
     zip_safe=False,
     entry_points={"console_scripts": ["abgleich = abgleich.cli:cli",],},
     classifiers=[

@@ -21,7 +21,7 @@ release:
 
 install:
 	pip install -vU pip setuptools
-	pip install -v -e .[dev]
+	pip install -v -e .[all]
 
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
