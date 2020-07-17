@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QTableView, QVBoxLayout
 from typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,10 +44,18 @@ class WizardUiBase(QDialog):
 
         self.setWindowTitle('Wizard')
 
-        self._ui_dict = {
+        self._ui = {
             'layout_0_v_root': QVBoxLayout(), # dialog
-            'layout_1_h_buttoms': QHBoxLayout(), # for buttons
+            'layout_1_h_buttons': QHBoxLayout(), # for buttons
+            'label': QLabel(),
+            'table': QTableView(),
+            'button_left': QPushButton(),
+            'button_right': QPushButton(),
             }
-        self.setLayout(self._ui_dict['layout_0_v_root'])
+        self.setLayout(self._ui['layout_0_v_root'])
 
-        # self._ui_dict['layout_0_v_root'].addLayout(self._ui_dict['layout_1_h_buttoms'])
+        self._ui['layout_0_v_root'].addWidget(self._ui['label'])
+        self._ui['layout_0_v_root'].addWidget(self._ui['table'])
+        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_left'])
+        self._ui['layout_1_h_buttons'].addWidget(self._ui['button_right'])
+        self._ui['layout_0_v_root'].addLayout(self._ui['layout_1_h_buttons'])
