@@ -131,7 +131,19 @@ class WizardUi(WizardUiBase):
     def _prepare_snap(self):
 
         zpool = Zpool.from_config("source", config=self._config)
-        zpool.get_snapshot_transactions(self._transactions)
+
+        gen = zpool.generate_snapshot_transactions()
+        length, _ = next(gen)
+
+        self._ui['progress'].setMaximum(length)
+        self._ui['progress'].setValue(0)
+        QApplication.processEvents()
+
+        for index, transaction in gen:
+            if transaction is not None:
+                self._transactions.append(transaction)
+            self._ui['progress'].setValue(index + 1)
+            QApplication.processEvents()
 
     def _prepare_backup(self):
 
