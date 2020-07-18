@@ -39,6 +39,7 @@ from .abc import (
     ConfigABC,
     DatasetABC,
     SnapshotABC,
+    TransactionABC,
     TransactionListABC,
     ZpoolABC,
 )
@@ -170,25 +171,40 @@ class Zpool(ZpoolABC):
 
         return transactions
 
-    def get_snapshot_transactions(
-        self,
-        transactions: typing.Union[None, TransactionListABC] = None,
-    ) -> TransactionListABC:
+    def get_snapshot_transactions(self) -> TransactionListABC:
 
         assert self._side == "source"
 
-        if transactions is None:
-            transactions = TransactionList()
+        transactions = TransactionList()
 
         for dataset in self._datasets:
-            if dataset.subname in self._config["ignore"]:
+            transaction = self._get_snapshot_transactions_from_dataset(dataset)
+            if transaction is None:
                 continue
-            if dataset["mountpoint"].value is None:
-                continue
-            if dataset.changed:
-                transactions.append(dataset.get_snapshot_transaction())
+            transactions.append(dataset.get_snapshot_transaction())
 
         return transactions
+
+    def generate_snapshot_transactions(self) -> typing.Generator[typing.Tuple[int, typing.Union[None, TransactionABC]], None, None]:
+
+        assert self._side == "source"
+
+        yield len(self._datasets), None
+
+        for index, dataset in enumerate(self._datasets):
+            transaction = self._get_snapshot_transactions_from_dataset(dataset)
+            yield index, transaction
+
+    def _get_snapshot_transactions_from_dataset(self, dataset: DatasetABC) -> typing.Union[None, TransactionABC]:
+
+        if dataset.subname in self._config["ignore"]:
+            return
+        if dataset["mountpoint"].value is None:
+            return
+        if not dataset.changed:
+            return
+
+        return dataset.get_snapshot_transaction()
 
     def print_table(self):
 
