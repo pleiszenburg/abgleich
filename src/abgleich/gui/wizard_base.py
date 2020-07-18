@@ -71,3 +71,5 @@ class WizardUiBase(QDialog):
         self._ui["layout_0_v_root"].addLayout(self._ui["layout_1_h_buttons"])
 
         self._ui["button_cancel"].setDefault(True)
+
+        self.resize(1000, 700)
