@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QLabel,
+    QProgressBar,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -56,6 +57,7 @@ class WizardUiBase(QDialog):
             "layout_1_h_buttons": QHBoxLayout(),  # for buttons
             "label": QLabel(),
             "table": QTableView(),
+            "progress": QProgressBar(),
             "button_continue": QPushButton(),
             "button_cancel": QPushButton(),
         }
@@ -63,6 +65,7 @@ class WizardUiBase(QDialog):
 
         self._ui["layout_0_v_root"].addWidget(self._ui["label"])
         self._ui["layout_0_v_root"].addWidget(self._ui["table"])
+        self._ui["layout_0_v_root"].addWidget(self._ui["progress"])
         self._ui["layout_1_h_buttons"].addWidget(self._ui["button_continue"])
         self._ui["layout_1_h_buttons"].addWidget(self._ui["button_cancel"])
         self._ui["layout_0_v_root"].addLayout(self._ui["layout_1_h_buttons"])
