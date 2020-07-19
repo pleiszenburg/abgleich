@@ -1,5 +1,5 @@
 Cancel:
-  de: Abbrechen
+    de: Abbrechen
 Close: {}
 Collect Backup Transactions: {}
 Collect Cleanup Transactions: {}
@@ -11,9 +11,25 @@ Creating snapshots ...: {}
 Execute Backup Transactions: {}
 Execute Cleanup Transactions: {}
 Execute Snapshot Transactions: {}
+OK: {}
+FAILED:
+    de: FEHLGESCHLAGEN
 Old snapshots removed.: {}
 Removing old snapshots ...: {}
 Snapshots created.: {}
 Snapshots transferred.: {}
 Transferring backups ...: {}
 abgleich wizard: {}
+ancestor_name: {}
+cleanup_snapshot: {}
+dataset_subname: {}
+push_snapshot: {}
+push_snapshot_incremental: {}
+snapshot:
+    de: Schnappschuss
+snapshot_name: {}
+snapshot_subparent: {}
+type:
+    de: Typ
+written:
+    de: geschrieben
