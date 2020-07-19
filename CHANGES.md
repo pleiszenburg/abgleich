@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.4 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.3 (2020-07-19)
 
 - FEATURE: Added wizard GUI for backup tasks (`snap`, `backup`, `cleanup`)
