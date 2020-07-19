@@ -210,6 +210,7 @@ class TransactionList(TransactionListABC):
 
     def extend(self, transactions: TransactionIterableTypes):
 
+        transactions = list(transactions)
         self._transactions.extend(transactions)
         if self._changed is not None:
             for transaction in transactions:
