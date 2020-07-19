@@ -101,7 +101,7 @@ class WizardUi(WizardUiBase):
 
     def _cancel_click(self):
 
-        self.close()
+        self._quit()
 
     def _init_step(self, index: int):
 
