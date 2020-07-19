@@ -53,7 +53,7 @@ class _Lang(dict):
 
         assert len(name) > 0
 
-        if int(os.environ.get('ABGLEICH_TRANSLATE', 0)) == 1:
+        if int(os.environ.get('ABGLEICH_TRANSLATE', '0')) == 1:
             if name not in self.keys():
                 self._add_item(name)
 
@@ -69,12 +69,12 @@ class _Lang(dict):
         self.clear()
 
         with open(self._path, 'r') as f:
-            self.update(yaml.load(f, Loader=CLoader))
+            self.update(yaml.load(f.read(), Loader=CLoader))
 
     def _dump(self):
 
         with open(self._path, 'w') as f:
-            self.update(yaml.dump(self, f, Loader=CDumper))
+            f.write(yaml.dump(self.copy(), Dumper=CDumper))
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # API
