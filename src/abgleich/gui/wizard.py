@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from typeguard import typechecked
 
 from .transaction import TransactionListModel
@@ -74,14 +74,14 @@ class WizardUi(WizardUiBase):
             },
             {
                 'name': 'backup',
-                'prepare': self._prepare_backup,
+                'prepare': lambda: self._prepare('backup'),
                 'prepare_text': 'Collect backup tasks ...',
                 'run_text': 'Transfer backups ...',
                 'finish_text': 'Snapshots transferred.',
             },
             {
                 'name': 'cleanup',
-                'prepare': self._prepare_cleanup,
+                'prepare': lambda: self._prepare('cleanup'),
                 'prepare_text': 'Collect cleanup tasks ...',
                 'run_text': 'Remove old snapshots ...',
                 'finish_text': 'Old snapshots removed.',
@@ -119,7 +119,12 @@ class WizardUi(WizardUiBase):
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
         QApplication.processEvents()
-        self._steps[index]['prepare']()
+
+        if not self._steps[index]['prepare']():
+            QMessageBox.warning(self, 'Warning', 'Nothing to do.')
+            self._finish_step(index)
+            return
+
         self._ui['label'].setText(self._steps[index]['run_text'])
         self._continue = lambda: self._run_step(index)
         self._ui["button_cancel"].setEnabled(True)
@@ -155,7 +160,9 @@ class WizardUi(WizardUiBase):
     def _finish_step(self, index: int):
 
         if index + 1 == len(self._steps):
-            self.close() # TODO
+            self._transactions.clear()
+            self.close()
+            return
 
         self._init_step(index + 1)
 
@@ -175,12 +182,14 @@ class WizardUi(WizardUiBase):
             self._ui['progress'].setValue(number + 1)
             QApplication.processEvents()
 
-    def _prepare_backup(self):
+        return len(self._transactions) > 0
+
+    def _prepare(self, action: str):
 
         source_zpool = Zpool.from_config("source", config=self._config)
         target_zpool = Zpool.from_config("target", config=self._config)
 
-        gen = source_zpool.generate_backup_transactions(target_zpool)
+        gen = getattr(source_zpool, f'generate_{action:s}_transactions')(target_zpool)
         length, _ = next(gen)
 
         self._ui['progress'].setMaximum(length)
@@ -192,6 +201,4 @@ class WizardUi(WizardUiBase):
             self._ui['progress'].setValue(number + 1)
             QApplication.processEvents()
 
-    def _prepare_cleanup(self):
-
-        pass
+        return len(self._transactions) > 0
