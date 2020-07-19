@@ -50,8 +50,6 @@ class WizardUiBase(QDialog):
 
         super().__init__()  # skip WizardUiBaseABC
 
-        self.setWindowTitle("abgleich wizard")
-
         self._ui = {
             "layout_0_v_root": QVBoxLayout(),  # dialog
             "layout_1_h_buttons": QHBoxLayout(),  # for buttons

@@ -56,6 +56,7 @@ class WizardUi(WizardUiBase):
         self.setWindowIcon(QIcon(
             os.path.join(os.path.dirname(__file__), '..', 'share', 'icon.svg')
         ))
+        self.setWindowTitle(t("abgleich wizard"))
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
@@ -139,7 +140,7 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         if not self._steps[index]['prepare']():
-            QMessageBox.warning(self, 'Warning', 'Nothing to do.')
+            QMessageBox.warning(self, t('Warning'), t('Nothing to do.'))
             self._finish_step(index)
             return
 
@@ -171,8 +172,8 @@ class WizardUi(WizardUiBase):
             if transaction.error is not None:
                 QMessageBox.critical(
                     self,
-                    "Critical",
-                    "Transaction failed!\n\n" + '\n\n'.join([str(item) for item in transaction.error.args]),
+                    t("Critical Error"),
+                    t("Transaction failed!") + "\n\n" + '\n\n'.join([str(item) for item in transaction.error.args]),
                 )
                 self._quit()
                 return
