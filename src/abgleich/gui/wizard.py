@@ -177,7 +177,20 @@ class WizardUi(WizardUiBase):
 
     def _prepare_backup(self):
 
-        pass
+        source_zpool = Zpool.from_config("source", config=self._config)
+        target_zpool = Zpool.from_config("target", config=self._config)
+
+        gen = source_zpool.generate_backup_transactions(target_zpool)
+        length, _ = next(gen)
+
+        self._ui['progress'].setMaximum(length)
+        QApplication.processEvents()
+
+        for number, transactions in gen:
+            if transactions is not None:
+                self._transactions.extend(transactions)
+            self._ui['progress'].setValue(number + 1)
+            QApplication.processEvents()
 
     def _prepare_cleanup(self):
 
