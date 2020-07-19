@@ -103,7 +103,7 @@ Cleanup older local snapshots on source side if they are present on both sides. 
 
 ### `abgleich wizard config.yaml`
 
-Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI.
+Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI. This command is only available if `abgleich` was installed with GUI support.
 
 ## SPEED
 
