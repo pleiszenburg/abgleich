@@ -25,23 +25,37 @@ Execute Snapshot Transactions:
 OK: {}
 FAILED:
     de: FEHLGESCHLAGEN
-Old snapshots removed.: {}
-Removing old snapshots ...: {}
-Snapshots created.: {}
-Snapshots transferred.: {}
-Transferring backups ...: {}
+Old snapshots removed.:
+    de: Alte Schnappschüsse entfernt.
+Removing old snapshots ...:
+    de: Entferne alte Schnappschüsse ...
+Snapshots created.:
+    de: Schnappschüsse erstellt.
+Snapshots transferred.:
+    de: Schnappschüsse gesichert.
+Transferring snapshots ...:
+    de: Sichere Schnappschüsse ...
 abgleich wizard:
     de: Abgleich Assistent
-ancestor_name: {}
-cleanup_snapshot: {}
-dataset_subname: {}
-push_snapshot: {}
-push_snapshot_incremental: {}
+ancestor_name:
+    de: Vorfahr
+cleanup_snapshot:
+    de: Säuberung
+dataset_subname:
+    de: Datensatz-Namensfragment
+transaction:
+    de: Transaktion
+transfer_snapshot:
+    de: Sicherung
+transfer_snapshot_incremental:
+    de: Inkrementelle Sicherung
 snapshot:
     de: Schnappschuss
-snapshot_name: {}
-snapshot_subparent: {}
+snapshot_name:
+    de: Schnappschuss-Name
+snapshot_subparent:
+    de: Datensatz-Namensfragment
 type:
     de: Typ
 written:
-    de: geschrieben
+    de: Geschrieben

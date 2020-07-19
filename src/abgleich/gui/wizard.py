@@ -86,7 +86,7 @@ class WizardUi(WizardUiBase):
             {
                 'prepare': lambda: self._prepare('backup'),
                 'prepare_text': t('Collecting backup transactions ...'),
-                'run_text': t('Transferring backups ...'),
+                'run_text': t('Transferring snapshots ...'),
                 'run_button': t('Execute Backup Transactions'),
                 'finish_text': t('Snapshots transferred.'),
                 'finish_button': t('Collect Cleanup Transactions'),

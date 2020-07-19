@@ -125,7 +125,7 @@ class Snapshot(SnapshotABC):
 
         return Transaction(
             meta=TransactionMeta(**{
-                t("type"): t("push_snapshot") if ancestor is None else t("push_snapshot_incremental"),
+                t("type"): t("transfer_snapshot") if ancestor is None else t("transfer_snapshot_incremental"),
                 t("snapshot_subparent"): self._subparent,
                 t("ancestor_name"): "" if ancestor is None else ancestor.name,
                 t("snapshot_name"): self.name,
