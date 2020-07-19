@@ -33,22 +33,51 @@ import os
 
 import typeguard
 import yaml
-from yaml import CLoader
+from yaml import CDumper, CLoader
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# CONST
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-_LANG = locale.getlocale()[0].split('_')[0]
-with open(os.path.join(os.path.dirname(__file__), 'translations.yaml')) as _f:
-    _TEXT = yaml.load(_f.read(), Loader=CLoader)
-del _f
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
+# CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 @typeguard.typechecked
-def t(name: str) -> str:
+class _Lang(dict):
 
-    return  _TEXT.get(name, {}).get(_LANG, name)
+    def __init__(self):
+
+        super().__init__()
+        self._lang = locale.getlocale()[0].split('_')[0]
+        self._path = os.path.join(os.path.dirname(__file__), 'translations.yaml')
+        self._load()
+
+    def __call__(self, name: str) -> str:
+
+        assert len(name) > 0
+
+        if int(os.environ.get('ABGLEICH_TRANSLATE', 0)) == 1:
+            if name not in self.keys():
+                self._add_item(name)
+
+        return self.get(name, {}).get(self._lang, name)
+
+    def _add_item(self, name: str):
+
+        self[name] = {}
+        self._dump()
+
+    def _load(self):
+
+        self.clear()
+
+        with open(self._path, 'r') as f:
+            self.update(yaml.load(f, Loader=CLoader))
+
+    def _dump(self):
+
+        with open(self._path, 'w') as f:
+            self.update(yaml.dump(self, f, Loader=CDumper))
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# API
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+t = _Lang()
