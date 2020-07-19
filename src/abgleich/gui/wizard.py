@@ -122,7 +122,26 @@ class WizardUi(WizardUiBase):
 
     def _run_step(self, index: int):
 
-        pass
+        self._ui["button_cancel"].setEnabled(False)
+        self._ui["button_continue"].setEnabled(False)
+        QApplication.processEvents()
+
+        for transaction in self._transactions:
+
+            assert not transaction.running
+            assert not transaction.complete
+
+            transaction.run()
+
+            assert not transaction.running
+            assert transaction.complete
+
+            if transaction.error is not None:
+                raise transaction.error # TODO
+
+        self._continue = lambda: self._finish_step(index)
+        self._ui["button_cancel"].setEnabled(True)
+        self._ui["button_continue"].setEnabled(True)
 
     def _finish_step(self, index: int):
 
