@@ -28,6 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import os
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from typeguard import typechecked
 
@@ -49,6 +52,10 @@ class WizardUi(WizardUiBase):
 
         super().__init__()
         self._config = config
+
+        self.setWindowIcon(QIcon(
+            os.path.join(os.path.dirname(__file__), '..', 'share', 'icon.svg')
+        ))
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
