@@ -46,6 +46,7 @@ from .abc import (
 from .command import Command
 from .comparison import Comparison
 from .dataset import Dataset
+from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
@@ -258,7 +259,7 @@ class Zpool(ZpoolABC):
         print(
             tabulate(
                 table,
-                headers=("NAME", "USED", "REFER", "compressratio"),
+                headers=(t("NAME"), t("USED"), t("REFER"), t("compressratio")),
                 tablefmt="github",
                 colalign=("left", "right", "right", "decimal"),
             )
@@ -295,7 +296,7 @@ class Zpool(ZpoolABC):
                 table.append(self._comparison_table_row(snapshot_item))
 
         print(
-            tabulate(table, headers=["NAME", self.side, other.side], tablefmt="github",)
+            tabulate(table, headers=[t("NAME"), t(self.side), t(other.side)], tablefmt="github",)
         )
 
     @staticmethod
