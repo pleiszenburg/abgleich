@@ -101,6 +101,8 @@ class WizardUi(WizardUiBase):
 
     def _init_step(self, index: int):
 
+        self._ui["button_cancel"].setEnabled(False)
+        self._ui["button_continue"].setEnabled(False)
         self._ui['label'].setText(self._steps[index]['prepare_text'])
         self._transactions = TransactionList()
         self._model = TransactionListModel(self._transactions, self._changed)
@@ -139,13 +141,17 @@ class WizardUi(WizardUiBase):
             if transaction.error is not None:
                 raise transaction.error # TODO
 
+        self._ui['label'].setText(self._steps[index]['finish_text'])
         self._continue = lambda: self._finish_step(index)
         self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)
 
     def _finish_step(self, index: int):
 
-        pass
+        if index + 1 == len(self._steps):
+            self.close() # TODO
+
+        self._init_step(index + 1)
 
     def _prepare_snap(self):
 
