@@ -2,8 +2,9 @@
 
 ## 0.0.3 (2020-XX-XX)
 
-- FEATURE: Added wizard GUI for backup tasks (`snap`, `backup`, `cleanup`).
-- FEATURE: CLI and GUI translations
+- FEATURE: Added wizard GUI for backup tasks (`snap`, `backup`, `cleanup`)
+- FEATURE: Added new configuration options (`always_changed`, `written_threshold`, `check_diff`) for detecting snapshot tasks
+- FEATURE: CLI and GUI translations (i18n)
 - FIX: Added missing type checks
 
 ## 0.0.2 (2020-07-14)
