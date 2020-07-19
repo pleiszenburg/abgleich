@@ -87,11 +87,18 @@ class Dataset(DatasetABC):
 
         if len(self) == 0:
             return True
+        if self._config["always_changed"]:
+            return True
         if self._properties["written"].value == 0:
             return False
-        if self._properties["written"].value > (1024 ** 2):
-            return True
         if self._properties["type"].value == "volume":
+            return True
+
+        if self._config["written_threshold"] is not None:
+            if self._properties["written"].value > self._config["written_threshold"]:
+                return True
+
+        if not self._config["check_diff"]:
             return True
 
         output, _ = Command.on_side(
