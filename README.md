@@ -2,9 +2,19 @@
 
 ## SYNOPSIS
 
-`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes an experimental GUI.
+`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes a GUI.
+
+## CLI EXAMPLE
 
 ![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo.png?raw=true "demo")
+
+## GUI EXAMPLE
+
+![snap](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "snap")
+
+![backup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "backup")
+
+![cleanup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "cleanup")
 
 ## INSTALLATION
 
@@ -14,7 +24,7 @@ The base CLI tool can be installed as follows:
 pip install -vU abgleich
 ```
 
-An installation also including an experimental GUI can be triggered by running:
+An installation also including a GUI can be triggered by running:
 
 ```bash
 pip install -vU abgleich[gui]
@@ -92,6 +102,10 @@ Send (new) datasets and new snapshots from source to target.
 ### `abgleich cleanup config.yaml`
 
 Cleanup older local snapshots on source side if they are present on both sides. Of those snapshots present on both sides, keep at least `keep_snapshots` number of snapshots on source side.
+
+### `abgleich wizard config.yaml`
+
+Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI.
 
 ## SPEED
 
