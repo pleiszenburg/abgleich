@@ -110,6 +110,11 @@ class WizardUi(WizardUiBase):
         self._ui['progress'].setValue(0)
         self._ui['label'].setText(self._steps[index]['prepare_text'])
         self._transactions.clear()
+
+        if index > 0:
+            self._prepare_step(index)
+            return
+
         self._continue = lambda: self._prepare_step(index)
         self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)
@@ -160,7 +165,11 @@ class WizardUi(WizardUiBase):
 
         self._ui['label'].setText(self._steps[index]['finish_text'])
         self._continue = lambda: self._finish_step(index)
-        self._ui["button_cancel"].setEnabled(True)
+
+        if index + 1 == len(self._steps):
+            self._ui["button_cancel"].setVisible(False)
+        else:
+            self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)
 
     def _finish_step(self, index: int):
