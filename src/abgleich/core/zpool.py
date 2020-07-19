@@ -123,53 +123,74 @@ class Zpool(ZpoolABC):
     def get_backup_transactions(
         self,
         other: ZpoolABC,
-        transactions: typing.Union[None, TransactionListABC] = None,
     ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
 
         zpool_comparison = Comparison.from_zpools(self, other)
-        if transactions is None:
-            transactions = TransactionList()
+        transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-
-            if dataset_item.get_item().subname in self._config["ignore"]:
+            backup_transactions = self._get_backup_transactions_from_datasetitem(other, dataset_item)
+            if backup_transactions is None:
                 continue
-            if dataset_item.a is None:
-                continue
-
-            if dataset_item.b is None:
-                snapshots = list(dataset_item.a.snapshots)
-            else:
-                dataset_comparison = Comparison.from_datasets(
-                    dataset_item.a, dataset_item.b
-                )
-                snapshots = dataset_comparison.a_head
-
-            if len(snapshots) == 0:
-                continue
-
-            source_dataset = (
-                self.root
-                if len(dataset_item.a.subname) == 0
-                else join(self.root, dataset_item.a.subname)
-            )
-            target_dataset = (
-                other.root
-                if len(dataset_item.a.subname) == 0
-                else join(other.root, dataset_item.a.subname)
-            )
-
-            transactions.extend(
-                (
-                    snapshot.get_backup_transaction(source_dataset, target_dataset,)
-                    for snapshot in snapshots
-                )
-            )
+            transactions.extend(backup_transactions)
 
         return transactions
+
+    def generate_backup_transactions(
+        self,
+        other: ZpoolABC,
+    )  -> typing.Generator[typing.Tuple[int, typing.Union[None, typing.Union[None, typing.Generator[TransactionABC, None, None]]]], None, None]:
+
+        assert self.side == "source"
+        assert other.side == "target"
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+
+        yield len(zpool_comparison), None
+
+        for index, dataset_item in enumerate(zpool_comparison.merged):
+            yield index, self._get_backup_transactions_from_datasetitem(other, dataset_item)
+
+    def _get_backup_transactions_from_datasetitem(
+        self,
+        other: ZpoolABC,
+        dataset_item: ComparisonItemABC,
+    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+
+        if dataset_item.get_item().subname in self._config["ignore"]:
+            return
+        if dataset_item.a is None:
+            return
+
+        if dataset_item.b is None:
+            snapshots = list(dataset_item.a.snapshots)
+        else:
+            dataset_comparison = Comparison.from_datasets(
+                dataset_item.a, dataset_item.b
+            )
+            snapshots = dataset_comparison.a_head
+
+        if len(snapshots) == 0:
+            return
+
+        source_dataset = (
+            self.root
+            if len(dataset_item.a.subname) == 0
+            else join(self.root, dataset_item.a.subname)
+        )
+        target_dataset = (
+            other.root
+            if len(dataset_item.a.subname) == 0
+            else join(other.root, dataset_item.a.subname)
+        )
+
+        return (
+            snapshot.get_backup_transaction(source_dataset, target_dataset,)
+            for snapshot in snapshots
+        )
 
     def get_snapshot_transactions(self) -> TransactionListABC:
 
@@ -192,8 +213,7 @@ class Zpool(ZpoolABC):
         yield len(self._datasets), None
 
         for index, dataset in enumerate(self._datasets):
-            transaction = self._get_snapshot_transactions_from_dataset(dataset)
-            yield index, transaction
+            yield index, self._get_snapshot_transactions_from_dataset(dataset)
 
     def _get_snapshot_transactions_from_dataset(self, dataset: DatasetABC) -> typing.Union[None, TransactionABC]:
 
