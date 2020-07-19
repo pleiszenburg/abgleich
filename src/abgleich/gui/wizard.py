@@ -59,8 +59,11 @@ class WizardUi(WizardUiBase):
         self._ui["button_continue"].setText("Continue")
 
         self._continue = lambda: None
-        self._transactions = None
-        self._model = None
+
+        self._transactions = TransactionList()
+        self._model = TransactionListModel(self._transactions, self._changed)
+        self._ui['table'].setModel(self._model)
+
         self._steps = [
             {
                 'name': 'snap',
@@ -84,6 +87,7 @@ class WizardUi(WizardUiBase):
                 'finish_text': 'Old snapshots removed.',
             },
         ]
+
         self._init_step(0)
 
     def _changed(self):
@@ -104,9 +108,7 @@ class WizardUi(WizardUiBase):
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
         self._ui['label'].setText(self._steps[index]['prepare_text'])
-        self._transactions = TransactionList()
-        self._model = TransactionListModel(self._transactions, self._changed)
-        self._ui['table'].setModel(self._model)
+        self._transactions.clear()
         self._continue = lambda: self._prepare_step(index)
         self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)

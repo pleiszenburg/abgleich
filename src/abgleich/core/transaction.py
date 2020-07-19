@@ -215,6 +215,11 @@ class TransactionList(TransactionListABC):
             for transaction in transactions:
                 self._link_transaction(transaction)
 
+    def clear(self):
+
+        self._transactions.clear()
+        self._changed()
+
     def _link_transaction(self, transaction: TransactionABC):
 
         transaction.changed = lambda: self._changed(self._transactions.index(transaction))

@@ -103,13 +103,14 @@ class TransactionListModel(QAbstractTableModel):
 
         return len(self._cols)
 
-    def _transactions_changed(self, row):
+    def _transactions_changed(self, row: typing.Union[None, int] = None):
 
         old_rows, old_cols = self._rows, self._cols
         self._update_labels()
         if old_rows != self._rows or old_cols != self._cols:
             self.layoutChanged.emit()
-        self.dataChanged.emit(self.index(row, 0), self.index(row, len(self._cols) - 1))
+        if row is not None:
+            self.dataChanged.emit(self.index(row, 0), self.index(row, len(self._cols) - 1))
         self._parent_changed()
 
     def _update_labels(self):
