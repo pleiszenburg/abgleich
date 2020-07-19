@@ -39,21 +39,23 @@ from yaml import CDumper, CLoader
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class _Lang(dict):
-
     def __init__(self):
 
         super().__init__()
-        self._lang = locale.getlocale()[0].split('_')[0]
-        self._path = os.path.join(os.path.dirname(__file__), '..', 'share', 'translations.yaml')
+        self._lang = locale.getlocale()[0].split("_")[0]
+        self._path = os.path.join(
+            os.path.dirname(__file__), "..", "share", "translations.yaml"
+        )
         self._load()
 
     def __call__(self, name: str) -> str:
 
         assert len(name) > 0
 
-        if int(os.environ.get('ABGLEICH_TRANSLATE', '0')) == 1:
+        if int(os.environ.get("ABGLEICH_TRANSLATE", "0")) == 1:
             if name not in self.keys():
                 self._add_item(name)
 
@@ -68,13 +70,16 @@ class _Lang(dict):
 
         self.clear()
 
-        with open(self._path, 'r') as f:
+        with open(self._path, "r") as f:
             self.update(yaml.load(f.read(), Loader=CLoader))
 
     def _dump(self):
 
-        with open(self._path, 'w') as f:
-            f.write(yaml.dump(self.copy(), Dumper=CDumper, allow_unicode=True, indent=4))
+        with open(self._path, "w") as f:
+            f.write(
+                yaml.dump(self.copy(), Dumper=CDumper, allow_unicode=True, indent=4)
+            )
+
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # API

@@ -53,9 +53,9 @@ class WizardUi(WizardUiBase):
         super().__init__()
         self._config = config
 
-        self.setWindowIcon(QIcon(
-            os.path.join(os.path.dirname(__file__), '..', 'share', 'icon.svg')
-        ))
+        self.setWindowIcon(
+            QIcon(os.path.join(os.path.dirname(__file__), "..", "share", "icon.svg"))
+        )
         self.setWindowTitle(t("abgleich wizard"))
 
         self._ui["button_cancel"].setEnabled(False)
@@ -71,33 +71,33 @@ class WizardUi(WizardUiBase):
 
         self._transactions = TransactionList()
         self._model = TransactionListModel(self._transactions, self._changed)
-        self._ui['table'].setModel(self._model)
+        self._ui["table"].setModel(self._model)
 
         self._steps = [
             {
-                'init_button': t('Collect Snapshot Transactions'),
-                'prepare': self._prepare_snap,
-                'prepare_text': t('Collecting snapshot transactions ...'),
-                'run_text': t('Creating snapshots ...'),
-                'run_button': t('Execute Snapshot Transactions'),
-                'finish_text': t('Snapshots created.'),
-                'finish_button': t('Collect Backup Transactions'),
+                "init_button": t("Collect Snapshot Transactions"),
+                "prepare": self._prepare_snap,
+                "prepare_text": t("Collecting snapshot transactions ..."),
+                "run_text": t("Creating snapshots ..."),
+                "run_button": t("Execute Snapshot Transactions"),
+                "finish_text": t("Snapshots created."),
+                "finish_button": t("Collect Backup Transactions"),
             },
             {
-                'prepare': lambda: self._prepare('backup'),
-                'prepare_text': t('Collecting backup transactions ...'),
-                'run_text': t('Transferring snapshots ...'),
-                'run_button': t('Execute Backup Transactions'),
-                'finish_text': t('Snapshots transferred.'),
-                'finish_button': t('Collect Cleanup Transactions'),
+                "prepare": lambda: self._prepare("backup"),
+                "prepare_text": t("Collecting backup transactions ..."),
+                "run_text": t("Transferring snapshots ..."),
+                "run_button": t("Execute Backup Transactions"),
+                "finish_text": t("Snapshots transferred."),
+                "finish_button": t("Collect Cleanup Transactions"),
             },
             {
-                'prepare': lambda: self._prepare('cleanup'),
-                'prepare_text': t('Collecting cleanup transactions ...'),
-                'run_text': t('Removing old snapshots ...'),
-                'run_button': t('Execute Cleanup Transactions'),
-                'finish_text': t('Old snapshots removed.'),
-                'finish_button': t('Close'),
+                "prepare": lambda: self._prepare("cleanup"),
+                "prepare_text": t("Collecting cleanup transactions ..."),
+                "run_text": t("Removing old snapshots ..."),
+                "run_button": t("Execute Cleanup Transactions"),
+                "finish_text": t("Old snapshots removed."),
+                "finish_button": t("Close"),
             },
         ]
 
@@ -105,7 +105,7 @@ class WizardUi(WizardUiBase):
 
     def _changed(self):
 
-        self._ui['table'].resizeColumnsToContents()
+        self._ui["table"].resizeColumnsToContents()
         QApplication.processEvents()
 
     def _continue_click(self):
@@ -120,8 +120,8 @@ class WizardUi(WizardUiBase):
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
-        self._ui['progress'].setValue(0)
-        self._ui['label'].setText(self._steps[index]['prepare_text'])
+        self._ui["progress"].setValue(0)
+        self._ui["label"].setText(self._steps[index]["prepare_text"])
         self._transactions.clear()
 
         if index > 0:
@@ -129,7 +129,7 @@ class WizardUi(WizardUiBase):
             return
 
         self._continue = lambda: self._prepare_step(index)
-        self._ui["button_continue"].setText(self._steps[index]['init_button'])
+        self._ui["button_continue"].setText(self._steps[index]["init_button"])
         self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)
 
@@ -139,14 +139,14 @@ class WizardUi(WizardUiBase):
         self._ui["button_continue"].setEnabled(False)
         QApplication.processEvents()
 
-        if not self._steps[index]['prepare']():
-            QMessageBox.warning(self, t('Warning'), t('Nothing to do.'))
+        if not self._steps[index]["prepare"]():
+            QMessageBox.warning(self, t("Warning"), t("Nothing to do."))
             self._finish_step(index)
             return
 
-        self._ui['label'].setText(self._steps[index]['run_text'])
+        self._ui["label"].setText(self._steps[index]["run_text"])
         self._continue = lambda: self._run_step(index)
-        self._ui["button_continue"].setText(self._steps[index]['run_button'])
+        self._ui["button_continue"].setText(self._steps[index]["run_button"])
         self._ui["button_cancel"].setEnabled(True)
         self._ui["button_continue"].setEnabled(True)
 
@@ -154,7 +154,7 @@ class WizardUi(WizardUiBase):
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
-        self._ui['progress'].setMaximum(len(self._transactions))
+        self._ui["progress"].setMaximum(len(self._transactions))
         QApplication.processEvents()
 
         for number, transaction in enumerate(self._transactions):
@@ -163,7 +163,7 @@ class WizardUi(WizardUiBase):
             assert not transaction.complete
 
             transaction.run()
-            self._ui['progress'].setValue(number + 1)
+            self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
             assert not transaction.running
@@ -173,19 +173,21 @@ class WizardUi(WizardUiBase):
                 QMessageBox.critical(
                     self,
                     t("Critical Error"),
-                    t("Transaction failed!") + "\n\n" + '\n\n'.join([str(item) for item in transaction.error.args]),
+                    t("Transaction failed!")
+                    + "\n\n"
+                    + "\n\n".join([str(item) for item in transaction.error.args]),
                 )
                 self._quit()
                 return
 
-        self._ui['label'].setText(self._steps[index]['finish_text'])
+        self._ui["label"].setText(self._steps[index]["finish_text"])
         self._continue = lambda: self._finish_step(index)
 
         if index + 1 == len(self._steps):
             self._ui["button_cancel"].setVisible(False)
         else:
             self._ui["button_cancel"].setEnabled(True)
-        self._ui["button_continue"].setText(self._steps[index]['finish_button'])
+        self._ui["button_continue"].setText(self._steps[index]["finish_button"])
         self._ui["button_continue"].setEnabled(True)
 
     def _finish_step(self, index: int):
@@ -203,13 +205,13 @@ class WizardUi(WizardUiBase):
         gen = zpool.generate_snapshot_transactions()
         length, _ = next(gen)
 
-        self._ui['progress'].setMaximum(length)
+        self._ui["progress"].setMaximum(length)
         QApplication.processEvents()
 
         for number, transaction in gen:
             if transaction is not None:
                 self._transactions.append(transaction)
-            self._ui['progress'].setValue(number + 1)
+            self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
         return len(self._transactions) > 0
@@ -219,16 +221,16 @@ class WizardUi(WizardUiBase):
         source_zpool = Zpool.from_config("source", config=self._config)
         target_zpool = Zpool.from_config("target", config=self._config)
 
-        gen = getattr(source_zpool, f'generate_{action:s}_transactions')(target_zpool)
+        gen = getattr(source_zpool, f"generate_{action:s}_transactions")(target_zpool)
         length, _ = next(gen)
 
-        self._ui['progress'].setMaximum(length)
+        self._ui["progress"].setMaximum(length)
         QApplication.processEvents()
 
         for number, transactions in gen:
             if transactions is not None:
                 self._transactions.extend(transactions)
-            self._ui['progress'].setValue(number + 1)
+            self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
         return len(self._transactions) > 0

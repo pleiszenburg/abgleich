@@ -42,10 +42,12 @@ from ..core.i18n import t
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typeguard.typechecked
 class TransactionListModel(QAbstractTableModel):
-
-    def __init__(self, transactions: TransactionListABC, parent_changed: typing.Callable):
+    def __init__(
+        self, transactions: TransactionListABC, parent_changed: typing.Callable
+    ):
 
         super().__init__()
         self._transactions = transactions
@@ -55,38 +57,44 @@ class TransactionListModel(QAbstractTableModel):
         self._rows, self._cols = None, None
         self._update_labels()
 
-    def data(self, index: QModelIndex, role: int) -> typing.Union[None, str, QColor]: # TODO return type
+    def data(
+        self, index: QModelIndex, role: int
+    ) -> typing.Union[None, str, QColor]:  # TODO return type
 
         row, col = index.row(), index.column()
         col_key = self._cols[col]
 
         if role == Qt.DisplayRole:
-            if col_key == t('written'):
+            if col_key == t("written"):
                 return humanize_size(self._transactions[row].meta[col_key])
             return self._transactions[row].meta[col_key]
 
         if role == Qt.ForegroundRole:
-            if col_key != t('written'):
+            if col_key != t("written"):
                 return
-            return QColor('#808080')
+            return QColor("#808080")
 
         if role == Qt.BackgroundRole:
-            if col_key != t('written'):
+            if col_key != t("written"):
                 return
-            return QColor(humanize_size(self._transactions[row].meta[col_key], get_rgb=True))
+            return QColor(
+                humanize_size(self._transactions[row].meta[col_key], get_rgb=True)
+            )
 
         if role == Qt.DecorationRole:
-            if col_key != t('type'):
+            if col_key != t("type"):
                 return
             if self._transactions[row].error is not None:
-                return QColor('#FF0000')
+                return QColor("#FF0000")
             if self._transactions[row].running:
-                return QColor('#FFFF00')
+                return QColor("#FFFF00")
             if self._transactions[row].complete:
-                return QColor('#00FF00')
-            return QColor('#0000FF')
+                return QColor("#00FF00")
+            return QColor("#0000FF")
 
-    def headerData(self, section: int, orientation: Qt.Orientation, role: int) -> typing.Union[None, str]:
+    def headerData(
+        self, section: int, orientation: Qt.Orientation, role: int
+    ) -> typing.Union[None, str]:
 
         if role == Qt.DisplayRole:
 
@@ -111,7 +119,9 @@ class TransactionListModel(QAbstractTableModel):
         if old_rows != self._rows or old_cols != self._cols:
             self.layoutChanged.emit()
         if row is not None:
-            self.dataChanged.emit(self.index(row, 0), self.index(row, len(self._cols) - 1))
+            self.dataChanged.emit(
+                self.index(row, 0), self.index(row, len(self._cols) - 1)
+            )
         self._parent_changed()
 
     def _update_labels(self):

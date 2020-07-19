@@ -224,7 +224,9 @@ class TransactionList(TransactionListABC):
 
     def _link_transaction(self, transaction: TransactionABC):
 
-        transaction.changed = lambda: self._changed(self._transactions.index(transaction))
+        transaction.changed = lambda: self._changed(
+            self._transactions.index(transaction)
+        )
         transaction.changed()
 
     def print_table(self):
@@ -243,7 +245,11 @@ class TransactionList(TransactionListABC):
             for transaction in self._transactions
         ]
 
-        print(tabulate(table, headers=table_columns, tablefmt="github", colalign=colalign,))
+        print(
+            tabulate(
+                table, headers=table_columns, tablefmt="github", colalign=colalign,
+            )
+        )
 
     @staticmethod
     def _table_format_cell(header: str, value: MetaNoneTypes) -> str:

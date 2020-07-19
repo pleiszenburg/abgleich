@@ -63,7 +63,9 @@ def colorize(text: str, col: str) -> str:
 
 
 @typeguard.typechecked
-def humanize_size(size: typing.Union[float, int], add_color: bool = False, get_rgb: bool = False) -> str:
+def humanize_size(
+    size: typing.Union[float, int], add_color: bool = False, get_rgb: bool = False
+) -> str:
 
     suffix = "B"
 

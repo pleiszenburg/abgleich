@@ -48,7 +48,7 @@ class Command(CommandABC):
 
     def __str__(self) -> str:
 
-        return " ".join([item.replace(' ', '\\ ') for item in self._cmd])
+        return " ".join([item.replace(" ", "\\ ") for item in self._cmd])
 
     def run(self):
 
@@ -93,7 +93,11 @@ class Command(CommandABC):
             )
         ):
             raise SystemError(
-                "command pipe failed", f'{str(self):s} | {str(other):s}', errors_1, output_2, errors_2
+                "command pipe failed",
+                f"{str(self):s} | {str(other):s}",
+                errors_1,
+                output_2,
+                errors_2,
             )
 
         return errors_1, output_2, errors_2

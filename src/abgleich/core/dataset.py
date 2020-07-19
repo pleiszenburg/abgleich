@@ -133,12 +133,14 @@ class Dataset(DatasetABC):
         snapshot_name = self._new_snapshot_name()
 
         return Transaction(
-            TransactionMeta(**{
-                t("type"): t("snapshot"),
-                t("dataset_subname"): self._subname,
-                t("snapshot_name"): snapshot_name,
-                t("written"): self._properties["written"].value,
-            }),
+            TransactionMeta(
+                **{
+                    t("type"): t("snapshot"),
+                    t("dataset_subname"): self._subname,
+                    t("snapshot_name"): snapshot_name,
+                    t("written"): self._properties["written"].value,
+                }
+            ),
             [
                 Command.on_side(
                     ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],

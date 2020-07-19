@@ -88,10 +88,7 @@ class Zpool(ZpoolABC):
 
         return self._root
 
-    def get_cleanup_transactions(
-        self,
-        other: ZpoolABC,
-    ) -> TransactionListABC:
+    def get_cleanup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -109,9 +106,17 @@ class Zpool(ZpoolABC):
         return transactions
 
     def generate_cleanup_transactions(
-        self,
-        other: ZpoolABC,
-    ) -> typing.Generator[typing.Tuple[int, typing.Union[None, typing.Union[None, typing.Generator[TransactionABC, None, None]]]], None, None]:
+        self, other: ZpoolABC,
+    ) -> typing.Generator[
+        typing.Tuple[
+            int,
+            typing.Union[
+                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            ],
+        ],
+        None,
+        None,
+    ]:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -124,8 +129,7 @@ class Zpool(ZpoolABC):
             yield index, self._get_cleanup_from_datasetitem(dataset_item)
 
     def _get_cleanup_from_datasetitem(
-        self,
-        dataset_item: ComparisonItemABC,
+        self, dataset_item: ComparisonItemABC,
     ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
@@ -133,19 +137,12 @@ class Zpool(ZpoolABC):
         if dataset_item.a is None or dataset_item.b is None:
             return
 
-        dataset_comparison = Comparison.from_datasets(
-            dataset_item.a, dataset_item.b
-        )
-        snapshots = dataset_comparison.a_overlap_tail[
-            : -self._config["keep_snapshots"]
-        ]
+        dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
+        snapshots = dataset_comparison.a_overlap_tail[: -self._config["keep_snapshots"]]
 
         return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
-    def get_backup_transactions(
-        self,
-        other: ZpoolABC,
-    ) -> TransactionListABC:
+    def get_backup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -154,7 +151,9 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-            backup_transactions = self._get_backup_transactions_from_datasetitem(other, dataset_item)
+            backup_transactions = self._get_backup_transactions_from_datasetitem(
+                other, dataset_item
+            )
             if backup_transactions is None:
                 continue
             transactions.extend(backup_transactions)
@@ -162,9 +161,17 @@ class Zpool(ZpoolABC):
         return transactions
 
     def generate_backup_transactions(
-        self,
-        other: ZpoolABC,
-    )  -> typing.Generator[typing.Tuple[int, typing.Union[None, typing.Union[None, typing.Generator[TransactionABC, None, None]]]], None, None]:
+        self, other: ZpoolABC,
+    ) -> typing.Generator[
+        typing.Tuple[
+            int,
+            typing.Union[
+                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            ],
+        ],
+        None,
+        None,
+    ]:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -174,12 +181,12 @@ class Zpool(ZpoolABC):
         yield len(zpool_comparison), None
 
         for index, dataset_item in enumerate(zpool_comparison.merged):
-            yield index, self._get_backup_transactions_from_datasetitem(other, dataset_item)
+            yield index, self._get_backup_transactions_from_datasetitem(
+                other, dataset_item
+            )
 
     def _get_backup_transactions_from_datasetitem(
-        self,
-        other: ZpoolABC,
-        dataset_item: ComparisonItemABC,
+        self, other: ZpoolABC, dataset_item: ComparisonItemABC,
     ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
@@ -228,7 +235,11 @@ class Zpool(ZpoolABC):
 
         return transactions
 
-    def generate_snapshot_transactions(self) -> typing.Generator[typing.Tuple[int, typing.Union[None, TransactionABC]], None, None]:
+    def generate_snapshot_transactions(
+        self,
+    ) -> typing.Generator[
+        typing.Tuple[int, typing.Union[None, TransactionABC]], None, None
+    ]:
 
         assert self._side == "source"
 
@@ -237,7 +248,9 @@ class Zpool(ZpoolABC):
         for index, dataset in enumerate(self._datasets):
             yield index, self._get_snapshot_transactions_from_dataset(dataset)
 
-    def _get_snapshot_transactions_from_dataset(self, dataset: DatasetABC) -> typing.Union[None, TransactionABC]:
+    def _get_snapshot_transactions_from_dataset(
+        self, dataset: DatasetABC
+    ) -> typing.Union[None, TransactionABC]:
 
         if dataset.subname in self._config["ignore"]:
             return
@@ -296,7 +309,11 @@ class Zpool(ZpoolABC):
                 table.append(self._comparison_table_row(snapshot_item))
 
         print(
-            tabulate(table, headers=[t("NAME"), t(self.side), t(other.side)], tablefmt="github",)
+            tabulate(
+                table,
+                headers=[t("NAME"), t(self.side), t(other.side)],
+                tablefmt="github",
+            )
         )
 
     @staticmethod

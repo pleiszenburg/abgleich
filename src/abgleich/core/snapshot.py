@@ -81,11 +81,13 @@ class Snapshot(SnapshotABC):
         assert self._side == "source"
 
         return Transaction(
-            meta=TransactionMeta(**{
-                t("type"): t("cleanup_snapshot"),
-                t("snapshot_subparent"): self._subparent,
-                t("snapshot_name"): self._name,
-            }),
+            meta=TransactionMeta(
+                **{
+                    t("type"): t("cleanup_snapshot"),
+                    t("snapshot_subparent"): self._subparent,
+                    t("snapshot_name"): self._name,
+                }
+            ),
             commands=[
                 Command.on_side(
                     ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"],
@@ -124,12 +126,16 @@ class Snapshot(SnapshotABC):
         ]
 
         return Transaction(
-            meta=TransactionMeta(**{
-                t("type"): t("transfer_snapshot") if ancestor is None else t("transfer_snapshot_incremental"),
-                t("snapshot_subparent"): self._subparent,
-                t("ancestor_name"): "" if ancestor is None else ancestor.name,
-                t("snapshot_name"): self.name,
-            }),
+            meta=TransactionMeta(
+                **{
+                    t("type"): t("transfer_snapshot")
+                    if ancestor is None
+                    else t("transfer_snapshot_incremental"),
+                    t("snapshot_subparent"): self._subparent,
+                    t("ancestor_name"): "" if ancestor is None else ancestor.name,
+                    t("snapshot_name"): self.name,
+                }
+            ),
             commands=commands,
         )
 
