@@ -36,6 +36,7 @@ from PyQt5.QtGui import QColor
 
 from ..core.abc import TransactionListABC
 from ..core.io import humanize_size
+from ..core.i18n import t
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -60,22 +61,22 @@ class TransactionListModel(QAbstractTableModel):
         col_key = self._cols[col]
 
         if role == Qt.DisplayRole:
-            if col_key == 'written':
+            if col_key == t('written'):
                 return humanize_size(self._transactions[row].meta[col_key])
             return self._transactions[row].meta[col_key]
 
         if role == Qt.ForegroundRole:
-            if col_key != 'written':
+            if col_key != t('written'):
                 return
             return QColor('#808080')
 
         if role == Qt.BackgroundRole:
-            if col_key != 'written':
+            if col_key != t('written'):
                 return
             return QColor(humanize_size(self._transactions[row].meta[col_key], get_rgb=True))
 
         if role == Qt.DecorationRole:
-            if col_key != 'type':
+            if col_key != t('type'):
                 return
             if self._transactions[row].error is not None:
                 return QColor('#FF0000')

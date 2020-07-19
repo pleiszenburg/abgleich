@@ -34,6 +34,7 @@ from tabulate import tabulate
 import typeguard
 
 from .abc import CommandABC, TransactionABC, TransactionListABC, TransactionMetaABC
+from .i18n import t
 from .io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -182,7 +183,7 @@ class TransactionList(TransactionListABC):
         headers = set()
         for transaction in self._transactions:
             keys = list(transaction.meta.keys())
-            assert "type" in keys
+            assert t("type") in keys
             headers.update(keys)
         headers = list(headers)
         headers.sort()
@@ -190,17 +191,17 @@ class TransactionList(TransactionListABC):
         if len(headers) == 0:
             return headers
 
-        type_index = headers.index("type")
+        type_index = headers.index(t("type"))
         if type_index != 0:
             headers.pop(type_index)
-            headers.insert(0, "type")
+            headers.insert(0, t("type"))
 
         return headers
 
     @property
     def table_rows(self) -> typing.List[str]:
 
-        return [f'transaction #{index:d}' for index in range(1, len(self) + 1)]
+        return [f'{t("transaction"):s} #{index:d}' for index in range(1, len(self) + 1)]
 
     def append(self, transaction: TransactionABC):
 
@@ -248,7 +249,7 @@ class TransactionList(TransactionListABC):
     def _table_format_cell(header: str, value: MetaNoneTypes) -> str:
 
         FORMAT = {
-            "written": lambda v: humanize_size(v, add_color=True),
+            t("written"): lambda v: humanize_size(v, add_color=True),
         }
 
         return FORMAT.get(header, str)(value)
@@ -256,7 +257,7 @@ class TransactionList(TransactionListABC):
     @staticmethod
     def _table_colalign(headers: typing.List[str]) -> typing.List[str]:
 
-        RIGHT = ("written",)
+        RIGHT = (t("written"),)
         DECIMAL = tuple()
 
         colalign = []
@@ -275,7 +276,7 @@ class TransactionList(TransactionListABC):
         for transaction in self._transactions:
 
             print(
-                f'({colorize(transaction.meta["type"], "white"):s}) '
+                f'({colorize(transaction.meta[t("type")], "white"):s}) '
                 f'{colorize(" | ".join([str(command) for command in transaction.commands]), "yellow"):s}'
             )
 
@@ -288,7 +289,7 @@ class TransactionList(TransactionListABC):
             assert transaction.complete
 
             if transaction.error is not None:
-                print(colorize("FAILED", "red"))
+                print(colorize(t("FAILED"), "red"))
                 raise transaction.error
             else:
-                print(colorize("OK", "green"))
+                print(colorize(t("OK"), "green"))

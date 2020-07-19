@@ -35,6 +35,7 @@ import typeguard
 
 from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
 from .command import Command
+from .i18n import t
 from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
@@ -125,12 +126,12 @@ class Dataset(DatasetABC):
         snapshot_name = self._new_snapshot_name()
 
         return Transaction(
-            TransactionMeta(
-                type="snapshot",
-                dataset_subname=self._subname,
-                snapshot_name=snapshot_name,
-                written=self._properties["written"].value,
-            ),
+            TransactionMeta(**{
+                t("type"): t("snapshot"),
+                t("dataset_subname"): self._subname,
+                t("snapshot_name"): snapshot_name,
+                t("written"): self._properties["written"].value,
+            }),
             [
                 Command.on_side(
                     ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],
