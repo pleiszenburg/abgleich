@@ -1,16 +1,27 @@
 Cancel:
     de: Abbrechen
-Close: {}
-Collect Backup Transactions: {}
-Collect Cleanup Transactions: {}
-Collect Snapshot Transactions: {}
-Collecting backup transactions ...: {}
-Collecting cleanup transactions ...: {}
-Collecting snapshot transactions ...: {}
-Creating snapshots ...: {}
-Execute Backup Transactions: {}
-Execute Cleanup Transactions: {}
-Execute Snapshot Transactions: {}
+Close:
+    de: Schließen
+Collect Backup Transactions:
+    de: Sicherungstransaktionen sammeln
+Collect Cleanup Transactions:
+    de: Säuberungstransaktionen sammeln
+Collect Snapshot Transactions:
+    de: Schnappschuss-Transaktionen sammeln
+Collecting backup transactions ...:
+    de: Sicherungstransaktionen sammeln ...
+Collecting cleanup transactions ...:
+    de: Säuberungstransaktionen sammeln ...
+Collecting snapshot transactions ...:
+    de: Schnappschuss-Transaktionen sammeln ...
+Creating snapshots ...:
+    de: Schnappschüsse erstellen ...
+Execute Backup Transactions:
+    de: Sicherungstransaktionen ausführen
+Execute Cleanup Transactions:
+    de: Säuberungstransaktionen ausführen
+Execute Snapshot Transactions:
+    de: Schnappschuss-Transaktionen ausführen
 OK: {}
 FAILED:
     de: FEHLGESCHLAGEN
@@ -19,7 +30,8 @@ Removing old snapshots ...: {}
 Snapshots created.: {}
 Snapshots transferred.: {}
 Transferring backups ...: {}
-abgleich wizard: {}
+abgleich wizard:
+    de: Abgleich Assistent
 ancestor_name: {}
 cleanup_snapshot: {}
 dataset_subname: {}
