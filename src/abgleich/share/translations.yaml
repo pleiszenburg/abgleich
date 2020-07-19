@@ -1,3 +1,5 @@
+Aborted!:
+    de: Abgebrochen!
 Cancel:
     de: Abbrechen
 Close:
@@ -16,6 +18,8 @@ Collecting snapshot transactions ...:
     de: Schnappschuss-Transaktionen sammeln ...
 Creating snapshots ...:
     de: Schnappschüsse erstellen ...
+Do you want to continue?:
+    de: Möchten Sie fortfahren?
 Execute Backup Transactions:
     de: Sicherungstransaktionen ausführen
 Execute Cleanup Transactions:
@@ -43,6 +47,8 @@ cleanup_snapshot:
     de: Säuberung
 dataset_subname:
     de: Datensatz-Namensfragment
+nothing to do:
+    de: nichts zu tun
 transaction:
     de: Transaktion
 transfer_snapshot:
