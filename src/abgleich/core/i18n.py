@@ -46,7 +46,7 @@ class _Lang(dict):
 
         super().__init__()
         self._lang = locale.getlocale()[0].split('_')[0]
-        self._path = os.path.join(os.path.dirname(__file__), 'translations.yaml')
+        self._path = os.path.join(os.path.dirname(__file__), '..', 'share', 'translations.yaml')
         self._load()
 
     def __call__(self, name: str) -> str:
