@@ -12,7 +12,7 @@
 
 | snap | backup | cleanup |
 |:----:|:------:|:-------:|
-|  ![snap](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "snap")  |  ![backup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "backup")  |  ![cleanup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "cleanup")  |
+|  ![snap](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui01.png?raw=true "snap")  |  ![backup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui02.png?raw=true "backup")  |  ![cleanup](https://github.com/pleiszenburg/abgleich/blob/develop/docs/demo_gui03.png?raw=true "cleanup")  |
 
 ## INSTALLATION
 
