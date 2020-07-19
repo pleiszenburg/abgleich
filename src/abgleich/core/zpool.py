@@ -90,35 +90,56 @@ class Zpool(ZpoolABC):
     def get_cleanup_transactions(
         self,
         other: ZpoolABC,
-        transactions: typing.Union[None, TransactionListABC] = None,
     ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
 
         zpool_comparison = Comparison.from_zpools(self, other)
-        if transactions is None:
-            transactions = TransactionList()
+        transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
 
-            if dataset_item.get_item().subname in self._config["ignore"]:
+            cleanup_transactions = self._get_cleanup_from_datasetitem(dataset_item)
+            if cleanup_transactions is None:
                 continue
-            if dataset_item.a is None or dataset_item.b is None:
-                continue
-
-            dataset_comparison = Comparison.from_datasets(
-                dataset_item.a, dataset_item.b
-            )
-            snapshots = dataset_comparison.a_overlap_tail[
-                : -self._config["keep_snapshots"]
-            ]
-
-            transactions.extend(
-                (snapshot.get_cleanup_transaction() for snapshot in snapshots)
-            )
+            transactions.extend(cleanup_transactions)
 
         return transactions
+
+    def generate_cleanup_transactions(
+        self,
+        other: ZpoolABC,
+    ) -> typing.Generator[typing.Tuple[int, typing.Union[None, typing.Union[None, typing.Generator[TransactionABC, None, None]]]], None, None]:
+
+        assert self.side == "source"
+        assert other.side == "target"
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+
+        yield len(zpool_comparison), None
+
+        for index, dataset_item in enumerate(zpool_comparison.merged):
+            yield index, self._get_cleanup_from_datasetitem(dataset_item)
+
+    def _get_cleanup_from_datasetitem(
+        self,
+        dataset_item: ComparisonItemABC,
+    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+
+        if dataset_item.get_item().subname in self._config["ignore"]:
+            return
+        if dataset_item.a is None or dataset_item.b is None:
+            return
+
+        dataset_comparison = Comparison.from_datasets(
+            dataset_item.a, dataset_item.b
+        )
+        snapshots = dataset_comparison.a_overlap_tail[
+            : -self._config["keep_snapshots"]
+        ]
+
+        return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
     def get_backup_transactions(
         self,
