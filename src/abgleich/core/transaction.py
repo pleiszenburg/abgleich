@@ -55,6 +55,18 @@ class Transaction(TransactionABC):
         self._running = False
         self._error = None
 
+        self._changed = None
+
+    @property
+    def changed(self) -> typing.Union[None, typing.Callable]:
+
+        return self._changed
+
+    @changed.setter
+    def changed(self, value: typing.Union[None, typing.Callable]):
+
+        self._changed = value
+
     @property
     def complete(self) -> bool:
 
@@ -84,7 +96,10 @@ class Transaction(TransactionABC):
 
         if self._complete:
             return
+
         self._running = True
+        if self._changed is not None:
+            self._changed()
 
         try:
             if len(self._commands) == 1:
@@ -98,6 +113,8 @@ class Transaction(TransactionABC):
         finally:
             self._running = False
             self._complete = True
+            if self._changed is not None:
+                self._changed()
 
 
 MetaTypes = typing.Union[str, int, float]
@@ -189,13 +206,19 @@ class TransactionList(TransactionListABC):
 
         self._transactions.append(transaction)
         if self._changed is not None:
-            self._changed()
+            self._link_transaction(transaction)
 
     def extend(self, transactions: TransactionIterableTypes):
 
         self._transactions.extend(transactions)
         if self._changed is not None:
-            self._changed()
+            for transaction in transactions:
+                self._link_transaction(transaction)
+
+    def _link_transaction(self, transaction: TransactionABC):
+
+        transaction.changed = lambda: self._changed(self._transactions.index(transaction))
+        transaction.changed()
 
     def print_table(self):
 
