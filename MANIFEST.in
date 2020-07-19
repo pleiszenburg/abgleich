@@ -1,1 +1,1 @@
-recursive-include src/abgleich/ *.yaml
+recursive-include src/abgleich/share/ *.*
