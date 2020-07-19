@@ -33,8 +33,9 @@ import typing
 
 import typeguard
 
-from .abc import DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
 from .command import Command
+from .i18n import t
 from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
@@ -53,7 +54,7 @@ class Dataset(DatasetABC):
         properties: typing.Dict[str, PropertyABC],
         snapshots: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ):
 
         self._name = name
@@ -86,11 +87,18 @@ class Dataset(DatasetABC):
 
         if len(self) == 0:
             return True
+        if self._config["always_changed"]:
+            return True
         if self._properties["written"].value == 0:
             return False
-        if self._properties["written"].value > (1024 ** 2):
-            return True
         if self._properties["type"].value == "volume":
+            return True
+
+        if self._config["written_threshold"] is not None:
+            if self._properties["written"].value > self._config["written_threshold"]:
+                return True
+
+        if not self._config["check_diff"]:
             return True
 
         output, _ = Command.on_side(
@@ -126,10 +134,12 @@ class Dataset(DatasetABC):
 
         return Transaction(
             TransactionMeta(
-                type="snapshot",
-                dataset_subname=self._subname,
-                snapshot_name=snapshot_name,
-                written=self._properties["written"].value,
+                **{
+                    t("type"): t("snapshot"),
+                    t("dataset_subname"): self._subname,
+                    t("snapshot_name"): snapshot_name,
+                    t("written"): self._properties["written"].value,
+                }
             ),
             [
                 Command.on_side(
@@ -179,7 +189,7 @@ class Dataset(DatasetABC):
         name: str,
         entities: typing.OrderedDict[str, typing.List[typing.List[str]]],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ) -> DatasetABC:
 
         properties = {

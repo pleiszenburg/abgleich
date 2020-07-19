@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/cli/_main_.py: CLI auto-detection
+    src/abgleich/gui/abc.py: Abstract base classes
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,39 +24,12 @@ specific language governing rights and limitations under the License.
 
 """
 
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import importlib
-import os
-
-import click
+import abc
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
+# CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-def _add_commands(ctx):
-    """auto-detects sub-commands"""
-    for cmd in (
-        item[:-3] if item.lower().endswith(".py") else item[:]
-        for item in os.listdir(os.path.dirname(__file__))
-        if not item.startswith("_")
-    ):
-        try:
-            ctx.add_command(
-                getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd)
-            )
-        except ModuleNotFoundError:  # likely no gui support
-            continue
-
-
-@click.group()
-def cli():
-    """abgleich, zfs sync tool"""
-
-
-_add_commands(cli)

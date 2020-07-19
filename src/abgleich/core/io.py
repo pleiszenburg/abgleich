@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-	src/abgleich/core/io.py: Command line IO
+    src/abgleich/core/io.py: Command line IO
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -24,6 +24,13 @@ specific language governing rights and limitations under the License.
 
 """
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# IMPORT
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+import typing
+
+import typeguard
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CONSTANTS
@@ -50,26 +57,32 @@ c = {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-def colorize(text, col):
+@typeguard.typechecked
+def colorize(text: str, col: str) -> str:
     return c.get(col.upper(), c["GREY"]) + text + c["RESET"]
 
 
-def humanize_size(size, add_color=False):
+@typeguard.typechecked
+def humanize_size(
+    size: typing.Union[float, int], add_color: bool = False, get_rgb: bool = False
+) -> str:
 
     suffix = "B"
 
-    for unit, color in (
-        ("", "cyan"),
-        ("Ki", "green"),
-        ("Mi", "yellow"),
-        ("Gi", "red"),
-        ("Ti", "magenta"),
-        ("Pi", "white"),
-        ("Ei", "white"),
-        ("Zi", "white"),
-        ("Yi", "white"),
+    for unit, color, rgb in (
+        ("", "cyan", "#0000FF"),
+        ("Ki", "green", "#00FF00"),
+        ("Mi", "yellow", "#FFFF00"),
+        ("Gi", "red", "#FF0000"),
+        ("Ti", "magenta", "#FF00FF"),
+        ("Pi", "white", "#FFFFFF"),
+        ("Ei", "white", "#FFFFFF"),
+        ("Zi", "white", "#FFFFFF"),
+        ("Yi", "white", "#FFFFFF"),
     ):
         if abs(size) < 1024.0:
+            if get_rgb:
+                return rgb
             text = "%3.1f %s%s" % (size, unit, suffix)
             if add_color:
                 text = colorize(text, color)

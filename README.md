@@ -2,23 +2,33 @@
 
 ## SYNOPSIS
 
-`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output.
+`abgleich` is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes a GUI.
+
+## CLI EXAMPLE
 
 ![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo.png?raw=true "demo")
 
+## GUI EXAMPLE
+
+| snap | backup | cleanup |
+|:----:|:------:|:-------:|
+| ![snap](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui01.png?raw=true "snap") | ![backup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui02.png?raw=true "backup") | ![cleanup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui03.png?raw=true "cleanup") |
+
 ## INSTALLATION
+
+The base CLI tool can be installed as follows:
 
 ```bash
 pip install -vU abgleich
 ```
 
-or
+An installation also including a GUI can be triggered by running:
 
 ```bash
-pip install -vU git+https://github.com/pleiszenburg/abgleich.git@master
+pip install -vU abgleich[gui]
 ```
 
-Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.6 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
+Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.6 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). GUI support requires [Qt5](https://en.wikipedia.org/wiki/Qt_(software)) in addition. Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
 
 `abgleich`, CPython and the Unix shell must only be installed on one of the involved systems. Any remote system will be contacted via ssh and provided with direct ZFS commands.
 
@@ -55,6 +65,9 @@ target:
     host: bigdata
     user: zfsadmin
 keep_snapshots: 2
+always_changed: no
+written_threshold: 1048576
+check_diff: yes
 suffix: _backup
 digits: 2
 ignore:
@@ -65,7 +78,7 @@ ssh:
     cipher: aes256-gcm@openssh.com
 ```
 
-The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `suffix` contains the name suffix for new snapshots. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends.
+The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `suffix` contains the name suffix for new snapshots. Setting `always_changed` to `yes` causes `abgleich` to beliefe that all datasets have always changed since the last snapshot, completely ignoring what ZFS actually reports. No diff will be checked produced for values of `written` lower than `written_threshold`. Checking diffs can be completely deactivated by setting `check_diff` to `no`. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends.
 
 ## USAGE
 
@@ -90,6 +103,10 @@ Send (new) datasets and new snapshots from source to target.
 ### `abgleich cleanup config.yaml`
 
 Cleanup older local snapshots on source side if they are present on both sides. Of those snapshots present on both sides, keep at least `keep_snapshots` number of snapshots on source side.
+
+### `abgleich wizard config.yaml`
+
+Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI. This command is only available if `abgleich` was installed with GUI support.
 
 ## SPEED
 

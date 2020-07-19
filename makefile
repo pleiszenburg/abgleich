@@ -1,4 +1,7 @@
 
+black:
+	black .
+
 clean:
 	-rm -r build/*
 	find src/ -name '*.pyc' -exec sudo rm -f {} +
@@ -14,14 +17,14 @@ clean:
 
 release:
 	make clean
-	# python setup.py sdist bdist_wheel
+	python setup.py sdist bdist_wheel
 	python setup.py sdist
-	# gpg --detach-sign -a dist/abgleich*.whl
+	gpg --detach-sign -a dist/abgleich*.whl
 	gpg --detach-sign -a dist/abgleich*.tar.gz
 
 install:
 	pip install -vU pip setuptools
-	pip install -v -e .[dev]
+	pip install -v -e .[all]
 
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \

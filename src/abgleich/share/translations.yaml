@@ -1,0 +1,78 @@
+Aborted!:
+    de: Abgebrochen!
+Cancel:
+    de: Abbrechen
+Close:
+    de: Schließen
+Collect Backup Transactions:
+    de: Sicherungstransaktionen sammeln
+Collect Cleanup Transactions:
+    de: Säuberungstransaktionen sammeln
+Collect Snapshot Transactions:
+    de: Schnappschuss-Transaktionen sammeln
+Collecting backup transactions ...:
+    de: Sicherungstransaktionen sammeln ...
+Collecting cleanup transactions ...:
+    de: Säuberungstransaktionen sammeln ...
+Collecting snapshot transactions ...:
+    de: Schnappschuss-Transaktionen sammeln ...
+Creating snapshots ...:
+    de: Schnappschüsse erstellen ...
+Do you want to continue?:
+    de: Möchten Sie fortfahren?
+Execute Backup Transactions:
+    de: Sicherungstransaktionen ausführen
+Execute Cleanup Transactions:
+    de: Säuberungstransaktionen ausführen
+Execute Snapshot Transactions:
+    de: Schnappschuss-Transaktionen ausführen
+FAILED:
+    de: FEHLGESCHLAGEN
+NAME: {}
+OK: {}
+Old snapshots removed.:
+    de: Alte Schnappschüsse entfernt.
+REFER:
+    de: VERWEIST
+Removing old snapshots ...:
+    de: Entferne alte Schnappschüsse ...
+Snapshots created.:
+    de: Schnappschüsse erstellt.
+Snapshots transferred.:
+    de: Schnappschüsse gesichert.
+Transferring snapshots ...:
+    de: Sichere Schnappschüsse ...
+USED:
+    de: BELEGT
+abgleich wizard:
+    de: Abgleich Assistent
+ancestor_name:
+    de: Vorfahr
+cleanup_snapshot:
+    de: Säuberung
+compressratio:
+    de: Kompressionsrate
+dataset_subname:
+    de: Datensatz-Namensfragment
+nothing to do:
+    de: nichts zu tun
+snapshot:
+    de: Schnappschuss
+snapshot_name:
+    de: Schnappschuss-Name
+snapshot_subparent:
+    de: Datensatz-Namensfragment
+source:
+    de: Quelle
+target:
+    de: Ziel
+transaction:
+    de: Transaktion
+transfer_snapshot:
+    de: Sicherung
+transfer_snapshot_incremental:
+    de: Inkrementelle Sicherung
+type:
+    de: Typ
+written:
+    de: Geschrieben

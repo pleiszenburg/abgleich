@@ -51,6 +51,10 @@ class ComparisonItemABC(abc.ABC):
     pass
 
 
+class ConfigABC(abc.ABC):
+    pass
+
+
 class DatasetABC(abc.ABC):
     pass
 

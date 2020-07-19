@@ -34,6 +34,7 @@ from tabulate import tabulate
 import typeguard
 
 from .abc import CommandABC, TransactionABC, TransactionListABC, TransactionMetaABC
+from .i18n import t
 from .io import colorize, humanize_size
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,6 +55,18 @@ class Transaction(TransactionABC):
         self._complete = False
         self._running = False
         self._error = None
+
+        self._changed = None
+
+    @property
+    def changed(self) -> typing.Union[None, typing.Callable]:
+
+        return self._changed
+
+    @changed.setter
+    def changed(self, value: typing.Union[None, typing.Callable]):
+
+        self._changed = value
 
     @property
     def complete(self) -> bool:
@@ -84,7 +97,10 @@ class Transaction(TransactionABC):
 
         if self._complete:
             return
+
         self._running = True
+        if self._changed is not None:
+            self._changed()
 
         try:
             if len(self._commands) == 1:
@@ -98,6 +114,8 @@ class Transaction(TransactionABC):
         finally:
             self._running = False
             self._complete = True
+            if self._changed is not None:
+                self._changed()
 
 
 MetaTypes = typing.Union[str, int, float]
@@ -139,42 +157,105 @@ class TransactionList(TransactionListABC):
     def __init__(self):
 
         self._transactions = []
+        self._changed = None
 
     def __len__(self) -> int:
 
         return len(self._transactions)
 
+    def __getitem__(self, index: int) -> TransactionABC:
+
+        return self._transactions[index]
+
+    @property
+    def changed(self) -> typing.Union[None, typing.Callable]:
+
+        return self._changed
+
+    @changed.setter
+    def changed(self, value: typing.Union[None, typing.Callable]):
+
+        self._changed = value
+
+    @property
+    def table_columns(self) -> typing.List[str]:
+
+        headers = set()
+        for transaction in self._transactions:
+            keys = list(transaction.meta.keys())
+            assert t("type") in keys
+            headers.update(keys)
+        headers = list(headers)
+        headers.sort()
+
+        if len(headers) == 0:
+            return headers
+
+        type_index = headers.index(t("type"))
+        if type_index != 0:
+            headers.pop(type_index)
+            headers.insert(0, t("type"))
+
+        return headers
+
+    @property
+    def table_rows(self) -> typing.List[str]:
+
+        return [f'{t("transaction"):s} #{index:d}' for index in range(1, len(self) + 1)]
+
     def append(self, transaction: TransactionABC):
 
         self._transactions.append(transaction)
+        if self._changed is not None:
+            self._link_transaction(transaction)
 
     def extend(self, transactions: TransactionIterableTypes):
 
+        transactions = list(transactions)
         self._transactions.extend(transactions)
+        if self._changed is not None:
+            for transaction in transactions:
+                self._link_transaction(transaction)
+
+    def clear(self):
+
+        self._transactions.clear()
+        self._changed()
+
+    def _link_transaction(self, transaction: TransactionABC):
+
+        transaction.changed = lambda: self._changed(
+            self._transactions.index(transaction)
+        )
+        transaction.changed()
 
     def print_table(self):
 
         if len(self) == 0:
             return
 
-        headers = self._table_headers()
-        colalign = self._table_colalign(headers)
+        table_columns = self.table_columns
+        colalign = self._table_colalign(table_columns)
 
         table = [
             [
                 self._table_format_cell(header, transaction.meta.get(header))
-                for header in headers
+                for header in table_columns
             ]
             for transaction in self._transactions
         ]
 
-        print(tabulate(table, headers=headers, tablefmt="github", colalign=colalign,))
+        print(
+            tabulate(
+                table, headers=table_columns, tablefmt="github", colalign=colalign,
+            )
+        )
 
     @staticmethod
     def _table_format_cell(header: str, value: MetaNoneTypes) -> str:
 
         FORMAT = {
-            "written": lambda v: humanize_size(v, add_color=True),
+            t("written"): lambda v: humanize_size(v, add_color=True),
         }
 
         return FORMAT.get(header, str)(value)
@@ -182,7 +263,7 @@ class TransactionList(TransactionListABC):
     @staticmethod
     def _table_colalign(headers: typing.List[str]) -> typing.List[str]:
 
-        RIGHT = ("written",)
+        RIGHT = (t("written"),)
         DECIMAL = tuple()
 
         colalign = []
@@ -196,29 +277,12 @@ class TransactionList(TransactionListABC):
 
         return colalign
 
-    def _table_headers(self) -> typing.List[str]:
-
-        headers = set()
-        for transaction in self._transactions:
-            keys = list(transaction.meta.keys())
-            assert "type" in keys
-            headers.update(keys)
-        headers = list(headers)
-        headers.sort()
-
-        type_index = headers.index("type")
-        if type_index != 0:
-            headers.pop(type_index)
-            headers.insert(0, "type")
-
-        return headers
-
     def run(self):
 
         for transaction in self._transactions:
 
             print(
-                f'({colorize(transaction.meta["type"], "white"):s}) '
+                f'({colorize(transaction.meta[t("type")], "white"):s}) '
                 f'{colorize(" | ".join([str(command) for command in transaction.commands]), "yellow"):s}'
             )
 
@@ -231,7 +295,7 @@ class TransactionList(TransactionListABC):
             assert transaction.complete
 
             if transaction.error is not None:
-                print(colorize("FAILED", "red"))
+                print(colorize(t("FAILED"), "red"))
                 raise transaction.error
             else:
-                print(colorize("OK", "green"))
+                print(colorize(t("OK"), "green"))

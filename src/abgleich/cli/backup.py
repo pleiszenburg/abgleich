@@ -32,6 +32,7 @@ specific language governing rights and limitations under the License.
 import click
 
 from ..core.config import Config
+from ..core.i18n import t
 from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,10 +52,10 @@ def backup(configfile):
     transactions = source_zpool.get_backup_transactions(target_zpool)
 
     if len(transactions) == 0:
-        print("nothing to do")
+        print(t("nothing to do"))
         return
     transactions.print_table()
 
-    click.confirm("Do you want to continue?", abort=True)
+    click.confirm(t("Do you want to continue?"), abort=True)
 
     transactions.run()

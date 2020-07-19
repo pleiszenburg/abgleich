@@ -72,6 +72,10 @@ class Comparison(ComparisonABC):
 
         self._a, self._b, self._merged = a, b, merged
 
+    def __len__(self) -> int:
+
+        return len(self._merged)
+
     @property
     def a(self) -> ComparisonParentTypes:
 

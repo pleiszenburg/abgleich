@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/cli/_main_.py: CLI auto-detection
+    src/abgleich/gui/lib.py: gui library
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,39 +24,27 @@ specific language governing rights and limitations under the License.
 
 """
 
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import importlib
-import os
+import typing
+import sys
 
-import click
+from PyQt5.QtWidgets import QApplication, QDialog
+import typeguard
+
+from ..core.abc import ConfigABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-def _add_commands(ctx):
-    """auto-detects sub-commands"""
-    for cmd in (
-        item[:-3] if item.lower().endswith(".py") else item[:]
-        for item in os.listdir(os.path.dirname(__file__))
-        if not item.startswith("_")
-    ):
-        try:
-            ctx.add_command(
-                getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd)
-            )
-        except ModuleNotFoundError:  # likely no gui support
-            continue
+@typeguard.typechecked
+def run_app(Window: typing.Type[QDialog], config: ConfigABC):
 
-
-@click.group()
-def cli():
-    """abgleich, zfs sync tool"""
-
-
-_add_commands(cli)
+    app = QApplication(sys.argv)
+    window = Window(config)
+    window.show()
+    sys.exit(app.exec_())

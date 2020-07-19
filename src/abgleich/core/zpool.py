@@ -36,14 +36,17 @@ import typeguard
 
 from .abc import (
     ComparisonItemABC,
+    ConfigABC,
     DatasetABC,
     SnapshotABC,
+    TransactionABC,
     TransactionListABC,
     ZpoolABC,
 )
 from .command import Command
 from .comparison import Comparison
 from .dataset import Dataset
+from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
@@ -57,7 +60,7 @@ from .transaction import TransactionList
 @typeguard.typechecked
 class Zpool(ZpoolABC):
     def __init__(
-        self, datasets: typing.List[DatasetABC], side: str, config: typing.Dict,
+        self, datasets: typing.List[DatasetABC], side: str, config: ConfigABC,
     ):
 
         self._datasets = datasets
@@ -85,7 +88,7 @@ class Zpool(ZpoolABC):
 
         return self._root
 
-    def get_cleanup_transactions(self, other: ZpoolABC) -> TransactionListABC:
+    def get_cleanup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -95,84 +98,168 @@ class Zpool(ZpoolABC):
 
         for dataset_item in zpool_comparison.merged:
 
-            if dataset_item.get_item().subname in self._config["ignore"]:
+            cleanup_transactions = self._get_cleanup_from_datasetitem(dataset_item)
+            if cleanup_transactions is None:
                 continue
-            if dataset_item.a is None or dataset_item.b is None:
-                continue
+            transactions.extend(cleanup_transactions)
 
+        return transactions
+
+    def generate_cleanup_transactions(
+        self, other: ZpoolABC,
+    ) -> typing.Generator[
+        typing.Tuple[
+            int,
+            typing.Union[
+                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            ],
+        ],
+        None,
+        None,
+    ]:
+
+        assert self.side == "source"
+        assert other.side == "target"
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+
+        yield len(zpool_comparison), None
+
+        for index, dataset_item in enumerate(zpool_comparison.merged):
+            yield index, self._get_cleanup_from_datasetitem(dataset_item)
+
+    def _get_cleanup_from_datasetitem(
+        self, dataset_item: ComparisonItemABC,
+    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+
+        if dataset_item.get_item().subname in self._config["ignore"]:
+            return
+        if dataset_item.a is None or dataset_item.b is None:
+            return
+
+        dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
+        snapshots = dataset_comparison.a_overlap_tail[: -self._config["keep_snapshots"]]
+
+        return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
+
+    def get_backup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
+
+        assert self.side == "source"
+        assert other.side == "target"
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+        transactions = TransactionList()
+
+        for dataset_item in zpool_comparison.merged:
+            backup_transactions = self._get_backup_transactions_from_datasetitem(
+                other, dataset_item
+            )
+            if backup_transactions is None:
+                continue
+            transactions.extend(backup_transactions)
+
+        return transactions
+
+    def generate_backup_transactions(
+        self, other: ZpoolABC,
+    ) -> typing.Generator[
+        typing.Tuple[
+            int,
+            typing.Union[
+                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            ],
+        ],
+        None,
+        None,
+    ]:
+
+        assert self.side == "source"
+        assert other.side == "target"
+
+        zpool_comparison = Comparison.from_zpools(self, other)
+
+        yield len(zpool_comparison), None
+
+        for index, dataset_item in enumerate(zpool_comparison.merged):
+            yield index, self._get_backup_transactions_from_datasetitem(
+                other, dataset_item
+            )
+
+    def _get_backup_transactions_from_datasetitem(
+        self, other: ZpoolABC, dataset_item: ComparisonItemABC,
+    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+
+        if dataset_item.get_item().subname in self._config["ignore"]:
+            return
+        if dataset_item.a is None:
+            return
+
+        if dataset_item.b is None:
+            snapshots = list(dataset_item.a.snapshots)
+        else:
             dataset_comparison = Comparison.from_datasets(
                 dataset_item.a, dataset_item.b
             )
-            snapshots = dataset_comparison.a_overlap_tail[
-                : -self._config["keep_snapshots"]
-            ]
+            snapshots = dataset_comparison.a_head
 
-            transactions.extend(
-                (snapshot.get_cleanup_transaction() for snapshot in snapshots)
-            )
+        if len(snapshots) == 0:
+            return
 
-        return transactions
+        source_dataset = (
+            self.root
+            if len(dataset_item.a.subname) == 0
+            else join(self.root, dataset_item.a.subname)
+        )
+        target_dataset = (
+            other.root
+            if len(dataset_item.a.subname) == 0
+            else join(other.root, dataset_item.a.subname)
+        )
 
-    def get_backup_transactions(self, other: ZpoolABC) -> TransactionListABC:
-
-        assert self.side == "source"
-        assert other.side == "target"
-
-        zpool_comparison = Comparison.from_zpools(self, other)
-        transactions = TransactionList()
-
-        for dataset_item in zpool_comparison.merged:
-
-            if dataset_item.get_item().subname in self._config["ignore"]:
-                continue
-            if dataset_item.a is None:
-                continue
-
-            if dataset_item.b is None:
-                snapshots = list(dataset_item.a.snapshots)
-            else:
-                dataset_comparison = Comparison.from_datasets(
-                    dataset_item.a, dataset_item.b
-                )
-                snapshots = dataset_comparison.a_head
-
-            if len(snapshots) == 0:
-                continue
-
-            source_dataset = (
-                self.root
-                if len(dataset_item.a.subname) == 0
-                else join(self.root, dataset_item.a.subname)
-            )
-            target_dataset = (
-                other.root
-                if len(dataset_item.a.subname) == 0
-                else join(other.root, dataset_item.a.subname)
-            )
-
-            transactions.extend(
-                (
-                    snapshot.get_backup_transaction(source_dataset, target_dataset,)
-                    for snapshot in snapshots
-                )
-            )
-
-        return transactions
+        return (
+            snapshot.get_backup_transaction(source_dataset, target_dataset,)
+            for snapshot in snapshots
+        )
 
     def get_snapshot_transactions(self) -> TransactionListABC:
 
         assert self._side == "source"
 
         transactions = TransactionList()
+
         for dataset in self._datasets:
-            if dataset.subname in self._config["ignore"]:
+            transaction = self._get_snapshot_transactions_from_dataset(dataset)
+            if transaction is None:
                 continue
-            if dataset["mountpoint"].value is None:
-                continue
-            if dataset.changed:
-                transactions.append(dataset.get_snapshot_transaction())
+            transactions.append(dataset.get_snapshot_transaction())
 
         return transactions
+
+    def generate_snapshot_transactions(
+        self,
+    ) -> typing.Generator[
+        typing.Tuple[int, typing.Union[None, TransactionABC]], None, None
+    ]:
+
+        assert self._side == "source"
+
+        yield len(self._datasets), None
+
+        for index, dataset in enumerate(self._datasets):
+            yield index, self._get_snapshot_transactions_from_dataset(dataset)
+
+    def _get_snapshot_transactions_from_dataset(
+        self, dataset: DatasetABC
+    ) -> typing.Union[None, TransactionABC]:
+
+        if dataset.subname in self._config["ignore"]:
+            return
+        if dataset["mountpoint"].value is None:
+            return
+        if not dataset.changed:
+            return
+
+        return dataset.get_snapshot_transaction()
 
     def print_table(self):
 
@@ -185,7 +272,7 @@ class Zpool(ZpoolABC):
         print(
             tabulate(
                 table,
-                headers=("NAME", "USED", "REFER", "compressratio"),
+                headers=(t("NAME"), t("USED"), t("REFER"), t("compressratio")),
                 tablefmt="github",
                 colalign=("left", "right", "right", "decimal"),
             )
@@ -222,7 +309,11 @@ class Zpool(ZpoolABC):
                 table.append(self._comparison_table_row(snapshot_item))
 
         print(
-            tabulate(table, headers=["NAME", self.side, other.side], tablefmt="github",)
+            tabulate(
+                table,
+                headers=[t("NAME"), t(self.side), t(other.side)],
+                tablefmt="github",
+            )
         )
 
     @staticmethod
@@ -247,7 +338,7 @@ class Zpool(ZpoolABC):
         ]
 
     @staticmethod
-    def available(side: str, config: typing.Dict,) -> int:
+    def available(side: str, config: ConfigABC,) -> int:
 
         output, _ = Command.on_side(
             [
@@ -265,7 +356,7 @@ class Zpool(ZpoolABC):
         return Property.from_params(*output.strip().split("\t")[1:]).value
 
     @classmethod
-    def from_config(cls, side: str, config: typing.Dict,) -> ZpoolABC:
+    def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
 
         output, _ = Command.on_side(
             [

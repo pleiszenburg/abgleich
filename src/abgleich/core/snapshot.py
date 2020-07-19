@@ -32,8 +32,9 @@ import typing
 
 import typeguard
 
-from .abc import PropertyABC, SnapshotABC, TransactionABC
+from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
 from .command import Command
+from .i18n import t
 from .lib import root
 from .property import Property
 from .transaction import Transaction, TransactionMeta
@@ -52,7 +53,7 @@ class Snapshot(SnapshotABC):
         properties: typing.Dict[str, PropertyABC],
         context: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ):
 
         self._name = name
@@ -81,9 +82,11 @@ class Snapshot(SnapshotABC):
 
         return Transaction(
             meta=TransactionMeta(
-                type="cleanup_snapshot",
-                snapshot_subparent=self._subparent,
-                snapshot_name=self._name,
+                **{
+                    t("type"): t("cleanup_snapshot"),
+                    t("snapshot_subparent"): self._subparent,
+                    t("snapshot_name"): self._name,
+                }
             ),
             commands=[
                 Command.on_side(
@@ -124,12 +127,14 @@ class Snapshot(SnapshotABC):
 
         return Transaction(
             meta=TransactionMeta(
-                type="push_snapshot"
-                if ancestor is None
-                else "push_snapshot_incremental",
-                snapshot_subparent=self._subparent,
-                ancestor_name="" if ancestor is None else ancestor.name,
-                snapshot_name=self.name,
+                **{
+                    t("type"): t("transfer_snapshot")
+                    if ancestor is None
+                    else t("transfer_snapshot_incremental"),
+                    t("snapshot_subparent"): self._subparent,
+                    t("ancestor_name"): "" if ancestor is None else ancestor.name,
+                    t("snapshot_name"): self.name,
+                }
             ),
             commands=commands,
         )
@@ -171,7 +176,7 @@ class Snapshot(SnapshotABC):
         entity: typing.List[typing.List[str]],
         context: typing.List[SnapshotABC],
         side: str,
-        config: typing.Dict,
+        config: ConfigABC,
     ) -> SnapshotABC:
 
         properties = {
