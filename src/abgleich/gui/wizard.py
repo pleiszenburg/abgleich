@@ -35,6 +35,7 @@ from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
 from ..core.transaction import TransactionList
+from ..core.i18n import t
 from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -55,7 +56,7 @@ class WizardUi(WizardUiBase):
         self._ui["button_cancel"].clicked.connect(self._cancel_click)
         self._ui["button_continue"].clicked.connect(self._continue_click)
 
-        self._ui["button_cancel"].setText("Cancel")
+        self._ui["button_cancel"].setText(t("Cancel"))
         self._ui["button_continue"].setText("")
 
         self._continue = lambda: None
@@ -66,32 +67,29 @@ class WizardUi(WizardUiBase):
 
         self._steps = [
             {
-                'name': 'snap',
-                'init_button': 'Collect Snapshot Transactions',
+                'init_button': t('Collect Snapshot Transactions'),
                 'prepare': self._prepare_snap,
-                'prepare_text': 'Collecting snapshot transactions ...',
-                'run_text': 'Creating snapshots ...',
-                'run_button': 'Execute Snapshot Transactions',
-                'finish_text': 'Snapshots created.',
-                'finish_button': 'Collect Backup Transactions',
+                'prepare_text': t('Collecting snapshot transactions ...'),
+                'run_text': t('Creating snapshots ...'),
+                'run_button': t('Execute Snapshot Transactions'),
+                'finish_text': t('Snapshots created.'),
+                'finish_button': t('Collect Backup Transactions'),
             },
             {
-                'name': 'backup',
                 'prepare': lambda: self._prepare('backup'),
-                'prepare_text': 'Collecting backup transactions ...',
-                'run_text': 'Transferring backups ...',
-                'run_button': 'Execute Backup Transactions',
-                'finish_text': 'Snapshots transferred.',
-                'finish_button': 'Collect Cleanup Transactions',
+                'prepare_text': t('Collecting backup transactions ...'),
+                'run_text': t('Transferring backups ...'),
+                'run_button': t('Execute Backup Transactions'),
+                'finish_text': t('Snapshots transferred.'),
+                'finish_button': t('Collect Cleanup Transactions'),
             },
             {
-                'name': 'cleanup',
                 'prepare': lambda: self._prepare('cleanup'),
-                'prepare_text': 'Collecting cleanup transactions ...',
-                'run_text': 'Removing old snapshots ...',
-                'run_button': 'Execute Cleanup Transactions',
-                'finish_text': 'Old snapshots removed.',
-                'finish_button': 'Close',
+                'prepare_text': t('Collecting cleanup transactions ...'),
+                'run_text': t('Removing old snapshots ...'),
+                'run_button': t('Execute Cleanup Transactions'),
+                'finish_text': t('Old snapshots removed.'),
+                'finish_button': t('Close'),
             },
         ]
 
