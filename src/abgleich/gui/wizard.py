@@ -150,7 +150,13 @@ class WizardUi(WizardUiBase):
             assert transaction.complete
 
             if transaction.error is not None:
-                raise transaction.error # TODO
+                QMessageBox.critical(
+                    self,
+                    "Critical",
+                    "Transaction failed!\n\n" + '\n\n'.join([str(item) for item in transaction.error.args]),
+                )
+                self._quit()
+                return
 
         self._ui['label'].setText(self._steps[index]['finish_text'])
         self._continue = lambda: self._finish_step(index)
@@ -160,8 +166,7 @@ class WizardUi(WizardUiBase):
     def _finish_step(self, index: int):
 
         if index + 1 == len(self._steps):
-            self._transactions.clear()
-            self.close()
+            self._quit()
             return
 
         self._init_step(index + 1)
@@ -202,3 +207,8 @@ class WizardUi(WizardUiBase):
             QApplication.processEvents()
 
         return len(self._transactions) > 0
+
+    def _quit(self):
+
+        self._transactions.clear()
+        self.close()
