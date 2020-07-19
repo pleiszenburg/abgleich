@@ -107,6 +107,7 @@ class WizardUi(WizardUiBase):
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
+        self._ui['progress'].setValue(0)
         self._ui['label'].setText(self._steps[index]['prepare_text'])
         self._transactions.clear()
         self._continue = lambda: self._prepare_step(index)
@@ -128,14 +129,17 @@ class WizardUi(WizardUiBase):
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
+        self._ui['progress'].setMaximum(len(self._transactions))
         QApplication.processEvents()
 
-        for transaction in self._transactions:
+        for number, transaction in enumerate(self._transactions):
 
             assert not transaction.running
             assert not transaction.complete
 
             transaction.run()
+            self._ui['progress'].setValue(number + 1)
+            QApplication.processEvents()
 
             assert not transaction.running
             assert transaction.complete
@@ -163,13 +167,12 @@ class WizardUi(WizardUiBase):
         length, _ = next(gen)
 
         self._ui['progress'].setMaximum(length)
-        self._ui['progress'].setValue(0)
         QApplication.processEvents()
 
-        for index, transaction in gen:
+        for number, transaction in gen:
             if transaction is not None:
                 self._transactions.append(transaction)
-            self._ui['progress'].setValue(index + 1)
+            self._ui['progress'].setValue(number + 1)
             QApplication.processEvents()
 
     def _prepare_backup(self):
