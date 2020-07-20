@@ -10,34 +10,34 @@ Collect Backup Transactions:
     en: Compare snapshots
 Collect Cleanup Transactions:
     de_SE: Säuberungstransaktionen sammeln
-    de: Snapshots ermitteln
-    en: Detect snapshots
+    de: Alte Snapshots ermitteln
+    en: Detect obsolete snapshots
 Collect Snapshot Transactions:
     de_SE: Schnappschuss-Transaktionen sammeln
     de: Änderungen ermitteln
     en: Detect changes
 Collecting backup transactions ...:
-    de_SE: Sicherungstransaktionen sammeln …
+    de_SE: Sicherungstransaktionen sammeln ...
     de: Snapshots des Quell- und Ziel-Systems vergleichen ...
     en: Compare snapshots on source and target sides ...
 Collecting cleanup transactions ...:
-    de_SE: Säuberungstransaktionen sammeln …
+    de_SE: Säuberungstransaktionen sammeln ...
     de: Nicht mehr erforderliche Snapshots ermitteln ...
     en: Detect obsolete snapshots ...
 Collecting snapshot transactions ...:
-    de_SE: Schnappschuss-Transaktionen sammeln …
-    de: Änderungen im Quell-System ermitteln …
+    de_SE: Schnappschuss-Transaktionen sammeln ...
+    de: Änderungen im Quell-System ermitteln ...
     en: Detect changes on source side ...
 Creating snapshots ...:
-    de_SE: Schnappschüsse erstellen …
-    de: Snapshots im Quell-System anlegen …
+    de_SE: Schnappschüsse erstellen ...
+    de: Snapshots im Quell-System anlegen ...
     en: Create snapshots on source side ...
 Do you want to continue?:
     de: Möchten Sie fortfahren?
 Execute Backup Transactions:
     de_SE: Sicherungstransaktionen ausführen
-    de: Snapshots vom Quell-System auf das Ziel-System übertragen …
-    en: Transfer snapshots from source to target side ...
+    de: Snapshots übertragen
+    en: Transfer snapshots
 Execute Cleanup Transactions:
     de_SE: Säuberungstransaktionen ausführen
     de: Snapshots entfernen
@@ -46,15 +46,18 @@ Execute Snapshot Transactions:
     de_SE: Schnappschuss-Transaktionen ausführen
     de: Snapshots anlegen
     en: Create snapshots
-OK: {}
 FAILED:
     de: FEHLGESCHLAGEN
+NAME: {}
+OK: {}
 Old snapshots removed.:
     de_SE: Alte Schnappschüsse entfernt.
     de: Alte Snapshots erfolgreich entfernt!
+REFER:
+    de: VERWEIST
 Removing old snapshots ...:
-    de_SE: Entferne alte Schnappschüsse …
-    de: Entferne alte Snapshots
+    de_SE: Entferne alte Schnappschüsse ...
+    de: Entferne alte Snapshots ...
 Snapshots created.:
     de_SE: Schnappschüsse erstellt.
     de: Snapshots erfolgreich angelegt!
@@ -62,8 +65,11 @@ Snapshots transferred.:
     de_SE: Schnappschüsse gesichert.
     de: Snapshots erfolgreich übertragen!
 Transferring snapshots ...:
-    de_SE: Sichere Schnappschüsse …
-    de: Übertrage Snapshots.
+    de_SE: Sichere Schnappschüsse ...
+    de: Snapshots vom Quell-System auf das Ziel-System übertragen ...
+    en: Transfer snapshots from source to target side ...
+USED:
+    de: BELEGT
 abgleich wizard:
     de: Abgleich Assistent
 ancestor_name:
@@ -74,23 +80,15 @@ cleanup_snapshot:
     de_SE: Säuberung
     de: Zu löschender Snapshot
     en: Obsolete snapshot
+compressratio:
+    de: Kompressionsrate
+    en: Compression ratio
 dataset_subname:
     de_SE: Datensatz-Namensfragment
     de: Name des Datensatzes
     en: Name of dataset
 nothing to do:
     de: nichts zu tun
-transaction:
-    de_SE: Transaktion
-    de: Aktion
-transfer_snapshot:
-    de_SE: Sicherung
-    de: Neuer Datensatz & Snapshot
-    en: New dataset & snapshot
-transfer_snapshot_incremental:
-    de_SE: Inkrementelle Sicherung
-    de: Differenz zweier Snapshots
-    en: Difference between snapshots
 snapshot:
     de_SE: Schnappschuss
     de: Snapshot
@@ -102,6 +100,21 @@ snapshot_subparent:
     de_SE: Datensatz-Namensfragment
     de: Name des Datensatzes
     en: Name of dataset
+source:
+    de: Quelle
+target:
+    de: Ziel
+transaction:
+    de_SE: Transaktion
+    de: Aktion
+transfer_snapshot:
+    de_SE: Sicherung
+    de: Neuer Datensatz & Snapshot
+    en: New dataset & snapshot
+transfer_snapshot_incremental:
+    de_SE: Inkrementelle Sicherung
+    de: Differenz zweier Snapshots
+    en: Difference between snapshots
 type:
     de: Typ
 written:
