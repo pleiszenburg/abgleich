@@ -5,73 +5,103 @@ Cancel:
 Close:
     de: Schließen
 Collect Backup Transactions:
-    de: Sicherungstransaktionen sammeln
+    de_SE: Sicherungstransaktionen sammeln
+    de: Snapshots vergleichen
+    en: Compare snapshots
 Collect Cleanup Transactions:
-    de: Säuberungstransaktionen sammeln
+    de_SE: Säuberungstransaktionen sammeln
+    de: Snapshots ermitteln
+    en: Detect snapshots
 Collect Snapshot Transactions:
-    de: Schnappschuss-Transaktionen sammeln
+    de_SE: Schnappschuss-Transaktionen sammeln
+    de: Änderungen ermitteln
+    en: Detect changes
 Collecting backup transactions ...:
-    de: Sicherungstransaktionen sammeln ...
+    de_SE: Sicherungstransaktionen sammeln …
+    de: Snapshots des Quell- und Ziel-Systems vergleichen ...
+    en: Compare snapshots on source and target sides ...
 Collecting cleanup transactions ...:
-    de: Säuberungstransaktionen sammeln ...
+    de_SE: Säuberungstransaktionen sammeln …
+    de: Nicht mehr erforderliche Snapshots ermitteln ...
+    en: Detect obsolete snapshots ...
 Collecting snapshot transactions ...:
-    de: Schnappschuss-Transaktionen sammeln ...
+    de_SE: Schnappschuss-Transaktionen sammeln …
+    de: Änderungen im Quell-System ermitteln …
+    en: Detect changes on source side ...
 Creating snapshots ...:
-    de: Schnappschüsse erstellen ...
+    de_SE: Schnappschüsse erstellen …
+    de: Snapshots im Quell-System anlegen …
+    en: Create snapshots on source side ...
 Do you want to continue?:
     de: Möchten Sie fortfahren?
 Execute Backup Transactions:
-    de: Sicherungstransaktionen ausführen
+    de_SE: Sicherungstransaktionen ausführen
+    de: Snapshots vom Quell-System auf das Ziel-System übertragen …
+    en: Transfer snapshots from source to target side ...
 Execute Cleanup Transactions:
-    de: Säuberungstransaktionen ausführen
+    de_SE: Säuberungstransaktionen ausführen
+    de: Snapshots entfernen
+    en: Delete snapshots
 Execute Snapshot Transactions:
-    de: Schnappschuss-Transaktionen ausführen
+    de_SE: Schnappschuss-Transaktionen ausführen
+    de: Snapshots anlegen
+    en: Create snapshots
+OK: {}
 FAILED:
     de: FEHLGESCHLAGEN
-NAME: {}
-OK: {}
 Old snapshots removed.:
-    de: Alte Schnappschüsse entfernt.
-REFER:
-    de: VERWEIST
+    de_SE: Alte Schnappschüsse entfernt.
+    de: Alte Snapshots erfolgreich entfernt!
 Removing old snapshots ...:
-    de: Entferne alte Schnappschüsse ...
+    de_SE: Entferne alte Schnappschüsse …
+    de: Entferne alte Snapshots
 Snapshots created.:
-    de: Schnappschüsse erstellt.
+    de_SE: Schnappschüsse erstellt.
+    de: Snapshots erfolgreich angelegt!
 Snapshots transferred.:
-    de: Schnappschüsse gesichert.
+    de_SE: Schnappschüsse gesichert.
+    de: Snapshots erfolgreich übertragen!
 Transferring snapshots ...:
-    de: Sichere Schnappschüsse ...
-USED:
-    de: BELEGT
+    de_SE: Sichere Schnappschüsse …
+    de: Übertrage Snapshots.
 abgleich wizard:
     de: Abgleich Assistent
 ancestor_name:
-    de: Vorfahr
+    de_SE: Vorfahr
+    de: Vorhergehender Snapshot
+    en: Name of ancestor
 cleanup_snapshot:
-    de: Säuberung
-compressratio:
-    de: Kompressionsrate
+    de_SE: Säuberung
+    de: Zu löschender Snapshot
+    en: Obsolete snapshot
 dataset_subname:
-    de: Datensatz-Namensfragment
+    de_SE: Datensatz-Namensfragment
+    de: Name des Datensatzes
+    en: Name of dataset
 nothing to do:
     de: nichts zu tun
-snapshot:
-    de: Schnappschuss
-snapshot_name:
-    de: Schnappschuss-Name
-snapshot_subparent:
-    de: Datensatz-Namensfragment
-source:
-    de: Quelle
-target:
-    de: Ziel
 transaction:
-    de: Transaktion
+    de_SE: Transaktion
+    de: Aktion
 transfer_snapshot:
-    de: Sicherung
+    de_SE: Sicherung
+    de: Neuer Datensatz & Snapshot
+    en: New dataset & snapshot
 transfer_snapshot_incremental:
-    de: Inkrementelle Sicherung
+    de_SE: Inkrementelle Sicherung
+    de: Differenz zweier Snapshots
+    en: Difference between snapshots
+snapshot:
+    de_SE: Schnappschuss
+    de: Snapshot
+snapshot_name:
+    de_SE: Schnappschuss-Name
+    de: Snapshot-Name
+    en: Name of snapshot
+snapshot_subparent:
+    de_SE: Datensatz-Namensfragment
+    de: Name des Datensatzes
+    en: Name of dataset
 type:
     de: Typ
 written:
