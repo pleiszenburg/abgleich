@@ -254,7 +254,7 @@ class Zpool(ZpoolABC):
 
         if dataset.subname in self._config["ignore"]:
             return
-        if dataset["mountpoint"].value is None:
+        if dataset.get("mountpoint").value is None and dataset['type'].value == 'filesystem':
             return
         if not dataset.changed:
             return
