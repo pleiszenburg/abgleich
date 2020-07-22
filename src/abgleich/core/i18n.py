@@ -33,7 +33,16 @@ import os
 
 import typeguard
 import yaml
-from yaml import CDumper, CLoader
+
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import FullLoader as Loader
+
+try:
+    from yaml import CDumper as Dumper
+except ImportError:
+    from yaml import Dumper
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -71,13 +80,13 @@ class _Lang(dict):
         self.clear()
 
         with open(self._path, "r") as f:
-            self.update(yaml.load(f.read(), Loader=CLoader))
+            self.update(yaml.load(f.read(), Loader=Loader))
 
     def _dump(self):
 
         with open(self._path, "w") as f:
             f.write(
-                yaml.dump(self.copy(), Dumper=CDumper, allow_unicode=True, indent=4)
+                yaml.dump(self.copy(), Dumper=Dumper, allow_unicode=True, indent=4)
             )
 
 

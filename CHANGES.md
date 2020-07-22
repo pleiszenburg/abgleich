@@ -1,5 +1,13 @@
 # Changes
 
+## 0.0.4 (2020-07-22)
+
+- FEATURE: Improved labels in wizard GUI
+- FEATURE: Significantly improved German translation
+- FIX: Importing `CLoader` and `CDumper` from `pyyaml` caused crashes if they were not present in `pyyaml` packages, see #2.
+- FIX: The `mountpoint` property of ZFS datasets is no longer assumed to be present at all (set or unset). This allows to handle ZVOLs without crashing, see issue #6.
+- FIX: Versions 0.0.2 and 0.0.3 were completely ignoring ZVOLs when looking for snapshot tasks, see issue #10.
+
 ## 0.0.3 (2020-07-19)
 
 - FEATURE: Added wizard GUI for backup tasks (`snap`, `backup`, `cleanup`)

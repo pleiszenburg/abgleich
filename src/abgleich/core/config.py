@@ -33,7 +33,11 @@ import typing
 
 import typeguard
 import yaml
-from yaml import CLoader
+
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import FullLoader as Loader
 
 from .abc import ConfigABC
 from .lib import valid_name
@@ -71,7 +75,7 @@ class Config(ConfigABC, dict):
             "ssh": lambda v: cls._validate(data=v, schema=ssh_schema),
         }
 
-        config = yaml.load(fd.read(), Loader=CLoader)
+        config = yaml.load(fd.read(), Loader=Loader)
         cls._validate(data=config, schema=root_schema)
         return cls(config)
 

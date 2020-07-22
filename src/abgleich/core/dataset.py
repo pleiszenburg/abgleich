@@ -82,6 +82,25 @@ class Dataset(DatasetABC):
             return self._properties[key]
         return self._snapshots[key]
 
+    def get(
+        self,
+        key: typing.Union[str, int, slice],
+        default: typing.Union[None, PropertyABC] = None,
+    ) -> typing.Union[None, PropertyABC]:
+
+        if isinstance(key, str):
+            return self._properties.get(
+                key,
+                Property(key, None, None) if default is None else default,
+                )
+
+        assert isinstance(key, int) or isinstance(key, slice)
+
+        try:
+            return self._snapshots[key]
+        except IndexError:
+            return default
+
     @property
     def changed(self) -> bool:
 
