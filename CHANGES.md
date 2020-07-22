@@ -1,6 +1,6 @@
 # Changes
 
-## 0.0.4 (2020-XX-XX)
+## 0.0.4 (2020-07-22)
 
 - FEATURE: Improved labels in wizard GUI
 - FEATURE: Significantly improved German translation
