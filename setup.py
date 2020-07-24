@@ -63,10 +63,12 @@ def get_version(code):
             continue
         if len(item.targets) != 1:
             continue
-        if item.targets[0].id != '__version__':
+        if item.targets[0].id != "__version__":
             continue
         return item.value.s
-with open(os.path.join(SRC_DIR, 'abgleich', '__init__.py'), 'r', encoding = 'utf-8') as f:
+
+
+with open(os.path.join(SRC_DIR, "abgleich", "__init__.py"), "r", encoding="utf-8") as f:
     __version__ = get_version(f.read())
 
 # Requirements
