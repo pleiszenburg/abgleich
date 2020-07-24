@@ -31,8 +31,11 @@ specific language governing rights and limitations under the License.
 
 import importlib
 import os
+import sys
 
 import click
+
+from .. import __version__
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
@@ -54,9 +57,16 @@ def _add_commands(ctx):
             continue
 
 
-@click.group()
-def cli():
+@click.group(invoke_without_command=True)
+@click.option('--version', is_flag=True)
+def cli(version):
     """abgleich, zfs sync tool"""
+
+    if not version:
+        return
+
+    print(__version__)
+    sys.exit()
 
 
 _add_commands(cli)
