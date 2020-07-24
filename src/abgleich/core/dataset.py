@@ -31,6 +31,12 @@ specific language governing rights and limitations under the License.
 import datetime
 import typing
 
+# Python <= 3.7.1 "fix"
+try:
+    from typing import OrderedDict as DictType
+except ImportError:
+    from typing import Dict as DictType
+
 import typeguard
 
 from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
@@ -205,7 +211,7 @@ class Dataset(DatasetABC):
     def from_entities(
         cls,
         name: str,
-        entities: typing.OrderedDict[str, typing.List[typing.List[str]]],
+        entities: DictType[str, typing.List[typing.List[str]]],
         side: str,
         config: ConfigABC,
     ) -> DatasetABC:

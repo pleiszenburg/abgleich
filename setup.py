@@ -33,9 +33,8 @@ from setuptools import (
     find_packages,
     setup,
 )
+import ast
 import os
-
-from abgleich import __version__
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # SETUP
@@ -55,6 +54,20 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:
 
 # Define source directory (path)
 SRC_DIR = "src"
+
+# Version
+def get_version(code):
+    tree = ast.parse(code)
+    for item in tree.body:
+        if not isinstance(item, ast.Assign):
+            continue
+        if len(item.targets) != 1:
+            continue
+        if item.targets[0].id != '__version__':
+            continue
+        return item.value.s
+with open(os.path.join(SRC_DIR, 'abgleich', '__init__.py'), 'r', encoding = 'utf-8') as f:
+    __version__ = get_version(f.read())
 
 # Requirements
 extras_require = {
