@@ -361,18 +361,10 @@ class Zpool(ZpoolABC):
     @classmethod
     def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
 
+        root_dataset = root(config[side]["zpool"], config[side]["prefix"])
+
         output, _ = Command.on_side(
-            [
-                "zfs",
-                "get",
-                "all",
-                "-r",
-                "-H",
-                "-p",
-                root(config[side]["zpool"], config[side]["prefix"]),
-            ],
-            side,
-            config,
+            ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,], side, config,
         ).run()
         output = [
             line.split("\t") for line in output.split("\n") if len(line.strip()) > 0
@@ -380,6 +372,15 @@ class Zpool(ZpoolABC):
         entities = OrderedDict((line[0], []) for line in output)
         for line_list in output:
             entities[line_list[0]].append(line_list[1:])
+
+        if not config.get("include_root", True):
+            entities.pop(root_dataset)
+            for name in [
+                snapshot
+                for snapshot in entities.keys()
+                if snapshot.startswith(f"{root_dataset:s}@")
+            ]:
+                entities.pop(name)
 
         datasets = [
             Dataset.from_entities(
