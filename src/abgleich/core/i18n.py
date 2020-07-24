@@ -85,9 +85,7 @@ class _Lang(dict):
     def _dump(self):
 
         with open(self._path, "w") as f:
-            f.write(
-                yaml.dump(self.copy(), Dumper=Dumper, allow_unicode=True, indent=4)
-            )
+            f.write(yaml.dump(self.copy(), Dumper=Dumper, allow_unicode=True, indent=4))
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

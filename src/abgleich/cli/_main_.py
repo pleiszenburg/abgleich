@@ -58,7 +58,7 @@ def _add_commands(ctx):
 
 
 @click.group(invoke_without_command=True)
-@click.option('--version', is_flag=True)
+@click.option("--version", is_flag=True)
 def cli(version):
     """abgleich, zfs sync tool"""
 
