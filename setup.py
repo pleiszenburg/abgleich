@@ -35,12 +35,11 @@ from setuptools import (
 )
 import os
 
+from abgleich import __version__
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # SETUP
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-# Package version
-__version__ = "0.0.5"
 
 # List all versions of Python which are supported
 python_minor_min = 6
