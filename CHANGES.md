@@ -2,7 +2,8 @@
 
 ## 0.0.6 (2020-XX-XX)
 
-- (TBD)
+- FIX: Development installs with `make install` do no longer fail, see #17.
+- FIX: Python up to 3.7.1 does not handle type checks for `OrderedDict` properly and either causes exceptions or crashes. Fixed with workaround, see #16.
 
 ## 0.0.5 (2020-07-24)
 
