@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.6 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.5 (2020-07-24)
 
 - FEATURE: Version shown in GUI
