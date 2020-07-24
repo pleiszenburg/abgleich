@@ -87,6 +87,8 @@ dataset_subname:
     de_SE: Datensatz-Namensfragment
     de: Name des Datensatzes
     en: Name of dataset
+host is not up:
+    de: Computer ist nicht erreichbar
 nothing to do:
     de: nichts zu tun
 snapshot:
