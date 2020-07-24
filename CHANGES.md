@@ -2,7 +2,8 @@
 
 ## 0.0.5 (2020-XX-XX)
 
-- (TBD)
+- FEATURE: Version shown in GUI
+- FEATURE: Version exposed through `--version` option on command line
 
 ## 0.0.4 (2020-07-22)
 
