@@ -5,6 +5,7 @@
 - FEATURE: Version shown in GUI
 - FEATURE: Version exposed through `--version` option on command line
 - FEATURE: While `{zpool}{/{prefix}}` is included in all operations by default, this can be deactivated by setting the new `include_root` configuration option to `no`, see #14.
+- FIX: If a remote host is not up, provide a proper error and fail gracefully, see #15.
 
 ## 0.0.4 (2020-07-22)
 
