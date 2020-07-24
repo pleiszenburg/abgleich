@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.7 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.6 (2020-07-24)
 
 - FIX: Development installs with `make install` do no longer fail, see #17.
