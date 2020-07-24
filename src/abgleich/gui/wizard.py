@@ -40,6 +40,7 @@ from ..core.abc import ConfigABC
 from ..core.transaction import TransactionList
 from ..core.i18n import t
 from ..core.zpool import Zpool
+from .. import __version__
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -56,7 +57,7 @@ class WizardUi(WizardUiBase):
         self.setWindowIcon(
             QIcon(os.path.join(os.path.dirname(__file__), "..", "share", "icon.svg"))
         )
-        self.setWindowTitle(t("abgleich wizard"))
+        self.setWindowTitle(f'{t("abgleich wizard"):s} {__version__:s}')
 
         self._ui["button_cancel"].setEnabled(False)
         self._ui["button_continue"].setEnabled(False)
