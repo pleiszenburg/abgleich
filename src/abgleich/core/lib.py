@@ -33,9 +33,24 @@ import typing
 
 import typeguard
 
+from .abc import ConfigABC
+from .command import Command
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+@typeguard.typechecked
+def is_host_up(side: str, config: ConfigABC) -> bool:
+
+    assert side in ("source", "target")
+    if config[side]["host"] == "localhost":
+        return True
+
+    _, _, returncode = Command.on_side(["exit"], side, config).run(returncode=True)
+    assert returncode in (0, 255)
+    return returncode == 0
 
 
 @typeguard.typechecked

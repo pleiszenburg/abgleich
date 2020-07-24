@@ -90,9 +90,8 @@ class Dataset(DatasetABC):
 
         if isinstance(key, str):
             return self._properties.get(
-                key,
-                Property(key, None, None) if default is None else default,
-                )
+                key, Property(key, None, None) if default is None else default,
+            )
 
         assert isinstance(key, int) or isinstance(key, slice)
 

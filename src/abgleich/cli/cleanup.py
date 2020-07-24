@@ -30,12 +30,14 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import time
+import sys
 
 import click
 
 from ..core.config import Config
 from ..core.i18n import t
 from ..core.io import humanize_size
+from ..core.lib import is_host_up
 from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -48,6 +50,11 @@ from ..core.zpool import Zpool
 def cleanup(configfile):
 
     config = Config.from_fd(configfile)
+
+    for side in ("source", "target"):
+        if not is_host_up(side, config):
+            print(f'{t("host is not up"):s}: {side:s}')
+            sys.exit(1)
 
     source_zpool = Zpool.from_config("source", config=config)
     target_zpool = Zpool.from_config("target", config=config)

@@ -30,8 +30,11 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import click
+import sys
 
 from ..core.config import Config
+from ..core.i18n import t
+from ..core.lib import is_host_up
 from ..core.zpool import Zpool
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,5 +47,11 @@ from ..core.zpool import Zpool
 @click.argument("side", default="source", type=str)
 def tree(configfile, side):
 
-    zpool = Zpool.from_config(side, config=Config.from_fd(configfile))
+    config = Config.from_fd(configfile)
+
+    if not is_host_up("source", config):
+        print(f'{t("host is not up"):s}: source')
+        sys.exit(1)
+
+    zpool = Zpool.from_config(side, config=config)
     zpool.print_table()

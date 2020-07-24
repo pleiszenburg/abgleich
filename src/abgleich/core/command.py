@@ -50,7 +50,9 @@ class Command(CommandABC):
 
         return " ".join([item.replace(" ", "\\ ") for item in self._cmd])
 
-    def run(self):
+    def run(
+        self, returncode: bool = False
+    ) -> typing.Union[typing.Tuple[str, str], typing.Tuple[str, str, int]]:
 
         proc = subprocess.Popen(
             self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -58,6 +60,9 @@ class Command(CommandABC):
         output, errors = proc.communicate()
         status = not bool(proc.returncode)
         output, errors = output.decode("utf-8"), errors.decode("utf-8")
+
+        if returncode:
+            return output, errors, int(proc.returncode)
 
         if not status or len(errors.strip()) > 0:
             raise SystemError("command failed", str(self), output, errors)
