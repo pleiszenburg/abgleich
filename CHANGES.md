@@ -1,6 +1,6 @@
 # Changes
 
-## 0.0.5 (2020-XX-XX)
+## 0.0.5 (2020-07-24)
 
 - FEATURE: Version shown in GUI
 - FEATURE: Version exposed through `--version` option on command line
