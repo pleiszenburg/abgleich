@@ -368,13 +368,14 @@ class Zpool(ZpoolABC):
         root_dataset = root(config[side]["zpool"], config[side]["prefix"])
 
         try:
-            output, error = Command.on_side(
+            output, _ = Command.on_side(
                 ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,], side, config,
             ).run()
         except SystemError as e:
-            if 'dataset does not exist' not in error:
-                raise e
-            return cls(datasets=[], side=side, config=config,)
+            if len(e.args) >= 4:
+                if 'dataset does not exist' in e.args[3]:
+                    return cls(datasets=[], side=side, config=config,)
+            raise e
 
         output = [
             line.split("\t") for line in output.split("\n") if len(line.strip()) > 0
