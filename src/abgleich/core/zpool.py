@@ -272,6 +272,10 @@ class Zpool(ZpoolABC):
             for snapshot in dataset.snapshots:
                 table.append(self._table_row(snapshot))
 
+        if len(table) == 0:
+            print('(empty)')
+            return
+
         print(
             tabulate(
                 table,
