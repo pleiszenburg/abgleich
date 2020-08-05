@@ -49,8 +49,8 @@ def tree(configfile, side):
 
     config = Config.from_fd(configfile)
 
-    if not is_host_up("source", config):
-        print(f'{t("host is not up"):s}: source')
+    if not is_host_up(side, config):
+        print(f'{t("host is not up"):s}: {side:s}')
         sys.exit(1)
 
     zpool = Zpool.from_config(side, config=config)
