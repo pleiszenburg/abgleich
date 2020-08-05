@@ -48,7 +48,7 @@ def is_host_up(side: str, config: ConfigABC) -> bool:
     if config[side]["host"] == "localhost":
         return True
 
-    _, _, returncode = Command.on_side(["exit"], side, config).run(returncode=True)
+    _, _, returncode, _ = Command.on_side(["exit"], side, config).run(returncode=True)
     assert returncode in (0, 255)
     return returncode == 0
 
