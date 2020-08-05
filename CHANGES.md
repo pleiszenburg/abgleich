@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.8 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.7 (2020-08-05)
 
 - FIX: `tree` now property checks if source or target is up, depending on what a user wants to see, see #20.
