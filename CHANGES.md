@@ -1,6 +1,6 @@
 # Changes
 
-## 0.0.7 (2020-XX-XX)
+## 0.0.7 (2020-08-05)
 
 - FIX: `tree` now property checks if source or target is up, depending on what a user wants to see, see #20.
 - FIX: All `abgleich` commands can properly initialize (instead of crashing) if the target tree is empty, see #19.
