@@ -1,5 +1,11 @@
 # Changes
 
+## 0.0.7 (2020-08-05)
+
+- FIX: `tree` now property checks if source or target is up, depending on what a user wants to see, see #20.
+- FIX: All `abgleich` commands can properly initialize (instead of crashing) if the target tree is empty, see #19.
+- FIX: `tree` shows message if there is no tree instead of crashing, see #18.
+
 ## 0.0.6 (2020-07-24)
 
 - FIX: Development installs with `make install` do no longer fail, see #17.

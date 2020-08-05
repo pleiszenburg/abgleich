@@ -28,4 +28,4 @@ specific language governing rights and limitations under the License.
 # META
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"

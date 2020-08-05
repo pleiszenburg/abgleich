@@ -272,6 +272,10 @@ class Zpool(ZpoolABC):
             for snapshot in dataset.snapshots:
                 table.append(self._table_row(snapshot))
 
+        if len(table) == 0:
+            print('(empty)')
+            return
+
         print(
             tabulate(
                 table,
@@ -363,9 +367,15 @@ class Zpool(ZpoolABC):
 
         root_dataset = root(config[side]["zpool"], config[side]["prefix"])
 
-        output, _ = Command.on_side(
+        output, errors, returncode, exception = Command.on_side(
             ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,], side, config,
-        ).run()
+        ).run(returncode = True)
+
+        if returncode != 0 and 'dataset does not exist' in errors:
+            return cls(datasets=[], side=side, config=config,)
+        if returncode != 0:
+            raise exception
+
         output = [
             line.split("\t") for line in output.split("\n") if len(line.strip()) > 0
         ]

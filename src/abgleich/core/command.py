@@ -52,7 +52,7 @@ class Command(CommandABC):
 
     def run(
         self, returncode: bool = False
-    ) -> typing.Union[typing.Tuple[str, str], typing.Tuple[str, str, int]]:
+    ) -> typing.Union[typing.Tuple[str, str], typing.Tuple[str, str, int, Exception]]:
 
         proc = subprocess.Popen(
             self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -61,11 +61,13 @@ class Command(CommandABC):
         status = not bool(proc.returncode)
         output, errors = output.decode("utf-8"), errors.decode("utf-8")
 
+        exception = SystemError("command failed", str(self), output, errors)
+
         if returncode:
-            return output, errors, int(proc.returncode)
+            return output, errors, int(proc.returncode), exception
 
         if not status or len(errors.strip()) > 0:
-            raise SystemError("command failed", str(self), output, errors)
+            raise exception
 
         return output, errors
 
