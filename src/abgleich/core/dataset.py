@@ -37,7 +37,7 @@ try:
 except ImportError:
     from typing import Dict as DictType
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
 from .command import Command
@@ -52,7 +52,7 @@ from .snapshot import Snapshot
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Dataset(DatasetABC):
     """
     Immutable.
