@@ -29,7 +29,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import subprocess
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Union
 
 from typeguard import typechecked
 
@@ -121,13 +121,16 @@ class Command(CommandABC):
     @classmethod
     def on_side(cls, cmd: List[str], side: str, config: ConfigABC) -> CommandABC:
 
-        if config[side]["host"] == "localhost":
+        side_config = config.group(side)
+
+        if side_config["host"] == "localhost":
             return cls(cmd)
-        return cls.with_ssh(cmd, side_config=config[side], ssh_config=config["ssh"])
+
+        return cls.with_ssh(cmd, side_config=side_config, ssh_config=config.group('ssh'))
 
     @classmethod
     def with_ssh(
-        cls, cmd: List[str], side_config: Dict, ssh_config: Dict
+        cls, cmd: List[str], side_config: ConfigABC, ssh_config: ConfigABC
     ) -> CommandABC:
 
         cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
