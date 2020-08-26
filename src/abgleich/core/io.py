@@ -28,9 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Union
 
-import typeguard
+from typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CONSTANTS
@@ -57,14 +57,14 @@ c = {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 def colorize(text: str, col: str) -> str:
     return c.get(col.upper(), c["GREY"]) + text + c["RESET"]
 
 
-@typeguard.typechecked
+@typechecked
 def humanize_size(
-    size: typing.Union[float, int], add_color: bool = False, get_rgb: bool = False
+    size: Union[float, int], add_color: bool = False, get_rgb: bool = False
 ) -> str:
 
     suffix = "B"
