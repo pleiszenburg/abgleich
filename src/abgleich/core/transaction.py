@@ -44,6 +44,10 @@ from .io import colorize, humanize_size
 
 @typechecked
 class Transaction(TransactionABC):
+    """
+    Mutable.
+    """
+
     def __init__(
         self, meta: TransactionMetaABC, commands: List[CommandABC],
     ):
@@ -124,6 +128,10 @@ MetaNoneTypes = Union[str, int, float, None]
 
 @typechecked
 class TransactionMeta(TransactionMetaABC):
+    """
+    Immutable.
+    """
+
     def __init__(self, **kwargs: MetaTypes):
 
         self._meta = kwargs
@@ -152,6 +160,10 @@ TransactionIterableTypes = Union[
 
 @typechecked
 class TransactionList(TransactionListABC):
+    """
+    Mutable.
+    """
+
     def __init__(self):
 
         self._transactions = []
