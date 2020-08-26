@@ -59,6 +59,10 @@ from .transaction import TransactionList
 
 @typechecked
 class Zpool(ZpoolABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self, datasets: List[DatasetABC], side: str, config: ConfigABC,
     ):
