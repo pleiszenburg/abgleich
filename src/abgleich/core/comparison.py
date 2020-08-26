@@ -59,6 +59,10 @@ ComparisonStrictItemType = Union[
 
 @typeguard.typechecked
 class Comparison(ComparisonABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self,
         a: ComparisonParentTypes,
