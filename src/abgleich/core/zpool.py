@@ -112,12 +112,7 @@ class Zpool(ZpoolABC):
     def generate_cleanup_transactions(
         self, other: ZpoolABC,
     ) -> Generator[
-        Tuple[
-            int,
-            Union[
-                None, Union[None, Generator[TransactionABC, None, None]]
-            ],
-        ],
+        Tuple[int, Union[None, Union[None, Generator[TransactionABC, None, None]]],],
         None,
         None,
     ]:
@@ -167,12 +162,7 @@ class Zpool(ZpoolABC):
     def generate_backup_transactions(
         self, other: ZpoolABC,
     ) -> Generator[
-        Tuple[
-            int,
-            Union[
-                None, Union[None, Generator[TransactionABC, None, None]]
-            ],
-        ],
+        Tuple[int, Union[None, Union[None, Generator[TransactionABC, None, None]]],],
         None,
         None,
     ]:
@@ -241,9 +231,7 @@ class Zpool(ZpoolABC):
 
     def generate_snapshot_transactions(
         self,
-    ) -> Generator[
-        Tuple[int, Union[None, TransactionABC]], None, None
-    ]:
+    ) -> Generator[Tuple[int, Union[None, TransactionABC]], None, None]:
 
         assert self._side == "source"
 

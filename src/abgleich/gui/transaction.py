@@ -49,9 +49,7 @@ class TransactionListModel(QAbstractTableModel):
     Mutable.
     """
 
-    def __init__(
-        self, transactions: TransactionListABC, parent_changed: Callable
-    ):
+    def __init__(self, transactions: TransactionListABC, parent_changed: Callable):
 
         super().__init__()
         self._transactions = transactions
