@@ -32,7 +32,7 @@ from collections import OrderedDict
 import typing
 
 from tabulate import tabulate
-import typeguard
+from typeguard import typechecked
 
 from .abc import (
     ComparisonItemABC,
@@ -57,7 +57,7 @@ from .transaction import TransactionList
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Zpool(ZpoolABC):
     def __init__(
         self, datasets: typing.List[DatasetABC], side: str, config: ConfigABC,
