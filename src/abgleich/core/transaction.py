@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Callable, Generator, List, Tuple, Union
 
 from tabulate import tabulate
 from typeguard import typechecked
@@ -45,7 +45,7 @@ from .io import colorize, humanize_size
 @typechecked
 class Transaction(TransactionABC):
     def __init__(
-        self, meta: TransactionMetaABC, commands: typing.List[CommandABC],
+        self, meta: TransactionMetaABC, commands: List[CommandABC],
     ):
 
         assert len(commands) in (1, 2)
@@ -59,12 +59,12 @@ class Transaction(TransactionABC):
         self._changed = None
 
     @property
-    def changed(self) -> typing.Union[None, typing.Callable]:
+    def changed(self) -> Union[None, Callable]:
 
         return self._changed
 
     @changed.setter
-    def changed(self, value: typing.Union[None, typing.Callable]):
+    def changed(self, value: Union[None, Callable]):
 
         self._changed = value
 
@@ -74,12 +74,12 @@ class Transaction(TransactionABC):
         return self._complete
 
     @property
-    def commands(self) -> typing.Tuple[CommandABC]:
+    def commands(self) -> Tuple[CommandABC]:
 
         return self._commands
 
     @property
-    def error(self) -> typing.Union[Exception, None]:
+    def error(self) -> Union[Exception, None]:
 
         return self._error
 
@@ -118,8 +118,8 @@ class Transaction(TransactionABC):
                 self._changed()
 
 
-MetaTypes = typing.Union[str, int, float]
-MetaNoneTypes = typing.Union[str, int, float, None]
+MetaTypes = Union[str, int, float]
+MetaNoneTypes = Union[str, int, float, None]
 
 
 @typechecked
@@ -140,15 +140,15 @@ class TransactionMeta(TransactionMetaABC):
 
         return self._meta.get(key, None)
 
-    def keys(self) -> typing.Generator[str, None, None]:
+    def keys(self) -> Generator[str, None, None]:
 
         return (key for key in self._meta.keys())
 
 
-TransactionIterableTypes = typing.Union[
-    typing.Generator[TransactionABC, None, None],
-    typing.List[TransactionABC],
-    typing.Tuple[TransactionABC],
+TransactionIterableTypes = Union[
+    Generator[TransactionABC, None, None],
+    List[TransactionABC],
+    Tuple[TransactionABC],
 ]
 
 
@@ -168,17 +168,17 @@ class TransactionList(TransactionListABC):
         return self._transactions[index]
 
     @property
-    def changed(self) -> typing.Union[None, typing.Callable]:
+    def changed(self) -> Union[None, Callable]:
 
         return self._changed
 
     @changed.setter
-    def changed(self, value: typing.Union[None, typing.Callable]):
+    def changed(self, value: Union[None, Callable]):
 
         self._changed = value
 
     @property
-    def table_columns(self) -> typing.List[str]:
+    def table_columns(self) -> List[str]:
 
         headers = set()
         for transaction in self._transactions:
@@ -199,7 +199,7 @@ class TransactionList(TransactionListABC):
         return headers
 
     @property
-    def table_rows(self) -> typing.List[str]:
+    def table_rows(self) -> List[str]:
 
         return [f'{t("transaction"):s} #{index:d}' for index in range(1, len(self) + 1)]
 
@@ -261,7 +261,7 @@ class TransactionList(TransactionListABC):
         return FORMAT.get(header, str)(value)
 
     @staticmethod
-    def _table_colalign(headers: typing.List[str]) -> typing.List[str]:
+    def _table_colalign(headers: List[str]) -> List[str]:
 
         RIGHT = (t("written"),)
         DECIMAL = tuple()
