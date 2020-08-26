@@ -29,9 +29,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Dict, TextIO
 
-import typeguard
+from typeguard import typechecked
 import yaml
 
 try:
@@ -47,14 +47,14 @@ from .lib import valid_name
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Config(ConfigABC, dict):
     """
     Mutable. TODO make immutable ...
     """
 
     @classmethod
-    def from_fd(cls, fd: typing.TextIO):
+    def from_fd(cls, fd: TextIO):
 
         ssh_schema = {
             "compression": lambda v: isinstance(v, bool),
@@ -84,7 +84,7 @@ class Config(ConfigABC, dict):
         return cls(config)
 
     @classmethod
-    def _validate(cls, data: typing.Dict, schema: typing.Dict):
+    def _validate(cls, data: Dict, schema: Dict):
 
         for field, validator in schema.items():
             if field not in data.keys():
