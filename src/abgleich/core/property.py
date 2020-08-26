@@ -28,9 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import PropertyABC
 
@@ -38,14 +38,14 @@ from .abc import PropertyABC
 # TYPING
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-PropertyTypes = typing.Union[str, int, float, None]
+PropertyTypes = Union[str, int, float, None]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Property(PropertyABC):
     def __init__(
         self, name: str, value: PropertyTypes, src: PropertyTypes,
