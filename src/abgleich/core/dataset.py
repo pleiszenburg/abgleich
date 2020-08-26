@@ -29,13 +29,13 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import datetime
-import typing
+from typing import Dict, Generator, List, Union
 
 # Python <= 3.7.1 "fix"
 try:
     from typing import OrderedDict as DictType
 except ImportError:
-    from typing import Dict as DictType
+    DictType = Dict
 
 from typeguard import typechecked
 
@@ -61,8 +61,8 @@ class Dataset(DatasetABC):
     def __init__(
         self,
         name: str,
-        properties: typing.Dict[str, PropertyABC],
-        snapshots: typing.List[SnapshotABC],
+        properties: Dict[str, PropertyABC],
+        snapshots: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ):
@@ -86,7 +86,7 @@ class Dataset(DatasetABC):
 
         return len(self._snapshots)
 
-    def __getitem__(self, key: typing.Union[str, int, slice]) -> PropertyABC:
+    def __getitem__(self, key: Union[str, int, slice]) -> PropertyABC:
 
         if isinstance(key, str):
             return self._properties[key]
@@ -94,9 +94,9 @@ class Dataset(DatasetABC):
 
     def get(
         self,
-        key: typing.Union[str, int, slice],
-        default: typing.Union[None, PropertyABC] = None,
-    ) -> typing.Union[None, PropertyABC]:
+        key: Union[str, int, slice],
+        default: Union[None, PropertyABC] = None,
+    ) -> Union[None, PropertyABC]:
 
         if isinstance(key, str):
             return self._properties.get(
@@ -147,7 +147,7 @@ class Dataset(DatasetABC):
         return self._subname
 
     @property
-    def snapshots(self) -> typing.Generator[SnapshotABC, None, None]:
+    def snapshots(self) -> Generator[SnapshotABC, None, None]:
 
         return (snapshot for snapshot in self._snapshots)
 
@@ -215,7 +215,7 @@ class Dataset(DatasetABC):
     def from_entities(
         cls,
         name: str,
-        entities: DictType[str, typing.List[typing.List[str]]],
+        entities: DictType[str, List[List[str]]],
         side: str,
         config: ConfigABC,
     ) -> DatasetABC:
