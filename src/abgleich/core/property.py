@@ -47,6 +47,10 @@ PropertyTypes = Union[str, int, float, None]
 
 @typechecked
 class Property(PropertyABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self, name: str, value: PropertyTypes, src: PropertyTypes,
     ):
