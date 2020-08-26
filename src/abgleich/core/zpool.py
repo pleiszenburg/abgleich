@@ -71,7 +71,7 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]["zpool"], config[side]["prefix"])
+        self._root = root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"])
 
     def __eq__(self, other: ZpoolABC) -> bool:
 
@@ -346,7 +346,7 @@ class Zpool(ZpoolABC):
                 "available",
                 "-H",
                 "-p",
-                root(config[side]["zpool"], config[side]["prefix"]),
+                root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"]),
             ],
             side,
             config,
@@ -357,7 +357,8 @@ class Zpool(ZpoolABC):
     @classmethod
     def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
 
-        root_dataset = root(config[side]["zpool"], config[side]["prefix"])
+        side_config = config.group(side)
+        root_dataset = root(side_config["zpool"], side_config["prefix"])
 
         output, errors, returncode, exception = Command.on_side(
             ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,], side, config,
@@ -375,7 +376,7 @@ class Zpool(ZpoolABC):
         for line_list in output:
             entities[line_list[0]].append(line_list[1:])
 
-        if not config.get("include_root", True):
+        if not config["include_root"]:
             entities.pop(root_dataset)
             for name in [
                 snapshot
