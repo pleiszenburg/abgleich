@@ -115,9 +115,7 @@ class Command(CommandABC):
         return self._cmd.copy()
 
     @classmethod
-    def on_side(
-        cls, cmd: List[str], side: str, config: Dict
-    ) -> CommandABC:
+    def on_side(cls, cmd: List[str], side: str, config: Dict) -> CommandABC:
 
         if config[side]["host"] == "localhost":
             return cls(cmd)

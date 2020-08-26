@@ -129,9 +129,7 @@ class Comparison(ComparisonABC):
 
     @classmethod
     def _head(
-        cls,
-        source: List[ComparisonItemType],
-        target: List[ComparisonItemType],
+        cls, source: List[ComparisonItemType], target: List[ComparisonItemType],
     ) -> List[ComparisonItemType]:
         """
         Returns new elements from source.
@@ -179,9 +177,7 @@ class Comparison(ComparisonABC):
 
     @classmethod
     def _overlap_tail(
-        cls,
-        source: List[ComparisonItemType],
-        target: List[ComparisonItemType],
+        cls, source: List[ComparisonItemType], target: List[ComparisonItemType],
     ) -> List[ComparisonItemType]:
         """
         Overlap must include first element of source.
@@ -271,9 +267,7 @@ class Comparison(ComparisonABC):
 
     @classmethod
     def from_zpools(
-        cls,
-        zpool_a: Union[ZpoolABC, None],
-        zpool_b: Union[ZpoolABC, None],
+        cls, zpool_a: Union[ZpoolABC, None], zpool_b: Union[ZpoolABC, None],
     ) -> ComparisonABC:
 
         assert zpool_a is not None or zpool_b is not None
@@ -369,9 +363,7 @@ class Comparison(ComparisonABC):
 
     @classmethod
     def from_datasets(
-        cls,
-        dataset_a: Union[DatasetABC, None],
-        dataset_b: Union[DatasetABC, None],
+        cls, dataset_a: Union[DatasetABC, None], dataset_b: Union[DatasetABC, None],
     ) -> ComparisonABC:
 
         assert dataset_a is not None or dataset_b is not None
