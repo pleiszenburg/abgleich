@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Callable, Union
 
 from typeguard import typechecked
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -50,7 +50,7 @@ class TransactionListModel(QAbstractTableModel):
     """
 
     def __init__(
-        self, transactions: TransactionListABC, parent_changed: typing.Callable
+        self, transactions: TransactionListABC, parent_changed: Callable
     ):
 
         super().__init__()
@@ -63,7 +63,7 @@ class TransactionListModel(QAbstractTableModel):
 
     def data(
         self, index: QModelIndex, role: int
-    ) -> typing.Union[None, str, QColor]:  # TODO return type
+    ) -> Union[None, str, QColor]:  # TODO return type
 
         row, col = index.row(), index.column()
         col_key = self._cols[col]
@@ -98,7 +98,7 @@ class TransactionListModel(QAbstractTableModel):
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int
-    ) -> typing.Union[None, str]:
+    ) -> Union[None, str]:
 
         if role == Qt.DisplayRole:
 
@@ -116,7 +116,7 @@ class TransactionListModel(QAbstractTableModel):
 
         return len(self._cols)
 
-    def _transactions_changed(self, row: typing.Union[None, int] = None):
+    def _transactions_changed(self, row: Union[None, int] = None):
 
         old_rows, old_cols = self._rows, self._cols
         self._update_labels()
