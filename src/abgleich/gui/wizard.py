@@ -199,7 +199,7 @@ class WizardUi(WizardUiBase):
 
         self._init_step(index + 1)
 
-    def _prepare_snap(self):
+    def _prepare_snap(self) -> bool:
 
         zpool = Zpool.from_config("source", config=self._config)
 
@@ -217,7 +217,7 @@ class WizardUi(WizardUiBase):
 
         return len(self._transactions) > 0
 
-    def _prepare(self, action: str):
+    def _prepare(self, action: str) -> bool:
 
         source_zpool = Zpool.from_config("source", config=self._config)
         target_zpool = Zpool.from_config("target", config=self._config)
