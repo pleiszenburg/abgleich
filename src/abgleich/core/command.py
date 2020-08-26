@@ -29,7 +29,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import subprocess
-import typing
+from typing import List, Tuple, Dict, Union
 
 import typeguard
 
@@ -42,7 +42,7 @@ from .abc import CommandABC
 
 @typeguard.typechecked
 class Command(CommandABC):
-    def __init__(self, cmd: typing.List[str]):
+    def __init__(self, cmd: List[str]):
 
         self._cmd = cmd.copy()
 
@@ -52,7 +52,7 @@ class Command(CommandABC):
 
     def run(
         self, returncode: bool = False
-    ) -> typing.Union[typing.Tuple[str, str], typing.Tuple[str, str, int, Exception]]:
+    ) -> Union[Tuple[str, str], Tuple[str, str, int, Exception]]:
 
         proc = subprocess.Popen(
             self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -110,13 +110,13 @@ class Command(CommandABC):
         return errors_1, output_2, errors_2
 
     @property
-    def cmd(self) -> typing.List[str]:
+    def cmd(self) -> List[str]:
 
         return self._cmd.copy()
 
     @classmethod
     def on_side(
-        cls, cmd: typing.List[str], side: str, config: typing.Dict
+        cls, cmd: List[str], side: str, config: Dict
     ) -> CommandABC:
 
         if config[side]["host"] == "localhost":
@@ -125,7 +125,7 @@ class Command(CommandABC):
 
     @classmethod
     def with_ssh(
-        cls, cmd: typing.List[str], side_config: typing.Dict, ssh_config: typing.Dict
+        cls, cmd: List[str], side_config: Dict, ssh_config: Dict
     ) -> CommandABC:
 
         cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
