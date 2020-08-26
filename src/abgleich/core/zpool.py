@@ -29,7 +29,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 from collections import OrderedDict
-import typing
+from typing import Generator, List, Tuple, Union
 
 from tabulate import tabulate
 from typeguard import typechecked
@@ -60,7 +60,7 @@ from .transaction import TransactionList
 @typechecked
 class Zpool(ZpoolABC):
     def __init__(
-        self, datasets: typing.List[DatasetABC], side: str, config: ConfigABC,
+        self, datasets: List[DatasetABC], side: str, config: ConfigABC,
     ):
 
         self._datasets = datasets
@@ -74,7 +74,7 @@ class Zpool(ZpoolABC):
         return self.side == other.side
 
     @property
-    def datasets(self) -> typing.Generator[DatasetABC, None, None]:
+    def datasets(self) -> Generator[DatasetABC, None, None]:
 
         return (dataset for dataset in self._datasets)
 
@@ -107,11 +107,11 @@ class Zpool(ZpoolABC):
 
     def generate_cleanup_transactions(
         self, other: ZpoolABC,
-    ) -> typing.Generator[
-        typing.Tuple[
+    ) -> Generator[
+        Tuple[
             int,
-            typing.Union[
-                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            Union[
+                None, Union[None, Generator[TransactionABC, None, None]]
             ],
         ],
         None,
@@ -130,7 +130,7 @@ class Zpool(ZpoolABC):
 
     def _get_cleanup_from_datasetitem(
         self, dataset_item: ComparisonItemABC,
-    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+    ) -> Union[None, Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
             return
@@ -162,11 +162,11 @@ class Zpool(ZpoolABC):
 
     def generate_backup_transactions(
         self, other: ZpoolABC,
-    ) -> typing.Generator[
-        typing.Tuple[
+    ) -> Generator[
+        Tuple[
             int,
-            typing.Union[
-                None, typing.Union[None, typing.Generator[TransactionABC, None, None]]
+            Union[
+                None, Union[None, Generator[TransactionABC, None, None]]
             ],
         ],
         None,
@@ -187,7 +187,7 @@ class Zpool(ZpoolABC):
 
     def _get_backup_transactions_from_datasetitem(
         self, other: ZpoolABC, dataset_item: ComparisonItemABC,
-    ) -> typing.Union[None, typing.Generator[TransactionABC, None, None]]:
+    ) -> Union[None, Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
             return
@@ -237,8 +237,8 @@ class Zpool(ZpoolABC):
 
     def generate_snapshot_transactions(
         self,
-    ) -> typing.Generator[
-        typing.Tuple[int, typing.Union[None, TransactionABC]], None, None
+    ) -> Generator[
+        Tuple[int, Union[None, TransactionABC]], None, None
     ]:
 
         assert self._side == "source"
@@ -250,7 +250,7 @@ class Zpool(ZpoolABC):
 
     def _get_snapshot_transactions_from_dataset(
         self, dataset: DatasetABC
-    ) -> typing.Union[None, TransactionABC]:
+    ) -> Union[None, TransactionABC]:
 
         if dataset.subname in self._config["ignore"]:
             return
@@ -286,7 +286,7 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _table_row(entity: typing.Union[SnapshotABC, DatasetABC]) -> typing.List[str]:
+    def _table_row(entity: Union[SnapshotABC, DatasetABC]) -> List[str]:
 
         return [
             "- " + colorize(entity.name, "grey")
@@ -324,7 +324,7 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _comparison_table_row(item: ComparisonItemABC) -> typing.List[str]:
+    def _comparison_table_row(item: ComparisonItemABC) -> List[str]:
 
         entity = item.get_item()
         name = entity.name if isinstance(entity, SnapshotABC) else entity.subname
