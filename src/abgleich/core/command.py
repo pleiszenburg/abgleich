@@ -42,6 +42,10 @@ from .abc import CommandABC
 
 @typeguard.typechecked
 class Command(CommandABC):
+    """
+    Immutable.
+    """
+
     def __init__(self, cmd: List[str]):
 
         self._cmd = cmd.copy()
