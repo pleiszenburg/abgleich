@@ -30,7 +30,7 @@ specific language governing rights and limitations under the License.
 
 import typing
 
-import typeguard
+from typeguard import typechecked
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt5.QtGui import QColor
 
@@ -43,7 +43,7 @@ from ..core.i18n import t
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class TransactionListModel(QAbstractTableModel):
     """
     Mutable.
