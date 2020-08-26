@@ -2,7 +2,7 @@
 
 ## 0.0.8 (2020-XX-XX)
 
-- (TBD)
+- FIX: Many cleanups in code base, enabling future developments.
 
 ## 0.0.7 (2020-08-05)
 
