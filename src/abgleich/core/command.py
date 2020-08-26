@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 import subprocess
 from typing import List, Tuple, Dict, Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import CommandABC
 
@@ -40,7 +40,7 @@ from .abc import CommandABC
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Command(CommandABC):
     """
     Immutable.

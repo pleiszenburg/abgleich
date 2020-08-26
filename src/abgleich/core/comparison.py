@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 import itertools
 from typing import Generator, List, Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, ZpoolABC
 
@@ -57,7 +57,7 @@ ComparisonStrictItemType = Union[
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Comparison(ComparisonABC):
     """
     Immutable.
@@ -388,7 +388,7 @@ class Comparison(ComparisonABC):
         )
 
 
-@typeguard.typechecked
+@typechecked
 class ComparisonItem(ComparisonItemABC):
     def __init__(self, a: ComparisonItemType, b: ComparisonItemType):
 
