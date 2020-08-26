@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 import locale
 import os
 
-import typeguard
+from typeguard import typechecked
 import yaml
 
 try:
@@ -49,8 +49,12 @@ except ImportError:
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class _Lang(dict):
+    """
+    Mutable.
+    """
+
     def __init__(self):
 
         super().__init__()
