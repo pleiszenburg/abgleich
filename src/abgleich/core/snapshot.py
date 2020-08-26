@@ -28,9 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Dict, List, Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
 from .command import Command
@@ -44,14 +44,18 @@ from .transaction import Transaction, TransactionMeta
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Snapshot(SnapshotABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self,
         name: str,
         parent: str,
-        properties: typing.Dict[str, PropertyABC],
-        context: typing.List[SnapshotABC],
+        properties: Dict[str, PropertyABC],
+        context: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ):
@@ -155,7 +159,7 @@ class Snapshot(SnapshotABC):
         return self._subparent
 
     @property
-    def ancestor(self) -> typing.Union[None, SnapshotABC]:
+    def ancestor(self) -> Union[None, SnapshotABC]:
 
         assert self in self._context
         self_index = self._context.index(self)
@@ -173,8 +177,8 @@ class Snapshot(SnapshotABC):
     def from_entity(
         cls,
         name: str,
-        entity: typing.List[typing.List[str]],
-        context: typing.List[SnapshotABC],
+        entity: List[List[str]],
+        context: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ) -> SnapshotABC:
