@@ -28,11 +28,11 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Type
 import sys
 
 from PyQt5.QtWidgets import QApplication, QDialog
-import typeguard
+from typeguard import typechecked
 
 from ..core.abc import ConfigABC
 
@@ -41,8 +41,8 @@ from ..core.abc import ConfigABC
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
-def run_app(Window: typing.Type[QDialog], config: ConfigABC):
+@typechecked
+def run_app(Window: Type[QDialog], config: ConfigABC):
 
     app = QApplication(sys.argv)
     window = Window(config)
