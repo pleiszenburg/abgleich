@@ -49,6 +49,10 @@ from .lib import valid_name
 
 @typeguard.typechecked
 class Config(ConfigABC, dict):
+    """
+    Mutable. TODO make immutable ...
+    """
+
     @classmethod
     def from_fd(cls, fd: typing.TextIO):
 
