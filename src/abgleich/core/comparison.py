@@ -29,7 +29,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import itertools
-import typing
+from typing import Generator, List, Union
 
 import typeguard
 
@@ -39,16 +39,16 @@ from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, Zpoo
 # TYPING
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ComparisonParentTypes = typing.Union[
+ComparisonParentTypes = Union[
     ZpoolABC, DatasetABC, None,
 ]
-ComparisonMergeTypes = typing.Union[
-    typing.Generator[DatasetABC, None, None], typing.Generator[SnapshotABC, None, None],
+ComparisonMergeTypes = Union[
+    Generator[DatasetABC, None, None], Generator[SnapshotABC, None, None],
 ]
-ComparisonItemType = typing.Union[
+ComparisonItemType = Union[
     DatasetABC, SnapshotABC, None,
 ]
-ComparisonStrictItemType = typing.Union[
+ComparisonStrictItemType = Union[
     DatasetABC, SnapshotABC,
 ]
 
@@ -63,7 +63,7 @@ class Comparison(ComparisonABC):
         self,
         a: ComparisonParentTypes,
         b: ComparisonParentTypes,
-        merged: typing.List[ComparisonItemABC],
+        merged: List[ComparisonItemABC],
     ):
 
         assert a is not None or b is not None
@@ -82,7 +82,7 @@ class Comparison(ComparisonABC):
         return self._a
 
     @property
-    def a_head(self) -> typing.List[ComparisonStrictItemType]:
+    def a_head(self) -> List[ComparisonStrictItemType]:
 
         return self._head(
             source=[item.a for item in self._merged],
@@ -90,7 +90,7 @@ class Comparison(ComparisonABC):
         )
 
     @property
-    def a_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
+    def a_overlap_tail(self) -> List[ComparisonStrictItemType]:
 
         return self._overlap_tail(
             source=[item.a for item in self._merged],
@@ -103,7 +103,7 @@ class Comparison(ComparisonABC):
         return self._b
 
     @property
-    def b_head(self) -> typing.List[ComparisonStrictItemType]:
+    def b_head(self) -> List[ComparisonStrictItemType]:
 
         return self._head(
             source=[item.b for item in self._merged],
@@ -111,7 +111,7 @@ class Comparison(ComparisonABC):
         )
 
     @property
-    def b_overlap_tail(self) -> typing.List[ComparisonStrictItemType]:
+    def b_overlap_tail(self) -> List[ComparisonStrictItemType]:
 
         return self._overlap_tail(
             source=[item.b for item in self._merged],
@@ -119,16 +119,16 @@ class Comparison(ComparisonABC):
         )
 
     @property
-    def merged(self) -> typing.Generator[ComparisonItemABC, None, None]:
+    def merged(self) -> Generator[ComparisonItemABC, None, None]:
 
         return (item for item in self._merged)
 
     @classmethod
     def _head(
         cls,
-        source: typing.List[ComparisonItemType],
-        target: typing.List[ComparisonItemType],
-    ) -> typing.List[ComparisonItemType]:
+        source: List[ComparisonItemType],
+        target: List[ComparisonItemType],
+    ) -> List[ComparisonItemType]:
         """
         Returns new elements from source.
         If target is empty, returns source.
@@ -176,9 +176,9 @@ class Comparison(ComparisonABC):
     @classmethod
     def _overlap_tail(
         cls,
-        source: typing.List[ComparisonItemType],
-        target: typing.List[ComparisonItemType],
-    ) -> typing.List[ComparisonItemType]:
+        source: List[ComparisonItemType],
+        target: List[ComparisonItemType],
+    ) -> List[ComparisonItemType]:
         """
         Overlap must include first element of source.
         """
@@ -218,8 +218,8 @@ class Comparison(ComparisonABC):
 
     @classmethod
     def _strip_none(
-        cls, elements: typing.List[ComparisonItemType]
-    ) -> typing.List[ComparisonItemType]:
+        cls, elements: List[ComparisonItemType]
+    ) -> List[ComparisonItemType]:
 
         elements = cls._left_strip_none(elements)  # left strip
         elements.reverse()  # flip into reverse
@@ -230,16 +230,16 @@ class Comparison(ComparisonABC):
 
     @staticmethod
     def _left_strip_none(
-        elements: typing.List[ComparisonItemType],
-    ) -> typing.List[ComparisonItemType]:
+        elements: List[ComparisonItemType],
+    ) -> List[ComparisonItemType]:
 
         return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
     def _single_items(
-        items_a: typing.Union[ComparisonMergeTypes, None],
-        items_b: typing.Union[ComparisonMergeTypes, None],
-    ) -> typing.List[ComparisonItemABC]:
+        items_a: Union[ComparisonMergeTypes, None],
+        items_b: Union[ComparisonMergeTypes, None],
+    ) -> List[ComparisonItemABC]:
 
         assert items_a is not None or items_b is not None
 
@@ -249,9 +249,9 @@ class Comparison(ComparisonABC):
 
     @staticmethod
     def _merge_datasets(
-        items_a: typing.Generator[DatasetABC, None, None],
-        items_b: typing.Generator[DatasetABC, None, None],
-    ) -> typing.List[ComparisonItemABC]:
+        items_a: Generator[DatasetABC, None, None],
+        items_b: Generator[DatasetABC, None, None],
+    ) -> List[ComparisonItemABC]:
 
         items_a = {item.subname: item for item in items_a}
         items_b = {item.subname: item for item in items_b}
@@ -268,8 +268,8 @@ class Comparison(ComparisonABC):
     @classmethod
     def from_zpools(
         cls,
-        zpool_a: typing.Union[ZpoolABC, None],
-        zpool_b: typing.Union[ZpoolABC, None],
+        zpool_a: Union[ZpoolABC, None],
+        zpool_b: Union[ZpoolABC, None],
     ) -> ComparisonABC:
 
         assert zpool_a is not None or zpool_b is not None
@@ -295,9 +295,9 @@ class Comparison(ComparisonABC):
 
     @staticmethod
     def _merge_snapshots(
-        items_a: typing.Generator[SnapshotABC, None, None],
-        items_b: typing.Generator[SnapshotABC, None, None],
-    ) -> typing.List[ComparisonItemABC]:
+        items_a: Generator[SnapshotABC, None, None],
+        items_b: Generator[SnapshotABC, None, None],
+    ) -> List[ComparisonItemABC]:
 
         items_a = list(items_a)
         items_b = list(items_b)
@@ -366,8 +366,8 @@ class Comparison(ComparisonABC):
     @classmethod
     def from_datasets(
         cls,
-        dataset_a: typing.Union[DatasetABC, None],
-        dataset_b: typing.Union[DatasetABC, None],
+        dataset_a: Union[DatasetABC, None],
+        dataset_b: Union[DatasetABC, None],
     ) -> ComparisonABC:
 
         assert dataset_a is not None or dataset_b is not None
