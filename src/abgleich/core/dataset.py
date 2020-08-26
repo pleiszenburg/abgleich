@@ -93,9 +93,7 @@ class Dataset(DatasetABC):
         return self._snapshots[key]
 
     def get(
-        self,
-        key: Union[str, int, slice],
-        default: Union[None, PropertyABC] = None,
+        self, key: Union[str, int, slice], default: Union[None, PropertyABC] = None,
     ) -> Union[None, PropertyABC]:
 
         if isinstance(key, str):
