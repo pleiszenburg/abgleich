@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 import typing
 
 from tabulate import tabulate
-import typeguard
+from typeguard import typechecked
 
 from .abc import CommandABC, TransactionABC, TransactionListABC, TransactionMetaABC
 from .i18n import t
@@ -42,7 +42,7 @@ from .io import colorize, humanize_size
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Transaction(TransactionABC):
     def __init__(
         self, meta: TransactionMetaABC, commands: typing.List[CommandABC],
@@ -122,7 +122,7 @@ MetaTypes = typing.Union[str, int, float]
 MetaNoneTypes = typing.Union[str, int, float, None]
 
 
-@typeguard.typechecked
+@typechecked
 class TransactionMeta(TransactionMetaABC):
     def __init__(self, **kwargs: MetaTypes):
 
@@ -152,7 +152,7 @@ TransactionIterableTypes = typing.Union[
 ]
 
 
-@typeguard.typechecked
+@typechecked
 class TransactionList(TransactionListABC):
     def __init__(self):
 
