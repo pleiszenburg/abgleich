@@ -49,6 +49,11 @@ from .. import __version__
 
 @typechecked
 class WizardUi(WizardUiBase):
+    """
+    UI events and logic.
+    Mutable.
+    """
+
     def __init__(self, config: ConfigABC):
 
         super().__init__()
