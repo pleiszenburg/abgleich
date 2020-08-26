@@ -54,6 +54,10 @@ from .snapshot import Snapshot
 
 @typeguard.typechecked
 class Dataset(DatasetABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self,
         name: str,
