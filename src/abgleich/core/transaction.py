@@ -146,9 +146,7 @@ class TransactionMeta(TransactionMetaABC):
 
 
 TransactionIterableTypes = Union[
-    Generator[TransactionABC, None, None],
-    List[TransactionABC],
-    Tuple[TransactionABC],
+    Generator[TransactionABC, None, None], List[TransactionABC], Tuple[TransactionABC],
 ]
 
 
