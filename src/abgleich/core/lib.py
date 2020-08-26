@@ -29,9 +29,9 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import re
-import typing
+from typing import Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import ConfigABC
 from .command import Command
@@ -41,7 +41,7 @@ from .command import Command
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 def is_host_up(side: str, config: ConfigABC) -> bool:
 
     assert side in ("source", "target")
@@ -53,7 +53,7 @@ def is_host_up(side: str, config: ConfigABC) -> bool:
     return returncode == 0
 
 
-@typeguard.typechecked
+@typechecked
 def join(*args: str) -> str:
 
     if len(args) < 2:
@@ -67,8 +67,8 @@ def join(*args: str) -> str:
     return "/".join(args)
 
 
-@typeguard.typechecked
-def root(zpool: str, prefix: typing.Union[str, None]) -> str:
+@typechecked
+def root(zpool: str, prefix: Union[str, None]) -> str:
 
     if prefix is None:
         return zpool
@@ -78,7 +78,7 @@ def root(zpool: str, prefix: typing.Union[str, None]) -> str:
 _name_re = re.compile("^[A-Za-z0-9_]+$")
 
 
-@typeguard.typechecked
+@typechecked
 def valid_name(name: str, min_len: int = 1) -> bool:
 
     assert min_len >= 0
