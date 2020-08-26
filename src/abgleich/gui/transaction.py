@@ -45,6 +45,10 @@ from ..core.i18n import t
 
 @typeguard.typechecked
 class TransactionListModel(QAbstractTableModel):
+    """
+    Mutable.
+    """
+
     def __init__(
         self, transactions: TransactionListABC, parent_changed: typing.Callable
     ):
