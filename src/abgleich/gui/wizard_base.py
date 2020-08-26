@@ -46,6 +46,11 @@ from typeguard import typechecked
 
 @typechecked
 class WizardUiBase(QDialog):
+    """
+    UI definition.
+    Mutable.
+    """
+
     def __init__(self):
 
         super().__init__()  # skip WizardUiBaseABC
