@@ -28,56 +28,60 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import abc
+from abc import ABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class CloneABC(abc.ABC):
+class CloneABC(ABC):
     pass
 
 
-class CommandABC(abc.ABC):
+class CommandABC(ABC):
     pass
 
 
-class ComparisonABC(abc.ABC):
+class ComparisonABC(ABC):
     pass
 
 
-class ComparisonItemABC(abc.ABC):
+class ComparisonItemABC(ABC):
     pass
 
 
-class ConfigABC(abc.ABC):
+class ConfigABC(ABC):
     pass
 
 
-class DatasetABC(abc.ABC):
+class ConfigFieldABC(ABC):
     pass
 
 
-class PropertyABC(abc.ABC):
+class DatasetABC(ABC):
     pass
 
 
-class SnapshotABC(abc.ABC):
+class PropertyABC(ABC):
     pass
 
 
-class TransactionABC(abc.ABC):
+class SnapshotABC(ABC):
     pass
 
 
-class TransactionListABC(abc.ABC):
+class TransactionABC(ABC):
     pass
 
 
-class TransactionMetaABC(abc.ABC):
+class TransactionListABC(ABC):
     pass
 
 
-class ZpoolABC(abc.ABC):
+class TransactionMetaABC(ABC):
+    pass
+
+
+class ZpoolABC(ABC):
     pass
