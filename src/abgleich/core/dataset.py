@@ -73,7 +73,7 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]["zpool"], config[side]["prefix"])
+        self._root = root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"])
 
         assert self._name.startswith(self._root)
         self._subname = self._name[len(self._root) :].strip("/")
