@@ -126,7 +126,9 @@ class Command(CommandABC):
         if side_config["host"] == "localhost":
             return cls(cmd)
 
-        return cls.with_ssh(cmd, side_config=side_config, ssh_config=config.group('ssh'))
+        return cls.with_ssh(
+            cmd, side_config=side_config, ssh_config=config.group("ssh")
+        )
 
     @classmethod
     def with_ssh(

@@ -47,6 +47,7 @@ from .configspec import CONFIGSPEC
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class Config(ConfigABC):
     """
@@ -60,15 +61,19 @@ class Config(ConfigABC):
 
     def __repr__(self):
 
-        return '<Config>' if self._root is None else f'<Config root="{self._root:s}">'
+        return "<Config>" if self._root is None else f'<Config root="{self._root:s}">'
 
     def __getitem__(self, key: str) -> ConfigValueTypes:
 
-        return self._fields[key].value if self._root is None else self._fields[f'{self._root:s}/{key:s}'].value
+        return (
+            self._fields[key].value
+            if self._root is None
+            else self._fields[f"{self._root:s}/{key:s}"].value
+        )
 
     def group(self, root: str) -> ConfigABC:
 
-        return type(self)(root = root, **self._fields)
+        return type(self)(root=root, **self._fields)
 
     @classmethod
     def _flatten_dict_tree(cls, data: Dict, root: Union[str, None] = None) -> Dict:
@@ -77,12 +82,12 @@ class Config(ConfigABC):
 
         for key, value in data.items():
             if not isinstance(key, str):
-                raise TypeError('configuration key is no string', key)
+                raise TypeError("configuration key is no string", key)
             if root is not None:
                 if len(root) > 0:
-                    key = f'{root:s}/{key:s}'
+                    key = f"{root:s}/{key:s}"
             if isinstance(value, dict):
-                flat_data.update(cls._flatten_dict_tree(data = value, root = key))
+                flat_data.update(cls._flatten_dict_tree(data=value, root=key))
             else:
                 flat_data[key] = value
 
@@ -99,15 +104,15 @@ class Config(ConfigABC):
         config = yaml.load(text, Loader=Loader)
 
         if not isinstance(config, dict):
-            raise TypeError('config is no dict', config)
+            raise TypeError("config is no dict", config)
 
         config_fields = {field.name: field.copy() for field in CONFIGSPEC}
-        for key, value in cls._flatten_dict_tree(data = config).items():
+        for key, value in cls._flatten_dict_tree(data=config).items():
             if key not in config_fields.keys():
-                raise ValueError('unknown configuration key', key)
+                raise ValueError("unknown configuration key", key)
             config_fields[key].value = value
 
         if any((not field.valid for field in config_fields.values())):
-            raise ValueError('configuration is not valid')
+            raise ValueError("configuration is not valid")
 
         return cls(**config_fields)

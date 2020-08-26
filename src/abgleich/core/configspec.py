@@ -36,96 +36,67 @@ from .lib import valid_name
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CONFIGSPEC = [
-
     ConfigField(
-        name = "keep_snapshots",
-        validate = lambda v: isinstance(v, int) and v >= 1,
-        default = 1,
+        name="keep_snapshots",
+        validate=lambda v: isinstance(v, int) and v >= 1,
+        default=1,
     ),
-
     ConfigField(
-        name = "suffix",
-        validate = lambda v: isinstance(v, str) and valid_name(v, min_len = 0),
-        default = '',
+        name="suffix",
+        validate=lambda v: isinstance(v, str) and valid_name(v, min_len=0),
+        default="",
     ),
-
     ConfigField(
-        name = "digits",
-        validate = lambda v: isinstance(v, int) and v >= 1,
-        default = 2,
+        name="digits", validate=lambda v: isinstance(v, int) and v >= 1, default=2,
     ),
-
     ConfigField(
-        name = "always_changed",
-        validate = lambda v: isinstance(v, bool),
-        default = False,
+        name="always_changed", validate=lambda v: isinstance(v, bool), default=False,
     ),
-
     ConfigField(
-        name = "written_threshold",
-        validate = lambda v: isinstance(v, int) and v > 0,
-        default = 1024 ** 2,
+        name="written_threshold",
+        validate=lambda v: isinstance(v, int) and v > 0,
+        default=1024 ** 2,
     ),
-
     ConfigField(
-        name = "check_diff",
-        validate = lambda v: isinstance(v, bool),
-        default = True,
+        name="check_diff", validate=lambda v: isinstance(v, bool), default=True,
     ),
-
     ConfigField(
-        name = "ignore",
-        validate = lambda v: isinstance(v, list) and all((isinstance(item, str) and len(item) > 0 for item in v)),
-        default = list(),
+        name="ignore",
+        validate=lambda v: isinstance(v, list)
+        and all((isinstance(item, str) and len(item) > 0 for item in v)),
+        default=list(),
     ),
-
     ConfigField(
-        name = "include_root",
-        validate = lambda v: isinstance(v, bool),
-        default = True,
+        name="include_root", validate=lambda v: isinstance(v, bool), default=True,
     ),
-
     ConfigField(
-        name = "ssh/compression",
-        validate = lambda v: isinstance(v, bool),
-        default = False,
+        name="ssh/compression", validate=lambda v: isinstance(v, bool), default=False,
     ),
-
-    ConfigField(
-        name = "ssh/cipher",
-        validate = lambda v: isinstance(v, str),
-        default = '',
-    ),
-
+    ConfigField(name="ssh/cipher", validate=lambda v: isinstance(v, str), default="",),
 ]
 
-for _side in ('source', 'target'):
+for _side in ("source", "target"):
 
-    CONFIGSPEC.extend([
-
-        ConfigField(
-            name = f"{_side}/zpool",
-            validate = lambda v: isinstance(v, str) and len(v) > 0,
-        ),
-
-        ConfigField(
-            name = f"{_side}/prefix",
-            validate = lambda v: isinstance(v, str),
-            default = '',
-        ),
-
-        ConfigField(
-            name = f"{_side}/host",
-            validate = lambda v: isinstance(v, str) and len(v) > 0,
-            default = 'localhost',
-        ),
-
-        ConfigField(
-            name = f"{_side}/user",
-            validate = lambda v: isinstance(v, str),
-            default = '',
-        ),
-
-    ])
+    CONFIGSPEC.extend(
+        [
+            ConfigField(
+                name=f"{_side}/zpool",
+                validate=lambda v: isinstance(v, str) and len(v) > 0,
+            ),
+            ConfigField(
+                name=f"{_side}/prefix",
+                validate=lambda v: isinstance(v, str),
+                default="",
+            ),
+            ConfigField(
+                name=f"{_side}/host",
+                validate=lambda v: isinstance(v, str) and len(v) > 0,
+                default="localhost",
+            ),
+            ConfigField(
+                name=f"{_side}/user", validate=lambda v: isinstance(v, str), default="",
+            ),
+        ]
+    )
 
 del _side

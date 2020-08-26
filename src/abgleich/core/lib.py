@@ -45,7 +45,7 @@ from .command import Command
 def is_host_up(side: str, config: ConfigABC) -> bool:
 
     assert side in ("source", "target")
-    if config[f'{side:s}/host'] == "localhost":
+    if config[f"{side:s}/host"] == "localhost":
         return True
 
     _, _, returncode, _ = Command.on_side(["exit"], side, config).run(returncode=True)

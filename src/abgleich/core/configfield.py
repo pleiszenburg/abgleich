@@ -44,16 +44,15 @@ ConfigValueTypes = Union[List[str], str, int, float, bool, None]
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class ConfigField(ConfigFieldABC):
     """
     Mutable.
     """
 
-    def __init__(self,
-        name: str,
-        validate: Callable,
-        default: ConfigValueTypes = None,
+    def __init__(
+        self, name: str, validate: Callable, default: ConfigValueTypes = None,
     ):
 
         self._name = name
@@ -62,26 +61,24 @@ class ConfigField(ConfigFieldABC):
 
         if self._default is not None:
             if not self._validate(self._default):
-                raise ValueError(f'invalid default value for {self._name}')
+                raise ValueError(f"invalid default value for {self._name}")
 
         self._value = None
 
     def __repr__(self) -> str:
 
         return (
-            '<ConfigField '
+            "<ConfigField "
             f'required="{str(self.required):s}" '
             f'value="{str(self._value):s}" '
             f'default="{str(self._default):s}"'
-            '>'
-            )
+            ">"
+        )
 
     def copy(self) -> ConfigFieldABC:
 
         return type(self)(
-            name = self._name,
-            default = self._default,
-            validate = self._validate,
+            name=self._name, default=self._default, validate=self._validate,
         )
 
     @property
@@ -96,7 +93,7 @@ class ConfigField(ConfigFieldABC):
             return self._value
 
         if self._default is None:
-            raise ValueError(f'required value for {self._name} missing')
+            raise ValueError(f"required value for {self._name} missing")
 
         return self._default
 
@@ -104,21 +101,19 @@ class ConfigField(ConfigFieldABC):
     def value(self, value: ConfigValueTypes):
 
         if self._value is not None:
-            raise ValueError(f'value for {self._name} has already been set')
+            raise ValueError(f"value for {self._name} has already been set")
         if value is None:
             return
         if not self._validate(value):
-            raise ValueError(f'invalid value for {self._name}')
+            raise ValueError(f"invalid value for {self._name}")
 
         self._value = value
 
     @property
     def valid(self) -> bool:
 
-        return (
-            (self._value is not None and self._validate(self._value))
-            or
-            (self._default is not None and self._validate(self._default))
+        return (self._value is not None and self._validate(self._value)) or (
+            self._default is not None and self._validate(self._default)
         )
 
     @property
