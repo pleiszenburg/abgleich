@@ -33,7 +33,7 @@ from typing import List, Tuple, Dict, Union
 
 from typeguard import typechecked
 
-from .abc import CommandABC
+from .abc import CommandABC, ConfigABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -119,7 +119,7 @@ class Command(CommandABC):
         return self._cmd.copy()
 
     @classmethod
-    def on_side(cls, cmd: List[str], side: str, config: Dict) -> CommandABC:
+    def on_side(cls, cmd: List[str], side: str, config: ConfigABC) -> CommandABC:
 
         if config[side]["host"] == "localhost":
             return cls(cmd)
