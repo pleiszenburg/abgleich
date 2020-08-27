@@ -34,6 +34,7 @@ from typing import Generator, List, Union
 from typeguard import typechecked
 
 from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, ZpoolABC
+from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING
@@ -47,15 +48,6 @@ ComparisonParentTypes = Union[
 ComparisonMergeTypes = Union[
     Generator[DatasetABC, None, None],
     Generator[SnapshotABC, None, None],
-]
-ComparisonItemType = Union[
-    DatasetABC,
-    SnapshotABC,
-    None,
-]
-ComparisonStrictItemType = Union[
-    DatasetABC,
-    SnapshotABC,
 ]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -400,35 +392,3 @@ class Comparison(ComparisonABC):
             b=dataset_b,
             merged=cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
         )
-
-
-@typechecked
-class ComparisonItem(ComparisonItemABC):
-    def __init__(self, a: ComparisonItemType, b: ComparisonItemType):
-
-        assert a is not None or b is not None
-        if a is not None and b is not None:
-            assert type(a) == type(b)
-
-        self._a, self._b = a, b
-
-    def get_item(self) -> ComparisonStrictItemType:
-
-        if self._a is not None:
-            return self._a
-        return self._b
-
-    @property
-    def complete(self) -> bool:
-
-        return self._a is not None and self._b is not None
-
-    @property
-    def a(self) -> ComparisonItemType:
-
-        return self._a
-
-    @property
-    def b(self) -> ComparisonItemType:
-
-        return self._b
