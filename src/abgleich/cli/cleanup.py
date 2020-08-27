@@ -47,20 +47,29 @@ from ..core.zpool import Zpool
 
 @click.command(short_help="cleanup older snapshots")
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
-def cleanup(configfile):
+@click.argument("side", default="source", type=str)
+def cleanup(configfile, side):
 
     config = Config.from_fd(configfile)
 
-    for side in ("source", "target"):
+    assert side in ('source', 'target')
+
+    cleanup_side = side
+    control_side = 'target' if cleanup_side == 'source' else 'source'
+
+    if cleanup_side == 'target':
+        click.confirm(t("DANGER ZONE: You are about to clean the target. Do you want to continue?"), abort=True)
+
+    for side in (cleanup_side, control_side):
         if not is_host_up(side, config):
             print(f'{t("host is not up"):s}: {side:s}')
             sys.exit(1)
 
-    source_zpool = Zpool.from_config("source", config=config)
-    target_zpool = Zpool.from_config("target", config=config)
-    available_before = Zpool.available("source", config=config)
+    cleanup_zpool = Zpool.from_config(cleanup_side, config=config)
+    control_zpool = Zpool.from_config(control_side, config=config)
+    available_before = Zpool.available(cleanup_side, config=config)
 
-    transactions = source_zpool.get_cleanup_transactions(target_zpool)
+    transactions = cleanup_zpool.get_cleanup_transactions(control_zpool)
 
     if len(transactions) == 0:
         print(t("nothing to do"))
@@ -74,7 +83,8 @@ def cleanup(configfile):
     WAIT = 10
     print(f"waiting {WAIT:d} seconds ...")
     time.sleep(WAIT)
-    available_after = Zpool.available("source", config=config)
-    print(
-        f"{humanize_size(available_after, add_color = True):s} available, {humanize_size(available_after - available_before, add_color = True):s} freed"
-    )
+    available_after = Zpool.available(cleanup_side, config=config)
+    print((
+        f"{humanize_size(available_after, add_color = True):s} available, "
+        f"{humanize_size(available_after - available_before, add_color = True):s} freed"
+    ))
