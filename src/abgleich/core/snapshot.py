@@ -92,11 +92,9 @@ class Snapshot(SnapshotABC):
                     t("snapshot_name"): self._name,
                 }
             ),
-            command=Command.on_side(
-                ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"],
-                self._side,
-                self._config,
-            ),
+            command=Command.from_list(
+                ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
+            ).on_side(side = self._side, config = self._config),
         )
 
     def get_backup_transaction(
@@ -107,7 +105,7 @@ class Snapshot(SnapshotABC):
 
         ancestor = self.ancestor
 
-        command = Command.on_side(
+        command = Command.from_list(
             ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
             if ancestor is None
             else [
@@ -117,12 +115,10 @@ class Snapshot(SnapshotABC):
                 "-i",
                 f"{source_dataset:s}@{ancestor.name:s}",
                 f"{source_dataset:s}@{self.name:s}",
-            ],
-            "source",
-            self._config,
-        ) | Command.on_side(
-            ["zfs", "receive", f"{target_dataset:s}"], "target", self._config
-        )
+            ]
+        ).on_side(side = "source", config = self._config) | Command.from_list(
+            ["zfs", "receive", f"{target_dataset:s}"]
+        ).on_side(side = "target", config = self._config)
 
         return Transaction(
             meta=TransactionMeta(
