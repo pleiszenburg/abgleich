@@ -228,7 +228,7 @@ class Zpool(ZpoolABC):
             dataset_comparison = Comparison.from_datasets(
                 dataset_item.a, dataset_item.b
             )
-            snapshots = dataset_comparison.a_head
+            snapshots = dataset_comparison.a_disjoint_head
 
         if len(snapshots) == 0:
             return

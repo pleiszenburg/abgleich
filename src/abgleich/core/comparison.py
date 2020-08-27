@@ -80,9 +80,9 @@ class Comparison(ComparisonABC):
         return self._a
 
     @property
-    def a_head(self) -> List[ComparisonStrictItemType]:
+    def a_disjoint_head(self) -> List[ComparisonStrictItemType]:
 
-        return self._head(
+        return self._disjoint_head(
             source=[item.a for item in self._merged],
             target=[item.b for item in self._merged],
         )
@@ -101,9 +101,9 @@ class Comparison(ComparisonABC):
         return self._b
 
     @property
-    def b_head(self) -> List[ComparisonStrictItemType]:
+    def b_disjoint_head(self) -> List[ComparisonStrictItemType]:
 
-        return self._head(
+        return self._disjoint_head(
             source=[item.b for item in self._merged],
             target=[item.a for item in self._merged],
         )
@@ -122,7 +122,7 @@ class Comparison(ComparisonABC):
         return (item for item in self._merged)
 
     @classmethod
-    def _head(
+    def _disjoint_head(
         cls,
         source: List[ComparisonItemType],
         target: List[ComparisonItemType],
