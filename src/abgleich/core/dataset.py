@@ -132,7 +132,7 @@ class Dataset(DatasetABC):
             self._side,
             self._config,
         ).run()
-        return len(output.strip(" \t\n")) > 0
+        return len(output[0].strip(" \t\n")) > 0
 
     @property
     def name(self) -> str:
@@ -159,7 +159,7 @@ class Dataset(DatasetABC):
         snapshot_name = self._new_snapshot_name()
 
         return Transaction(
-            TransactionMeta(
+            meta=TransactionMeta(
                 **{
                     t("type"): t("snapshot"),
                     t("dataset_subname"): self._subname,
@@ -167,13 +167,11 @@ class Dataset(DatasetABC):
                     t("written"): self._properties["written"].value,
                 }
             ),
-            [
-                Command.on_side(
-                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],
-                    self._side,
-                    self._config,
-                )
-            ],
+            command=Command.on_side(
+                ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],
+                self._side,
+                self._config,
+            ),
         )
 
     def _new_snapshot_name(self) -> str:
