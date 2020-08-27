@@ -88,6 +88,14 @@ class Comparison(ComparisonABC):
         )
 
     @property
+    def a_disjoint_tail(self) -> List[ComparisonStrictItemType]:
+
+        return self._disjoint_head(
+            source=[item.a for item in self._merged][::-1],
+            target=[item.b for item in self._merged][::-1],
+        )[::-1]
+
+    @property
     def a_overlap_tail(self) -> List[ComparisonStrictItemType]:
 
         return self._overlap_tail(
@@ -107,6 +115,14 @@ class Comparison(ComparisonABC):
             source=[item.b for item in self._merged],
             target=[item.a for item in self._merged],
         )
+
+    @property
+    def b_disjoint_tail(self) -> List[ComparisonStrictItemType]:
+
+        return self._disjoint_head(
+            source=[item.b for item in self._merged][::-1],
+            target=[item.a for item in self._merged][::-1],
+        )[::-1]
 
     @property
     def b_overlap_tail(self) -> List[ComparisonStrictItemType]:
