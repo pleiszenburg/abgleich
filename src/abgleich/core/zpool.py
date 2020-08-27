@@ -352,7 +352,7 @@ class Zpool(ZpoolABC):
             config,
         ).run()
 
-        return Property.from_params(*output.strip().split("\t")[1:]).value
+        return Property.from_params(*output[0].strip().split("\t")[1:]).value
 
     @classmethod
     def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
@@ -364,13 +364,13 @@ class Zpool(ZpoolABC):
             ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,], side, config,
         ).run(returncode=True)
 
-        if returncode != 0 and "dataset does not exist" in errors:
+        if returncode[0] != 0 and "dataset does not exist" in errors[0]:
             return cls(datasets=[], side=side, config=config,)
-        if returncode != 0:
+        if returncode[0] != 0:
             raise exception
 
         output = [
-            line.split("\t") for line in output.split("\n") if len(line.strip()) > 0
+            line.split("\t") for line in output[0].split("\n") if len(line.strip()) > 0
         ]
         entities = OrderedDict((line[0], []) for line in output)
         for line_list in output:
