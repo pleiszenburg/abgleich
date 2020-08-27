@@ -28,8 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import subprocess
+from subprocess import Popen, PIPE
 from typing import List, Tuple, Union
+import shlex
 
 from typeguard import typechecked
 
@@ -46,77 +47,78 @@ class Command(CommandABC):
     Immutable.
     """
 
-    def __init__(self, cmd: List[str]):
+    def __init__(self, cmd: List[List[str]]):
 
-        self._cmd = cmd.copy()
+        self._cmd = [fragment.copy() for fragment in cmd]
+
+    def __repr__(self) -> str:
+
+        return "<Command>"
 
     def __str__(self) -> str:
 
-        return " ".join([item.replace(" ", "\\ ") for item in self._cmd])
+        return " | ".join([shlex.join(fragment) for fragment in self._cmd])
+
+    def __len__(self) -> int:
+
+        return len(self._cmd)
+
+    def __or__(self, other: CommandABC) -> CommandABC:  # pipe
+
+        return type(self)(self.cmd + other.cmd)
+
+    @staticmethod
+    def _com_to_str(com: Union[str, bytes, None]) -> str:
+
+        if com is None:
+            return ""
+
+        if isinstance(com, bytes):
+            return com.decode("utf-8")
+
+        return com
 
     def run(
         self, returncode: bool = False
-    ) -> Union[Tuple[str, str], Tuple[str, str, int, Exception]]:
+    ) -> Union[
+        Tuple[List[str], List[str], List[int], Exception], Tuple[List[str], List[str]]
+    ]:
 
-        proc = subprocess.Popen(
-            self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        output, errors = proc.communicate()
-        status = not bool(proc.returncode)
-        output, errors = output.decode("utf-8"), errors.decode("utf-8")
+        procs = []  # all processes, connected with pipes
+
+        for index, fragment in enumerate(self._cmd):  # create & connect processes
+
+            stdin = None if index == 0 else procs[-1].stdout  # output of last process
+            proc = Popen(fragment, stdout=PIPE, stderr=PIPE, stdin=stdin,)
+            procs.append(proc)
+
+        output, errors, status = [], [], []
+
+        for proc in procs[::-1]:  # inverse order, last process first
+
+            out, err = proc.communicate()
+            output.append(self._com_to_str(out))
+            errors.append(self._com_to_str(err))
+            status.append(int(proc.returncode))
+
+        output.reverse()
+        errors.reverse()
+        status.reverse()
 
         exception = SystemError("command failed", str(self), output, errors)
 
         if returncode:
-            return output, errors, int(proc.returncode), exception
+            return output, errors, status, exception
 
-        if not status or len(errors.strip()) > 0:
+        if any((code != 0 for code in status)):  # some fragment failed:
             raise exception
 
         return output, errors
 
-    def run_pipe(self, other: CommandABC):
-
-        proc_1 = subprocess.Popen(
-            self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        proc_2 = subprocess.Popen(
-            other.cmd,
-            stdin=proc_1.stdout,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        output_2, errors_2 = proc_2.communicate()
-        status_2 = not bool(proc_2.returncode)
-        _, errors_1 = proc_1.communicate()
-        status_1 = not bool(proc_1.returncode)
-
-        errors_1 = errors_1.decode("utf-8")
-        output_2, errors_2 = output_2.decode("utf-8"), errors_2.decode("utf-8")
-
-        if any(
-            (
-                not status_1,
-                len(errors_1.strip()) > 0,
-                not status_2,
-                len(errors_2.strip()) > 0,
-            )
-        ):
-            raise SystemError(
-                "command pipe failed",
-                f"{str(self):s} | {str(other):s}",
-                errors_1,
-                output_2,
-                errors_2,
-            )
-
-        return errors_1, output_2, errors_2
-
     @property
-    def cmd(self) -> List[str]:
+    def cmd(self) -> List[List[str]]:
 
-        return self._cmd.copy()
+        return [fragment.copy() for fragment in self._cmd]
 
     @classmethod
     def on_side(cls, cmd: List[str], side: str, config: ConfigABC) -> CommandABC:
@@ -124,7 +126,7 @@ class Command(CommandABC):
         side_config = config.group(side)
 
         if side_config["host"] == "localhost":
-            return cls(cmd)
+            return cls([cmd])
 
         return cls.with_ssh(
             cmd, side_config=side_config, ssh_config=config.group("ssh")
@@ -135,7 +137,7 @@ class Command(CommandABC):
         cls, cmd: List[str], side_config: ConfigABC, ssh_config: ConfigABC
     ) -> CommandABC:
 
-        cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
+        cmd_str = shlex.join(cmd)
         cmd = [
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
@@ -148,4 +150,4 @@ class Command(CommandABC):
             cmd.extend(("-c", ssh_config["cipher"]))
         cmd.extend([f'{side_config["user"]:s}@{side_config["host"]:s}', cmd_str])
 
-        return cls(cmd)
+        return cls([cmd])
