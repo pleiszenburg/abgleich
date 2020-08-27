@@ -60,7 +60,7 @@ def cleanup(configfile, side):
     if cleanup_side == "target":
         click.confirm(
             t(
-                "DANGER ZONE: You are about to clean the target. Do you want to continue?"
+                "DANGER ZONE: You are about to clean the TARGET. Do you want to continue?"
             ),
             abort=True,
         )
