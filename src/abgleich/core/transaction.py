@@ -49,12 +49,10 @@ class Transaction(TransactionABC):
     """
 
     def __init__(
-        self, meta: TransactionMetaABC, commands: List[CommandABC],
+        self, meta: TransactionMetaABC, command: CommandABC,
     ):
 
-        assert len(commands) in (1, 2)
-
-        self._meta, self._commands = meta, commands
+        self._meta, self._command = meta, command
 
         self._complete = False
         self._running = False
@@ -78,9 +76,9 @@ class Transaction(TransactionABC):
         return self._complete
 
     @property
-    def commands(self) -> Tuple[CommandABC]:
+    def command(self) -> CommandABC:
 
-        return self._commands
+        return self._command
 
     @property
     def error(self) -> Union[Exception, None]:
@@ -107,12 +105,7 @@ class Transaction(TransactionABC):
             self._changed()
 
         try:
-            if len(self._commands) == 1:
-                output, errors = self._commands[0].run()
-            else:
-                errors_1, output_2, errors_2 = self._commands[0].run_pipe(
-                    self._commands[1]
-                )
+            _, _ = self._command.run()
         except SystemError as error:
             self._error = error
         finally:
@@ -293,7 +286,7 @@ class TransactionList(TransactionListABC):
 
             print(
                 f'({colorize(transaction.meta[t("type")], "white"):s}) '
-                f'{colorize(" | ".join([str(command) for command in transaction.commands]), "yellow"):s}'
+                f'{colorize(str(transaction.command), "yellow"):s}'
             )
 
             assert not transaction.running
