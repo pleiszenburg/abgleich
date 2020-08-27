@@ -28,6 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import itertools
 from subprocess import Popen, PIPE
 from typing import List, Tuple, Union
 import shlex
@@ -35,7 +36,6 @@ import shlex
 from typeguard import typechecked
 
 from .abc import CommandABC, ConfigABC
-from .lib import split_list
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -78,6 +78,15 @@ class Command(CommandABC):
             return com.decode("utf-8")
 
         return com
+
+    @staticmethod
+    def _split_list(data: List, delimiter: str) -> List[List]:
+
+        return [
+            list(sub_list)
+            for is_delimiter, sub_list in itertools.groupby(data, lambda item: item == delimiter)
+            if not is_delimiter
+        ]
 
     def run(
         self, returncode: bool = False
@@ -146,7 +155,7 @@ class Command(CommandABC):
     @classmethod
     def from_str(cls, cmd: str) -> CommandABC:
 
-        return cls(split_list(shlex.split(cmd), '|'))
+        return cls(cls._split_list(shlex.split(cmd), '|'))
 
     @classmethod
     def from_list(cls, cmd: List[str]) -> CommandABC:
