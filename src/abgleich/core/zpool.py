@@ -166,7 +166,7 @@ class Zpool(ZpoolABC):
                 keep_backlog = None
             else:
                 keep_backlog = -self._config["keep_backlog"].value
-            snapshots = dataset_comparison.b_disjoint_tail[:keep_backlog]
+            snapshots = dataset_comparison.a_disjoint_tail[:keep_backlog]
 
         return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
