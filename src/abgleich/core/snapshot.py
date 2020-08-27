@@ -84,8 +84,6 @@ class Snapshot(SnapshotABC):
 
     def get_cleanup_transaction(self) -> TransactionABC:
 
-        assert self._side == "source"
-
         return Transaction(
             meta=TransactionMeta(
                 **{
