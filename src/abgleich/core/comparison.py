@@ -250,7 +250,7 @@ class Comparison(ComparisonABC):
         return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
-    def _test_alternations(items: List[SnapshotABC, None]):
+    def _test_alternations(items: List[Union[SnapshotABC, None]]):
 
         alternations = 0
         state = False  # None
