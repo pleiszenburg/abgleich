@@ -173,7 +173,7 @@ class Zpool(ZpoolABC):
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = Comparison.from_zpools(self, other)  # TODO namespace
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
