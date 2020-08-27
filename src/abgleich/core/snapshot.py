@@ -108,21 +108,21 @@ class Snapshot(SnapshotABC):
         ancestor = self.ancestor
 
         command = Command.on_side(
-                ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
-                if ancestor is None
-                else [
-                    "zfs",
-                    "send",
-                    "-c",
-                    "-i",
-                    f"{source_dataset:s}@{ancestor.name:s}",
-                    f"{source_dataset:s}@{self.name:s}",
-                ],
-                "source",
-                self._config,
-            ) | Command.on_side(
-                ["zfs", "receive", f"{target_dataset:s}"], "target", self._config
-            )
+            ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
+            if ancestor is None
+            else [
+                "zfs",
+                "send",
+                "-c",
+                "-i",
+                f"{source_dataset:s}@{ancestor.name:s}",
+                f"{source_dataset:s}@{self.name:s}",
+            ],
+            "source",
+            self._config,
+        ) | Command.on_side(
+            ["zfs", "receive", f"{target_dataset:s}"], "target", self._config
+        )
 
         return Transaction(
             meta=TransactionMeta(
