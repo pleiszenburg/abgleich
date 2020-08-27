@@ -105,7 +105,7 @@ class Snapshot(SnapshotABC):
 
         ancestor = self.ancestor
 
-        command = Command.from_list(
+        send = Command.from_list(
             ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
             if ancestor is None
             else [
@@ -116,11 +116,17 @@ class Snapshot(SnapshotABC):
                 f"{source_dataset:s}@{ancestor.name:s}",
                 f"{source_dataset:s}@{self.name:s}",
             ]
-        ).on_side(side="source", config=self._config) | Command.from_list(
-            ["zfs", "receive", f"{target_dataset:s}"]
-        ).on_side(
-            side="target", config=self._config
         )
+        receive = Command.from_list(
+            ["zfs", "receive", f"{target_dataset:s}"]
+        )
+
+        if self._config['source/processing'].set:
+            send = send | Command.from_str(self._config['source/processing'].value)
+        if self._config['target/processing'].set:
+            receive = Command.from_str(self._config['target/processing'].value) | receive
+
+        command = send.on_side(side="source", config=self._config) | receive.on_side(side="target", config=self._config)
 
         return Transaction(
             meta=TransactionMeta(
