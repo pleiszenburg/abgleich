@@ -134,7 +134,7 @@ class Command(CommandABC):
 
     def on_side(self, side: str, config: ConfigABC) -> CommandABC:
 
-        if config[f"{side:s}/host"] == "localhost":
+        if config[f"{side:s}/host"].value == "localhost":
             return self
 
         side_config = config.group(side)
@@ -148,8 +148,8 @@ class Command(CommandABC):
             "-o",  # Option parameter
             "Compression=yes" if ssh_config["compression"] else "Compression=no",
         ]
-        if ssh_config["cipher"] is not None:
-            cmd_ssh.extend(("-c", ssh_config["cipher"]))
+        if ssh_config["cipher"].value is not None:
+            cmd_ssh.extend(("-c", ssh_config["cipher"].value))
         cmd_ssh.extend([f'{side_config["user"].value:s}@{side_config["host"].value:s}', str(self)])
 
         return type(self)([cmd_ssh])
