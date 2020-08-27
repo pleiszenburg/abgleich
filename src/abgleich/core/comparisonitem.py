@@ -29,7 +29,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Union
+from typing import Generator, List, Union
 
 from typeguard import typechecked
 
@@ -39,6 +39,11 @@ from .abc import ComparisonItemABC, DatasetABC, SnapshotABC
 # TYPING
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+ComparisonGeneratorType = Union[
+    Generator[DatasetABC, None, None],
+    Generator[SnapshotABC, None, None],
+    None,
+]
 ComparisonItemType = Union[
     DatasetABC,
     SnapshotABC,
@@ -87,3 +92,16 @@ class ComparisonItem(ComparisonItemABC):
     def b(self) -> ComparisonItemType:
 
         return self._b
+
+    @classmethod
+    def list_from_singles(
+        cls,
+        items_a: ComparisonGeneratorType,
+        items_b: ComparisonGeneratorType,
+    ) -> List[ComparisonItemABC]:
+
+        assert (items_a is not None) ^ (items_b is not None)
+
+        if items_a is None:
+            return [cls(None, item) for item in items_b]
+        return [cls(item, None) for item in items_a]

@@ -45,10 +45,6 @@ ComparisonParentTypes = Union[
     DatasetABC,
     None,
 ]
-ComparisonMergeTypes = Union[
-    Generator[DatasetABC, None, None],
-    Generator[SnapshotABC, None, None],
-]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -238,18 +234,6 @@ class Comparison(ComparisonABC):
         return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
-    def _single_items(
-        items_a: Union[ComparisonMergeTypes, None],
-        items_b: Union[ComparisonMergeTypes, None],
-    ) -> List[ComparisonItemABC]:
-
-        assert items_a is not None or items_b is not None
-
-        if items_a is None:
-            return [ComparisonItem(None, item) for item in items_b]
-        return [ComparisonItem(item, None) for item in items_a]
-
-    @staticmethod
     def _merge_datasets(
         items_a: Generator[DatasetABC, None, None],
         items_b: Generator[DatasetABC, None, None],
@@ -276,11 +260,11 @@ class Comparison(ComparisonABC):
 
         assert zpool_a is not None or zpool_b is not None
 
-        if zpool_a is None or zpool_b is None:
+        if (zpool_a is None) ^ (zpool_b is None):
             return cls(
                 a=zpool_a,
                 b=zpool_b,
-                merged=cls._single_items(
+                merged=ComparisonItem.list_from_singles(
                     getattr(zpool_a, "datasets", None),
                     getattr(zpool_b, "datasets", None),
                 ),
@@ -374,11 +358,11 @@ class Comparison(ComparisonABC):
 
         assert dataset_a is not None or dataset_b is not None
 
-        if dataset_a is None or dataset_b is None:
+        if (dataset_a is None) ^ (dataset_b is None):
             return cls(
                 a=dataset_a,
                 b=dataset_b,
-                merged=cls._single_items(
+                merged=ComparisonItem.list_from_singles(
                     getattr(dataset_a, "snapshots", None),
                     getattr(dataset_b, "snapshots", None),
                 ),
