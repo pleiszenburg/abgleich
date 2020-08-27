@@ -58,6 +58,7 @@ ComparisonStrictItemType = Union[
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class ComparisonItem(ComparisonItemABC):
     """

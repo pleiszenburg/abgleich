@@ -347,7 +347,9 @@ class Comparison(ComparisonABC):
         cls._test_alternations(items_a)
         cls._test_alternations(items_b)
 
-        merged = [ComparisonItem(item_a, item_b) for item_a, item_b in zip(items_a, items_b)]
+        merged = [
+            ComparisonItem(item_a, item_b) for item_a, item_b in zip(items_a, items_b)
+        ]
 
         cls._test_names(merged)
 
