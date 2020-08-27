@@ -64,6 +64,9 @@ def cleanup(configfile, side):
             ),
             abort=True,
         )
+        if config['keep_backlog'].value == True:
+            print(t("nothing to do"))
+            return
 
     for side in (cleanup_side, control_side):
         if not is_host_up(side, config):
