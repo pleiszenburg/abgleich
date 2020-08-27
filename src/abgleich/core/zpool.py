@@ -386,7 +386,7 @@ class Zpool(ZpoolABC):
                     "available",
                     "-H",
                     "-p",
-                    root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"]),
+                    root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value),
                 ]
             )
             .on_side(side=side, config=config)
