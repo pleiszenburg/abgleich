@@ -102,8 +102,9 @@ class Zpool(ZpoolABC):
         other: ZpoolABC,
     ) -> TransactionListABC:
 
-        assert self.side == "source"
-        assert other.side == "target"
+        assert self.side != other.side
+        assert self.side in ("source", "target")
+        assert other.side in ("source", "target")
 
         zpool_comparison = Comparison.from_zpools(self, other)
         transactions = TransactionList()
