@@ -66,6 +66,7 @@ target:
     user: zfsadmin
 include_root: yes
 keep_snapshots: 2
+keep_backlog: True
 always_changed: no
 written_threshold: 1048576
 check_diff: yes
@@ -79,7 +80,7 @@ ssh:
     cipher: aes256-gcm@openssh.com
 ```
 
-The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `include_root` indicates whether `{zpool}{/{prefix}}` should be  included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `suffix` contains the name suffix for new snapshots. Setting `always_changed` to `yes` causes `abgleich` to beliefe that all datasets have always changed since the last snapshot, completely ignoring what ZFS actually reports. No diff will be produced & checked for values of `written` lower than `written_threshold`. Checking diffs can be completely deactivated by setting `check_diff` to `no`. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends. The `ssh` port can be specified per side via the `port` configuration option, i.e. for source and/or target. Custom pre- and post-processing can be applied after `send` and before `receive` per side via shell commands specified in the `processing` configuration option. This can be useful for a custom transfer compression based on e.g. `lzma` or `bzip2`.
+The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `include_root` indicates whether `{zpool}{/{prefix}}` should be  included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `keep_backlog` is either an integer or a boolean. It specifies if (or how many) snapshots are kept on the target side if the target side be cleaned. Snapshots that are part of the overlap with the source side are never considered for removal. `suffix` contains the name suffix for new snapshots. Setting `always_changed` to `yes` causes `abgleich` to beliefe that all datasets have always changed since the last snapshot, completely ignoring what ZFS actually reports. No diff will be produced & checked for values of `written` lower than `written_threshold`. Checking diffs can be completely deactivated by setting `check_diff` to `no`. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups. `ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends. The `ssh` port can be specified per side via the `port` configuration option, i.e. for source and/or target. Custom pre- and post-processing can be applied after `send` and before `receive` per side via shell commands specified in the `processing` configuration option. This can be useful for a custom transfer compression based on e.g. `lzma` or `bzip2`.
 
 ## USAGE
 
@@ -101,9 +102,9 @@ Compare source ZFS tree with target ZFS tree. See what is missing where.
 
 Send (new) datasets and new snapshots from source to target.
 
-### `abgleich cleanup config.yaml`
+### `abgleich cleanup config.yaml [source|target]`
 
-Cleanup older local snapshots on source side if they are present on both sides. Of those snapshots present on both sides, keep at least `keep_snapshots` number of snapshots on source side.
+Cleanup older local snapshots on source side if they are present on both sides. Of those snapshots present on both sides, keep at least `keep_snapshots` number of snapshots on source side. Or: Cleanup older snapshots on target side. Beyond the overlap with source, keep at least `keep_backlog` snapshots. If `keep_backlog` is `False`, all snapshots older than the overlap will be removed. If `keep_backlog` is `True`, no snapshots will be removed. If `abgleich clean` runs against the target side, an extra warning will be displayed and must be confirmed by the user before any dangerous actions are attempted.
 
 ### `abgleich wizard config.yaml`
 
