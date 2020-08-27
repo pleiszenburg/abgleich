@@ -143,11 +143,11 @@ class Command(CommandABC):
         cmd_ssh = [
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
-            "-p",  # Port parameter
-            f'{side_config["port"].value:d}',
             "-o",  # Option parameter
             "Compression=yes" if ssh_config["compression"].value else "Compression=no",
         ]
+        if side_config["port"].value != 0:
+            cmd_ssh.extend(["-p", f'{side_config["port"].value:d}'])
         if ssh_config["cipher"].value is not None:
             cmd_ssh.extend(("-c", ssh_config["cipher"].value))
         cmd_ssh.extend(

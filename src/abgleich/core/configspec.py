@@ -119,8 +119,8 @@ for _side in ("source", "target"):
             ),
             ConfigField(
                 name=f"{_side}/port",
-                validate=lambda v: isinstance(v, int) and v > 0,
-                default=22,
+                validate=lambda v: isinstance(v, int) and v >= 0,
+                default=0,
             ),
             ConfigField(
                 name=f"{_side}/processing",
