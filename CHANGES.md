@@ -2,6 +2,7 @@
 
 ## 0.0.8 (2020-XX-XX)
 
+- FEATURE: `ssh`-port on source and target becomes configurable, see #22.
 - FEATURE: Configuration module contains default values for parameters, making it much easier to write lightweight configuration files, see #28. The configuration parser now also provides much more useful output.
 - FIX: Many cleanups in code base, enabling future developments.
 

@@ -139,7 +139,9 @@ class Command(CommandABC):
         cmd = [
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
-            "-o",
+            "-p",  # Port parameter
+            f'{side_config["port"]:d}',
+            "-o",  # Option parameter
             "Compression=yes" if ssh_config["compression"] else "Compression=no",
         ]
         if ssh_config["cipher"] is not None:

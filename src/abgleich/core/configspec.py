@@ -96,6 +96,11 @@ for _side in ("source", "target"):
             ConfigField(
                 name=f"{_side}/user", validate=lambda v: isinstance(v, str), default="",
             ),
+            ConfigField(
+                name=f"{_side}/port",
+                validate=lambda v: isinstance(v, int) and v > 0,
+                default=22,
+            ),
         ]
     )
 
