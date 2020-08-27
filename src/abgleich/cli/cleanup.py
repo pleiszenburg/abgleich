@@ -52,13 +52,18 @@ def cleanup(configfile, side):
 
     config = Config.from_fd(configfile)
 
-    assert side in ('source', 'target')
+    assert side in ("source", "target")
 
     cleanup_side = side
-    control_side = 'target' if cleanup_side == 'source' else 'source'
+    control_side = "target" if cleanup_side == "source" else "source"
 
-    if cleanup_side == 'target':
-        click.confirm(t("DANGER ZONE: You are about to clean the target. Do you want to continue?"), abort=True)
+    if cleanup_side == "target":
+        click.confirm(
+            t(
+                "DANGER ZONE: You are about to clean the target. Do you want to continue?"
+            ),
+            abort=True,
+        )
 
     for side in (cleanup_side, control_side):
         if not is_host_up(side, config):
@@ -84,7 +89,9 @@ def cleanup(configfile, side):
     print(f"waiting {WAIT:d} seconds ...")
     time.sleep(WAIT)
     available_after = Zpool.available(cleanup_side, config=config)
-    print((
-        f"{humanize_size(available_after, add_color = True):s} available, "
-        f"{humanize_size(available_after - available_before, add_color = True):s} freed"
-    ))
+    print(
+        (
+            f"{humanize_size(available_after, add_color = True):s} available, "
+            f"{humanize_size(available_after - available_before, add_color = True):s} freed"
+        )
+    )
