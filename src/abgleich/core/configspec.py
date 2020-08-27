@@ -101,6 +101,11 @@ for _side in ("source", "target"):
                 validate=lambda v: isinstance(v, int) and v > 0,
                 default=22,
             ),
+            ConfigField(
+                name=f"{_side}/processing",
+                validate=lambda v: isinstance(v, str),
+                default="",
+            ),
         ]
     )
 
