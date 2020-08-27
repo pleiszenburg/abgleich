@@ -72,6 +72,8 @@ def root(zpool: str, prefix: Union[str, None]) -> str:
 
     if prefix is None:
         return zpool
+    if len(prefix) == 0:
+        return zpool
     return join(zpool, prefix)
 
 
