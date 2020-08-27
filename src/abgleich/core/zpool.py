@@ -64,7 +64,10 @@ class Zpool(ZpoolABC):
     """
 
     def __init__(
-        self, datasets: List[DatasetABC], side: str, config: ConfigABC,
+        self,
+        datasets: List[DatasetABC],
+        side: str,
+        config: ConfigABC,
     ):
 
         self._datasets = datasets
@@ -92,7 +95,10 @@ class Zpool(ZpoolABC):
 
         return self._root
 
-    def get_cleanup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
+    def get_cleanup_transactions(
+        self,
+        other: ZpoolABC,
+    ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -110,9 +116,13 @@ class Zpool(ZpoolABC):
         return transactions
 
     def generate_cleanup_transactions(
-        self, other: ZpoolABC,
+        self,
+        other: ZpoolABC,
     ) -> Generator[
-        Tuple[int, Union[None, Union[None, Generator[TransactionABC, None, None]]],],
+        Tuple[
+            int,
+            Union[None, Union[None, Generator[TransactionABC, None, None]]],
+        ],
         None,
         None,
     ]:
@@ -128,7 +138,8 @@ class Zpool(ZpoolABC):
             yield index, self._get_cleanup_from_datasetitem(dataset_item)
 
     def _get_cleanup_from_datasetitem(
-        self, dataset_item: ComparisonItemABC,
+        self,
+        dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
@@ -141,7 +152,10 @@ class Zpool(ZpoolABC):
 
         return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
-    def get_backup_transactions(self, other: ZpoolABC,) -> TransactionListABC:
+    def get_backup_transactions(
+        self,
+        other: ZpoolABC,
+    ) -> TransactionListABC:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -160,9 +174,13 @@ class Zpool(ZpoolABC):
         return transactions
 
     def generate_backup_transactions(
-        self, other: ZpoolABC,
+        self,
+        other: ZpoolABC,
     ) -> Generator[
-        Tuple[int, Union[None, Union[None, Generator[TransactionABC, None, None]]],],
+        Tuple[
+            int,
+            Union[None, Union[None, Generator[TransactionABC, None, None]]],
+        ],
         None,
         None,
     ]:
@@ -180,7 +198,9 @@ class Zpool(ZpoolABC):
             )
 
     def _get_backup_transactions_from_datasetitem(
-        self, other: ZpoolABC, dataset_item: ComparisonItemABC,
+        self,
+        other: ZpoolABC,
+        dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
@@ -211,7 +231,10 @@ class Zpool(ZpoolABC):
         )
 
         return (
-            snapshot.get_backup_transaction(source_dataset, target_dataset,)
+            snapshot.get_backup_transaction(
+                source_dataset,
+                target_dataset,
+            )
             for snapshot in snapshots
         )
 
@@ -337,7 +360,10 @@ class Zpool(ZpoolABC):
         ]
 
     @staticmethod
-    def available(side: str, config: ConfigABC,) -> int:
+    def available(
+        side: str,
+        config: ConfigABC,
+    ) -> int:
 
         output, _ = (
             Command.from_list(
@@ -357,19 +383,37 @@ class Zpool(ZpoolABC):
         return Property.from_params(*output[0].strip().split("\t")[1:]).value
 
     @classmethod
-    def from_config(cls, side: str, config: ConfigABC,) -> ZpoolABC:
+    def from_config(
+        cls,
+        side: str,
+        config: ConfigABC,
+    ) -> ZpoolABC:
 
         side_config = config.group(side)
         root_dataset = root(side_config["zpool"], side_config["prefix"])
 
         output, errors, returncode, exception = (
-            Command.from_list(["zfs", "get", "all", "-r", "-H", "-p", root_dataset,])
+            Command.from_list(
+                [
+                    "zfs",
+                    "get",
+                    "all",
+                    "-r",
+                    "-H",
+                    "-p",
+                    root_dataset,
+                ]
+            )
             .on_side(side=side, config=config)
             .run(returncode=True)
         )
 
         if returncode[0] != 0 and "dataset does not exist" in errors[0]:
-            return cls(datasets=[], side=side, config=config,)
+            return cls(
+                datasets=[],
+                side=side,
+                config=config,
+            )
         if returncode[0] != 0:
             raise exception
 
@@ -405,4 +449,8 @@ class Zpool(ZpoolABC):
         ]
         datasets.sort(key=lambda dataset: dataset.name)
 
-        return cls(datasets=datasets, side=side, config=config,)
+        return cls(
+            datasets=datasets,
+            side=side,
+            config=config,
+        )

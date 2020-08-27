@@ -52,7 +52,10 @@ class Property(PropertyABC):
     """
 
     def __init__(
-        self, name: str, value: PropertyTypes, src: PropertyTypes,
+        self,
+        name: str,
+        value: PropertyTypes,
+        src: PropertyTypes,
     ):
 
         self._name = name
@@ -92,4 +95,8 @@ class Property(PropertyABC):
     @classmethod
     def from_params(cls, name, value, src) -> PropertyABC:
 
-        return cls(name=name, value=cls._convert(value), src=cls._convert(src),)
+        return cls(
+            name=name,
+            value=cls._convert(value),
+            src=cls._convert(src),
+        )

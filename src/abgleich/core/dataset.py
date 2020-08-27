@@ -93,12 +93,15 @@ class Dataset(DatasetABC):
         return self._snapshots[key]
 
     def get(
-        self, key: Union[str, int, slice], default: Union[None, PropertyABC] = None,
+        self,
+        key: Union[str, int, slice],
+        default: Union[None, PropertyABC] = None,
     ) -> Union[None, PropertyABC]:
 
         if isinstance(key, str):
             return self._properties.get(
-                key, Property(key, None, None) if default is None else default,
+                key,
+                Property(key, None, None) if default is None else default,
             )
 
         assert isinstance(key, int) or isinstance(key, slice)
@@ -226,7 +229,11 @@ class Dataset(DatasetABC):
         snapshots.extend(
             (
                 Snapshot.from_entity(
-                    snapshot_name, entities[snapshot_name], snapshots, side, config,
+                    snapshot_name,
+                    entities[snapshot_name],
+                    snapshots,
+                    side,
+                    config,
                 )
                 for snapshot_name in entities.keys()
             )

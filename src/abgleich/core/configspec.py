@@ -47,10 +47,14 @@ CONFIGSPEC = [
         default="",
     ),
     ConfigField(
-        name="digits", validate=lambda v: isinstance(v, int) and v >= 1, default=2,
+        name="digits",
+        validate=lambda v: isinstance(v, int) and v >= 1,
+        default=2,
     ),
     ConfigField(
-        name="always_changed", validate=lambda v: isinstance(v, bool), default=False,
+        name="always_changed",
+        validate=lambda v: isinstance(v, bool),
+        default=False,
     ),
     ConfigField(
         name="written_threshold",
@@ -58,7 +62,9 @@ CONFIGSPEC = [
         default=1024 ** 2,
     ),
     ConfigField(
-        name="check_diff", validate=lambda v: isinstance(v, bool), default=True,
+        name="check_diff",
+        validate=lambda v: isinstance(v, bool),
+        default=True,
     ),
     ConfigField(
         name="ignore",
@@ -67,12 +73,20 @@ CONFIGSPEC = [
         default=list(),
     ),
     ConfigField(
-        name="include_root", validate=lambda v: isinstance(v, bool), default=True,
+        name="include_root",
+        validate=lambda v: isinstance(v, bool),
+        default=True,
     ),
     ConfigField(
-        name="ssh/compression", validate=lambda v: isinstance(v, bool), default=False,
+        name="ssh/compression",
+        validate=lambda v: isinstance(v, bool),
+        default=False,
     ),
-    ConfigField(name="ssh/cipher", validate=lambda v: isinstance(v, str), default="",),
+    ConfigField(
+        name="ssh/cipher",
+        validate=lambda v: isinstance(v, str),
+        default="",
+    ),
 ]
 
 for _side in ("source", "target"):
@@ -94,7 +108,9 @@ for _side in ("source", "target"):
                 default="localhost",
             ),
             ConfigField(
-                name=f"{_side}/user", validate=lambda v: isinstance(v, str), default="",
+                name=f"{_side}/user",
+                validate=lambda v: isinstance(v, str),
+                default="",
             ),
             ConfigField(
                 name=f"{_side}/port",

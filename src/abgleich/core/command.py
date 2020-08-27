@@ -84,7 +84,9 @@ class Command(CommandABC):
 
         return [
             list(sub_list)
-            for is_delimiter, sub_list in itertools.groupby(data, lambda item: item == delimiter)
+            for is_delimiter, sub_list in itertools.groupby(
+                data, lambda item: item == delimiter
+            )
             if not is_delimiter
         ]
 
@@ -99,7 +101,12 @@ class Command(CommandABC):
         for index, fragment in enumerate(self._cmd):  # create & connect processes
 
             stdin = None if index == 0 else procs[-1].stdout  # output of last process
-            proc = Popen(fragment, stdout=PIPE, stderr=PIPE, stdin=stdin,)
+            proc = Popen(
+                fragment,
+                stdout=PIPE,
+                stderr=PIPE,
+                stdin=stdin,
+            )
             procs.append(proc)
 
         output, errors, status = [], [], []
@@ -155,7 +162,7 @@ class Command(CommandABC):
     @classmethod
     def from_str(cls, cmd: str) -> CommandABC:
 
-        return cls(cls._split_list(shlex.split(cmd), '|'))
+        return cls(cls._split_list(shlex.split(cmd), "|"))
 
     @classmethod
     def from_list(cls, cmd: List[str]) -> CommandABC:

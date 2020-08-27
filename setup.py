@@ -73,8 +73,16 @@ with open(os.path.join(SRC_DIR, "abgleich", "__init__.py"), "r", encoding="utf-8
 
 # Requirements
 extras_require = {
-    "dev": ["black", "python-language-server[all]", "setuptools", "twine", "wheel",],
-    "gui": ["pyqt5",],
+    "dev": [
+        "black",
+        "python-language-server[all]",
+        "setuptools",
+        "twine",
+        "wheel",
+    ],
+    "gui": [
+        "pyqt5",
+    ],
 }
 extras_require["all"] = list(
     {rq for target in extras_require.keys() for rq in extras_require[target]}
@@ -95,15 +103,27 @@ setup(
     download_url="https://github.com/pleiszenburg/abgleich/archive/v%s.tar.gz"
     % __version__,
     license="LGPLv2",
-    keywords=["zfs", "ssh",],
+    keywords=[
+        "zfs",
+        "ssh",
+    ],
     scripts=[],
     include_package_data=True,
     python_requires=">=3.{MINOR:d}".format(MINOR=python_minor_min),
     setup_requires=[],
-    install_requires=["click", "tabulate", "pyyaml", "typeguard",],
+    install_requires=[
+        "click",
+        "tabulate",
+        "pyyaml",
+        "typeguard",
+    ],
     extras_require=extras_require,
     zip_safe=False,
-    entry_points={"console_scripts": ["abgleich = abgleich.cli:cli",],},
+    entry_points={
+        "console_scripts": [
+            "abgleich = abgleich.cli:cli",
+        ],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",

@@ -49,7 +49,9 @@ class Transaction(TransactionABC):
     """
 
     def __init__(
-        self, meta: TransactionMetaABC, command: CommandABC,
+        self,
+        meta: TransactionMetaABC,
+        command: CommandABC,
     ):
 
         self._meta, self._command = meta, command
@@ -147,7 +149,9 @@ class TransactionMeta(TransactionMetaABC):
 
 
 TransactionIterableTypes = Union[
-    Generator[TransactionABC, None, None], List[TransactionABC], Tuple[TransactionABC],
+    Generator[TransactionABC, None, None],
+    List[TransactionABC],
+    Tuple[TransactionABC],
 ]
 
 
@@ -250,7 +254,10 @@ class TransactionList(TransactionListABC):
 
         print(
             tabulate(
-                table, headers=table_columns, tablefmt="github", colalign=colalign,
+                table,
+                headers=table_columns,
+                tablefmt="github",
+                colalign=colalign,
             )
         )
 

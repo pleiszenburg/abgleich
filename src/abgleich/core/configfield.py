@@ -52,7 +52,10 @@ class ConfigField(ConfigFieldABC):
     """
 
     def __init__(
-        self, name: str, validate: Callable, default: ConfigValueTypes = None,
+        self,
+        name: str,
+        validate: Callable,
+        default: ConfigValueTypes = None,
     ):
 
         self._name = name
@@ -78,7 +81,9 @@ class ConfigField(ConfigFieldABC):
     def copy(self) -> ConfigFieldABC:
 
         return type(self)(
-            name=self._name, default=self._default, validate=self._validate,
+            name=self._name,
+            default=self._default,
+            validate=self._validate,
         )
 
     @property

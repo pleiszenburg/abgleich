@@ -98,7 +98,9 @@ class Snapshot(SnapshotABC):
         )
 
     def get_backup_transaction(
-        self, source_dataset: str, target_dataset: str,
+        self,
+        source_dataset: str,
+        target_dataset: str,
     ) -> TransactionABC:
 
         assert self._side == "source"
@@ -106,7 +108,12 @@ class Snapshot(SnapshotABC):
         ancestor = self.ancestor
 
         send = Command.from_list(
-            ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
+            [
+                "zfs",
+                "send",
+                "-c",
+                f"{source_dataset:s}@{self.name:s}",
+            ]
             if ancestor is None
             else [
                 "zfs",
@@ -117,16 +124,18 @@ class Snapshot(SnapshotABC):
                 f"{source_dataset:s}@{self.name:s}",
             ]
         )
-        receive = Command.from_list(
-            ["zfs", "receive", f"{target_dataset:s}"]
+        receive = Command.from_list(["zfs", "receive", f"{target_dataset:s}"])
+
+        if self._config["source/processing"].set:
+            send = send | Command.from_str(self._config["source/processing"].value)
+        if self._config["target/processing"].set:
+            receive = (
+                Command.from_str(self._config["target/processing"].value) | receive
+            )
+
+        command = send.on_side(side="source", config=self._config) | receive.on_side(
+            side="target", config=self._config
         )
-
-        if self._config['source/processing'].set:
-            send = send | Command.from_str(self._config['source/processing'].value)
-        if self._config['target/processing'].set:
-            receive = Command.from_str(self._config['target/processing'].value) | receive
-
-        command = send.on_side(side="source", config=self._config) | receive.on_side(side="target", config=self._config)
 
         return Transaction(
             meta=TransactionMeta(
