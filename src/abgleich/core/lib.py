@@ -28,9 +28,8 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import itertools
 import re
-from typing import Any, List, Union
+from typing import Union
 
 from typeguard import typechecked
 
@@ -80,16 +79,6 @@ def root(zpool: str, prefix: Union[str, None]) -> str:
     if len(prefix) == 0:
         return zpool
     return join(zpool, prefix)
-
-
-@typechecked
-def split_list(data: List, delimiter: Any) -> List[List]:
-
-    return [
-        list(sub_list)
-        for is_delimiter, sub_list in itertools.groupby(data, lambda item: item == delimiter)
-        if not is_delimiter
-    ]
 
 
 _name_re = re.compile("^[A-Za-z0-9_]+$")
