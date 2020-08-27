@@ -146,7 +146,7 @@ class Command(CommandABC):
             "-p",  # Port parameter
             f'{side_config["port"].value:d}',
             "-o",  # Option parameter
-            "Compression=yes" if ssh_config["compression"] else "Compression=no",
+            "Compression=yes" if ssh_config["compression"].value else "Compression=no",
         ]
         if ssh_config["cipher"].value is not None:
             cmd_ssh.extend(("-c", ssh_config["cipher"].value))
