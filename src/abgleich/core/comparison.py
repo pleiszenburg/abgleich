@@ -234,6 +234,33 @@ class Comparison(ComparisonABC):
         return list(itertools.dropwhile(lambda element: element is None, elements))
 
     @staticmethod
+    def _test_alternations(items: List[SnapshotABC, None]):
+
+        alternations = 0
+        state = False  # None
+
+        for item in items:
+
+            new_state = item is not None
+
+            if new_state == state:
+                continue
+
+            alternations += 1
+            state = new_state
+
+            if alternations > 2:
+                raise ValueError("gap in snapshot series")
+
+    @staticmethod
+    def _test_names(items: List[ComparisonItemABC]):
+
+        for item in items:
+            if item.a is not None and item.b is not None:
+                if item.a.name != item.b.name:
+                    raise ValueError("inconsistent snapshot names")
+
+    @staticmethod
     def _merge_datasets(
         items_a: Generator[DatasetABC, None, None],
         items_b: Generator[DatasetABC, None, None],
@@ -279,14 +306,15 @@ class Comparison(ComparisonABC):
             merged=cls._merge_datasets(zpool_a.datasets, zpool_b.datasets),
         )
 
-    @staticmethod
+    @classmethod
     def _merge_snapshots(
+        cls,
         items_a: Generator[SnapshotABC, None, None],
         items_b: Generator[SnapshotABC, None, None],
     ) -> List[ComparisonItemABC]:
 
-        items_a = list(items_a)
-        items_b = list(items_b)
+        items_a, items_b = list(items_a), list(items_b)
+
         names_a = [item.name for item in items_a]
         names_b = [item.name for item in items_b]
 
@@ -300,52 +328,28 @@ class Comparison(ComparisonABC):
         if len(items_b) == 0:
             return [ComparisonItem(item, None) for item in items_a]
 
-        try:
-            start_b = names_a.index(names_b[0])
-        except ValueError:
-            start_b = None
-        try:
-            start_a = names_b.index(names_a[0])
-        except ValueError:
-            start_a = None
+        start_b = names_a.index(names_b[0]) if names_b[0] in names_a else None
+        start_a = names_b.index(names_a[0]) if names_a[0] in names_b else None
 
         assert start_a is not None or start_b is not None  # overlap
 
-        prefix_a = [] if start_a is None else [None for _ in range(start_a)]
-        prefix_b = [] if start_b is None else [None for _ in range(start_b)]
-        items_a = prefix_a + items_a
-        items_b = prefix_b + items_b
-        suffix_a = (
-            []
-            if len(items_a) >= len(items_b)
-            else [None for _ in range(len(items_b) - len(items_a))]
-        )
-        suffix_b = (
-            []
-            if len(items_b) >= len(items_a)
-            else [None for _ in range(len(items_a) - len(items_b))]
-        )
-        items_a = items_a + suffix_a
-        items_b = items_b + suffix_b
+        if start_a is not None:  # fill prefix
+            items_a = [None for _ in range(start_a)] + items_a
+        if start_b is not None:  # fill prefix
+            items_b = [None for _ in range(start_b)] + items_b
+        if len(items_a) < len(items_b):  # fill suffix
+            items_a = items_a + [None for _ in range(len(items_b) - len(items_a))]
+        if len(items_b) < len(items_a):  # fill suffix
+            items_b = items_b + [None for _ in range(len(items_a) - len(items_b))]
 
         assert len(items_a) == len(items_b)
 
-        alt_a, alt_b, state_a, state_b = 0, 0, False, False
-        merged = []
-        for item_a, item_b in zip(items_a, items_b):
-            new_state_a, new_state_b = item_a is not None, item_b is not None
-            if new_state_a != state_a:
-                alt_a, state_a = alt_a + 1, new_state_a
-                if alt_a > 2:
-                    raise ValueError("gap in snapshot series")
-            if new_state_b != state_b:
-                alt_b, state_b = alt_b + 1, new_state_b
-                if alt_b > 2:
-                    raise ValueError("gap in snapshot series")
-            if state_a and state_b:
-                if item_a.name != item_b.name:
-                    raise ValueError("inconsistent snapshot names")
-            merged.append(ComparisonItem(item_a, item_b))
+        cls._test_alternations(items_a)
+        cls._test_alternations(items_b)
+
+        merged = [ComparisonItem(item_a, item_b) for item_a, item_b in zip(items_a, items_b)]
+
+        cls._test_names(merged)
 
         return merged
 
