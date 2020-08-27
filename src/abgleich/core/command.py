@@ -144,7 +144,7 @@ class Command(CommandABC):
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
             "-p",  # Port parameter
-            f'{side_config["port"]:d}',
+            f'{side_config["port"].value:d}',
             "-o",  # Option parameter
             "Compression=yes" if ssh_config["compression"] else "Compression=no",
         ]
