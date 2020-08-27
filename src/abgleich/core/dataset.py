@@ -73,7 +73,9 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
+        self._root = root(
+            config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value
+        )
 
         assert self._name.startswith(self._root)
         self._subname = self._name[len(self._root) :].strip("/")
@@ -124,7 +126,10 @@ class Dataset(DatasetABC):
             return True
 
         if self._config["written_threshold"].value is not None:
-            if self._properties["written"].value > self._config["written_threshold"].value:
+            if (
+                self._properties["written"].value
+                > self._config["written_threshold"].value
+            ):
                 return True
 
         if not self._config["check_diff"].value:
@@ -181,7 +186,11 @@ class Dataset(DatasetABC):
 
         today = datetime.datetime.now().strftime("%Y%m%d")
         max_snapshots = (10 ** self._config["digits"].value) - 1
-        suffix = self._config["suffix"].value if self._config["suffix"].value is not None else ""
+        suffix = (
+            self._config["suffix"].value
+            if self._config["suffix"].value is not None
+            else ""
+        )
 
         todays_names = [
             snapshot.name

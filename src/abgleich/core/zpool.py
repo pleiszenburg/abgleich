@@ -74,7 +74,9 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
+        self._root = root(
+            config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value
+        )
 
     def __eq__(self, other: ZpoolABC) -> bool:
 
@@ -155,7 +157,9 @@ class Zpool(ZpoolABC):
         )  # TODO namespace
 
         if self.side == "source":
-            snapshots = dataset_comparison.a_overlap_tail[:-self._config["keep_snapshots"].value]
+            snapshots = dataset_comparison.a_overlap_tail[
+                : -self._config["keep_snapshots"].value
+            ]
         else:  # target
             if self._config["keep_backlog"].value in (False, 0):
                 keep_backlog = None
@@ -386,7 +390,10 @@ class Zpool(ZpoolABC):
                     "available",
                     "-H",
                     "-p",
-                    root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value),
+                    root(
+                        config[f"{side:s}/zpool"].value,
+                        config[f"{side:s}/prefix"].value,
+                    ),
                 ]
             )
             .on_side(side=side, config=config)
@@ -402,7 +409,9 @@ class Zpool(ZpoolABC):
         config: ConfigABC,
     ) -> ZpoolABC:
 
-        root_dataset = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
+        root_dataset = root(
+            config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value
+        )
 
         output, errors, returncode, exception = (
             Command.from_list(

@@ -150,7 +150,9 @@ class Command(CommandABC):
         ]
         if ssh_config["cipher"].value is not None:
             cmd_ssh.extend(("-c", ssh_config["cipher"].value))
-        cmd_ssh.extend([f'{side_config["user"].value:s}@{side_config["host"].value:s}', str(self)])
+        cmd_ssh.extend(
+            [f'{side_config["user"].value:s}@{side_config["host"].value:s}', str(self)]
+        )
 
         return type(self)([cmd_ssh])
 
