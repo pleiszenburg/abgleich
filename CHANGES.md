@@ -3,6 +3,7 @@
 ## 0.0.8 (2020-XX-XX)
 
 - FEATURE: `ssh`-port on source and target becomes configurable, see #22.
+- FEATURE: New configuration fields for `source` and `target` each: `processing`. They can carry shell commands for pre- and post-processing of data before and after it is transferred via ssh. This enables the use of e.g. `lzma` or `bzip2` as a custom transfer compression beyond the compression capabilities of `ssh` itself. See #23.
 - FEATURE: Configuration module contains default values for parameters, making it much easier to write lightweight configuration files, see #28. The configuration parser now also provides much more useful output.
 - FEATURE: Significantly more flexible shell command wrapper and, as a result, cleaned up transaction handling.
 - FIX: Many cleanups in code base, enabling future developments.
