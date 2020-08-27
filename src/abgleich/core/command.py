@@ -115,30 +115,15 @@ class Command(CommandABC):
 
         return output, errors
 
-    @property
-    def cmd(self) -> List[List[str]]:
+    def on_side(self, side: str, config: ConfigABC) -> CommandABC:
 
-        return [fragment.copy() for fragment in self._cmd]
-
-    @classmethod
-    def on_side(cls, cmd: List[str], side: str, config: ConfigABC) -> CommandABC:
+        if config[f'{side:s}/host'] == "localhost":
+            return self
 
         side_config = config.group(side)
+        ssh_config = config.group("ssh")
 
-        if side_config["host"] == "localhost":
-            return cls([cmd])
-
-        return cls.with_ssh(
-            cmd, side_config=side_config, ssh_config=config.group("ssh")
-        )
-
-    @classmethod
-    def with_ssh(
-        cls, cmd: List[str], side_config: ConfigABC, ssh_config: ConfigABC
-    ) -> CommandABC:
-
-        cmd_str = shlex.join(cmd)
-        cmd = [
+        cmd_ssh = [
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
             "-p",  # Port parameter
@@ -147,7 +132,22 @@ class Command(CommandABC):
             "Compression=yes" if ssh_config["compression"] else "Compression=no",
         ]
         if ssh_config["cipher"] is not None:
-            cmd.extend(("-c", ssh_config["cipher"]))
-        cmd.extend([f'{side_config["user"]:s}@{side_config["host"]:s}', cmd_str])
+            cmd_ssh.extend(("-c", ssh_config["cipher"]))
+        cmd_ssh.extend([f'{side_config["user"]:s}@{side_config["host"]:s}', str(self)])
+
+        return type(self)([cmd_ssh])
+
+    @property
+    def cmd(self) -> List[List[str]]:
+
+        return [fragment.copy() for fragment in self._cmd]
+
+    @classmethod
+    def from_str(cls, cmd: str) -> CommandABC:
+
+        return cls.from_list(shlex.split(cmd))
+
+    @classmethod
+    def from_list(cls, cmd: List[str]) -> CommandABC:
 
         return cls([cmd])
