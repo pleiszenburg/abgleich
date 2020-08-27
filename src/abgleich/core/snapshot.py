@@ -67,7 +67,7 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"])
+        self._root = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
 
         assert self._parent.startswith(self._root)
         self._subparent = self._parent[len(self._root) :].strip("/")

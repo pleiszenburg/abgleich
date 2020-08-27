@@ -73,7 +73,7 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"])
+        self._root = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
 
         assert self._name.startswith(self._root)
         self._subname = self._name[len(self._root) :].strip("/")
@@ -116,18 +116,18 @@ class Dataset(DatasetABC):
 
         if len(self) == 0:
             return True
-        if self._config["always_changed"]:
+        if self._config["always_changed"].value:
             return True
         if self._properties["written"].value == 0:
             return False
         if self._properties["type"].value == "volume":
             return True
 
-        if self._config["written_threshold"] is not None:
-            if self._properties["written"].value > self._config["written_threshold"]:
+        if self._config["written_threshold"].value is not None:
+            if self._properties["written"].value > self._config["written_threshold"].value:
                 return True
 
-        if not self._config["check_diff"]:
+        if not self._config["check_diff"].value:
             return True
 
         output, _ = (
@@ -180,8 +180,8 @@ class Dataset(DatasetABC):
     def _new_snapshot_name(self) -> str:
 
         today = datetime.datetime.now().strftime("%Y%m%d")
-        max_snapshots = (10 ** self._config["digits"]) - 1
-        suffix = self._config["suffix"] if self._config["suffix"] is not None else ""
+        max_snapshots = (10 ** self._config["digits"].value) - 1
+        suffix = self._config["suffix"].value if self._config["suffix"].value is not None else ""
 
         todays_names = [
             snapshot.name
@@ -191,14 +191,14 @@ class Dataset(DatasetABC):
                     snapshot.name.startswith(today),
                     snapshot.name.endswith(suffix),
                     len(snapshot.name)
-                    == len(today) + self._config["digits"] + len(suffix),
+                    == len(today) + self._config["digits"].value + len(suffix),
                 )
             )
         ]
         todays_numbers = [
-            int(name[len(today) : len(today) + self._config["digits"]])
+            int(name[len(today) : len(today) + self._config["digits"].value])
             for name in todays_names
-            if name[len(today) : len(today) + self._config["digits"]].isnumeric()
+            if name[len(today) : len(today) + self._config["digits"].value].isnumeric()
         ]
         if len(todays_numbers) != 0:
             todays_numbers.sort()

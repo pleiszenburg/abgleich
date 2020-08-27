@@ -66,9 +66,9 @@ class Config(ConfigABC):
     def __getitem__(self, key: str) -> ConfigValueTypes:
 
         return (
-            self._fields[key].value
+            self._fields[key]
             if self._root is None
-            else self._fields[f"{self._root:s}/{key:s}"].value
+            else self._fields[f"{self._root:s}/{key:s}"]
         )
 
     def group(self, root: str) -> ConfigABC:

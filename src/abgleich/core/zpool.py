@@ -74,7 +74,7 @@ class Zpool(ZpoolABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"])
+        self._root = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
 
     def __eq__(self, other: ZpoolABC) -> bool:
 
@@ -143,7 +143,7 @@ class Zpool(ZpoolABC):
         dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
-        if dataset_item.get_item().subname in self._config["ignore"]:
+        if dataset_item.get_item().subname in self._config["ignore"].value:
             return
         if dataset_item.a is None or dataset_item.b is None:
             return
@@ -216,7 +216,7 @@ class Zpool(ZpoolABC):
         dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
-        if dataset_item.get_item().subname in self._config["ignore"]:
+        if dataset_item.get_item().subname in self._config["ignore"].value:
             return
         if dataset_item.a is None:
             return
@@ -280,7 +280,7 @@ class Zpool(ZpoolABC):
         self, dataset: DatasetABC
     ) -> Union[None, TransactionABC]:
 
-        if dataset.subname in self._config["ignore"]:
+        if dataset.subname in self._config["ignore"].value:
             return
         if (
             dataset.get("mountpoint").value is None
@@ -402,8 +402,7 @@ class Zpool(ZpoolABC):
         config: ConfigABC,
     ) -> ZpoolABC:
 
-        side_config = config.group(side)
-        root_dataset = root(side_config["zpool"], side_config["prefix"])
+        root_dataset = root(config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value)
 
         output, errors, returncode, exception = (
             Command.from_list(
@@ -437,7 +436,7 @@ class Zpool(ZpoolABC):
         for line_list in output:
             entities[line_list[0]].append(line_list[1:])
 
-        if not config["include_root"]:
+        if not config["include_root"].value:
             entities.pop(root_dataset)
             for name in [
                 snapshot
