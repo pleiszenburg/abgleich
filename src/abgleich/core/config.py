@@ -40,7 +40,6 @@ except ImportError:
     from yaml import FullLoader as Loader
 
 from .abc import ConfigABC, ConfigFieldABC
-from .configfield import ConfigValueTypes
 from .configspec import CONFIGSPEC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -63,7 +62,7 @@ class Config(ConfigABC):
 
         return "<Config>" if self._root is None else f'<Config root="{self._root:s}">'
 
-    def __getitem__(self, key: str) -> ConfigValueTypes:
+    def __getitem__(self, key: str) -> ConfigFieldABC:
 
         return (
             self._fields[key]
