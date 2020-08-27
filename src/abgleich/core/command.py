@@ -35,6 +35,7 @@ import shlex
 from typeguard import typechecked
 
 from .abc import CommandABC, ConfigABC
+from .lib import split_list
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -145,7 +146,7 @@ class Command(CommandABC):
     @classmethod
     def from_str(cls, cmd: str) -> CommandABC:
 
-        return cls.from_list(shlex.split(cmd))
+        return cls(split_list(shlex.split(cmd), '|'))
 
     @classmethod
     def from_list(cls, cmd: List[str]) -> CommandABC:
