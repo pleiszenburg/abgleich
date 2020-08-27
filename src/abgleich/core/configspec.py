@@ -122,6 +122,11 @@ for _side in ("source", "target"):
                 validate=lambda v: isinstance(v, str),
                 default="",
             ),
+            ConfigField(
+                name=f"{_side}/keep_snapshots",
+                validate=lambda v: isinstance(v, int) and v >= 1,
+                default=1,
+            ),
         ]
     )
 
