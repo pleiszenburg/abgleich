@@ -127,9 +127,13 @@ class Dataset(DatasetABC):
         if not self._config["check_diff"]:
             return True
 
-        output, _ = Command.from_list(
-            ["zfs", "diff", f"{self._name:s}@{self._snapshots[-1].name:s}"]
-        ).on_side(side = self._side, config = self._config).run()
+        output, _ = (
+            Command.from_list(
+                ["zfs", "diff", f"{self._name:s}@{self._snapshots[-1].name:s}"]
+            )
+            .on_side(side=self._side, config=self._config)
+            .run()
+        )
         return len(output[0].strip(" \t\n")) > 0
 
     @property
@@ -167,7 +171,7 @@ class Dataset(DatasetABC):
             ),
             command=Command.from_list(
                 ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
-            ).on_side(side = self._side, config = self._config),
+            ).on_side(side=self._side, config=self._config),
         )
 
     def _new_snapshot_name(self) -> str:

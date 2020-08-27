@@ -339,16 +339,20 @@ class Zpool(ZpoolABC):
     @staticmethod
     def available(side: str, config: ConfigABC,) -> int:
 
-        output, _ = Command.from_list(
-            [
-                "zfs",
-                "get",
-                "available",
-                "-H",
-                "-p",
-                root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"]),
-            ]
-        ).on_side(side = side, config = config).run()
+        output, _ = (
+            Command.from_list(
+                [
+                    "zfs",
+                    "get",
+                    "available",
+                    "-H",
+                    "-p",
+                    root(config[f"{side:s}/zpool"], config[f"{side:s}/prefix"]),
+                ]
+            )
+            .on_side(side=side, config=config)
+            .run()
+        )
 
         return Property.from_params(*output[0].strip().split("\t")[1:]).value
 
@@ -358,9 +362,11 @@ class Zpool(ZpoolABC):
         side_config = config.group(side)
         root_dataset = root(side_config["zpool"], side_config["prefix"])
 
-        output, errors, returncode, exception = Command.from_list(
-            ["zfs", "get", "all", "-r", "-H", "-p", root_dataset,]
-        ).on_side(side = side, config = config).run(returncode=True)
+        output, errors, returncode, exception = (
+            Command.from_list(["zfs", "get", "all", "-r", "-H", "-p", root_dataset,])
+            .on_side(side=side, config=config)
+            .run(returncode=True)
+        )
 
         if returncode[0] != 0 and "dataset does not exist" in errors[0]:
             return cls(datasets=[], side=side, config=config,)

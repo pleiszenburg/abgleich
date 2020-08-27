@@ -117,7 +117,7 @@ class Command(CommandABC):
 
     def on_side(self, side: str, config: ConfigABC) -> CommandABC:
 
-        if config[f'{side:s}/host'] == "localhost":
+        if config[f"{side:s}/host"] == "localhost":
             return self
 
         side_config = config.group(side)
