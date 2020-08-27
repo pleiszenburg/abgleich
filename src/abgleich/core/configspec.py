@@ -42,6 +42,11 @@ CONFIGSPEC = [
         default=1,
     ),
     ConfigField(
+        name="keep_backlog",
+        validate=lambda v: (isinstance(v, int) and v >= 0) or isinstance(v, bool),
+        default=True,
+    ),
+    ConfigField(
         name="suffix",
         validate=lambda v: isinstance(v, str) and valid_name(v, min_len=0),
         default="",
@@ -121,11 +126,6 @@ for _side in ("source", "target"):
                 name=f"{_side}/processing",
                 validate=lambda v: isinstance(v, str),
                 default="",
-            ),
-            ConfigField(
-                name=f"{_side}/keep_snapshots",
-                validate=lambda v: isinstance(v, int) and v >= 1,
-                default=1,
             ),
         ]
     )
