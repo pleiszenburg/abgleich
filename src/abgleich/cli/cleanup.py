@@ -64,7 +64,7 @@ def cleanup(configfile, side):
             ),
             abort=True,
         )
-        if config['keep_backlog'].value == True:
+        if config["keep_backlog"].value == True:
             print(t("nothing to do"))
             return
 
