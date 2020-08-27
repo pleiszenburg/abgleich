@@ -49,8 +49,8 @@ def is_host_up(side: str, config: ConfigABC) -> bool:
         return True
 
     _, _, returncode, _ = Command.on_side(["exit"], side, config).run(returncode=True)
-    assert returncode in (0, 255)
-    return returncode == 0
+    assert returncode[0] in (0, 255)
+    return returncode[0] == 0
 
 
 @typechecked
