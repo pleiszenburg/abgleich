@@ -159,10 +159,10 @@ class Zpool(ZpoolABC):
             dataset_item.a, dataset_item.b
         )  # TODO namespace
 
-        # if self.side == 'source':
-        snapshots = dataset_comparison.a_overlap_tail[:-keep_snapshots]
-        # else: # target
-        # TODO target tail ...
+        if self.side == 'source':
+            snapshots = dataset_comparison.a_overlap_tail[:-keep_snapshots]
+        else:  # target
+            snapshots = []  # TODO
 
         return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
