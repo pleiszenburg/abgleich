@@ -127,19 +127,27 @@ class Zpool(ZpoolABC):
         None,
     ]:
 
-        assert self.side == "source"
-        assert other.side == "target"
+        assert self.side != other.side
+        assert self.side in ("source", "target")
+        assert other.side in ("source", "target")
+
+        keep_snapshots = self._config["keep_snapshots"].value
+        if keep_snapshots < self._config[f"{self.side:s}/keep_snapshots"].value:
+            keep_snapshots = self._config[f"{self.side:s}/keep_snapshots"].value
 
         zpool_comparison = Comparison.from_zpools(self, other)
 
         yield len(zpool_comparison), None
 
         for index, dataset_item in enumerate(zpool_comparison.merged):
-            yield index, self._get_cleanup_from_datasetitem(dataset_item)
+            yield index, self._get_cleanup_from_datasetitem(
+                dataset_item, keep_snapshots
+            )
 
     def _get_cleanup_from_datasetitem(
         self,
         dataset_item: ComparisonItemABC,
+        keep_snapshots: int,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
         if dataset_item.get_item().subname in self._config["ignore"]:
@@ -147,8 +155,14 @@ class Zpool(ZpoolABC):
         if dataset_item.a is None or dataset_item.b is None:
             return
 
-        dataset_comparison = Comparison.from_datasets(dataset_item.a, dataset_item.b)
-        snapshots = dataset_comparison.a_overlap_tail[: -self._config["keep_snapshots"]]
+        dataset_comparison = Comparison.from_datasets(
+            dataset_item.a, dataset_item.b
+        )  # TODO namespace
+
+        # if self.side == 'source':
+        snapshots = dataset_comparison.a_overlap_tail[:-keep_snapshots]
+        # else: # target
+        # TODO target tail ...
 
         return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
 
