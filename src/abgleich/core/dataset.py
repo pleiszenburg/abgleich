@@ -176,19 +176,21 @@ class Dataset(DatasetABC):
     def get_snapshot_transactions(self) -> TransactionListABC:
 
         snapshot_name = self._new_snapshot_name()
-        transactions = TransactionList(Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("snapshot"),
-                    t("dataset_subname"): self._subname,
-                    t("snapshot_name"): snapshot_name,
-                    t("written"): self._properties["written"].value,
-                }
-            ),
-            command=Command.from_list(
-                ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
-            ).on_side(side=self._side, config=self._config),
-        ))
+        transactions = TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("snapshot"),
+                        t("dataset_subname"): self._subname,
+                        t("snapshot_name"): snapshot_name,
+                        t("written"): self._properties["written"].value,
+                    }
+                ),
+                command=Command.from_list(
+                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
+                ).on_side(side=self._side, config=self._config),
+            )
+        )
         # TODO append namespace transaction
         return transactions
 
