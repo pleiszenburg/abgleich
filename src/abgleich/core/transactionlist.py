@@ -59,14 +59,18 @@ class TransactionList(TransactionListABC):
     Mutable.
     """
 
-    def __init__(self):
+    def __init__(self, *transactions: TransactionABC):
 
-        self._transactions = []
+        self._transactions = list(transactions)
         self._changed = None
 
     def __len__(self) -> int:
 
         return len(self._transactions)
+
+    def __add__(self, other: TransactionListABC) -> TransactionListABC:
+
+        return type(self)(*(tuple(self.transactions) + tuple(other.transactions)))
 
     def __getitem__(self, index: int) -> TransactionABC:
 
@@ -107,6 +111,11 @@ class TransactionList(TransactionListABC):
     def table_rows(self) -> List[str]:
 
         return [f'{t("transaction"):s} #{index:d}' for index in range(1, len(self) + 1)]
+
+    @property
+    def transactions(self) -> Generator[TransactionABC, None, None]:
+
+        return (transaction for transaction in self._transactions)
 
     def append(self, transaction: TransactionABC):
 
