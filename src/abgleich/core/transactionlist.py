@@ -124,7 +124,8 @@ class TransactionList(TransactionListABC):
     def clear(self):
 
         self._transactions.clear()
-        self._changed()
+        if self._changed is not None:
+            self._changed()
 
     def _link_transaction(self, transaction: TransactionABC):
 
