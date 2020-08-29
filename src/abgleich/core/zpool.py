@@ -267,7 +267,7 @@ class Zpool(ZpoolABC):
             transaction = self._get_snapshot_transactions_from_dataset(dataset)
             if transaction is None:
                 continue
-            transactions.append(dataset.get_snapshot_transaction())
+            transactions.append(transaction)
 
         return transactions
 
