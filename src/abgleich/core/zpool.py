@@ -339,7 +339,7 @@ class Zpool(ZpoolABC):
         table = []
 
         for dataset_item in zpool_comparison.merged:
-            table.append(self._comparison_table_row(dataset_item))
+            table.append(self._comparison_table_row(dataset_item, ignore = dataset_item.get_item().ignore))
             if dataset_item.complete:
                 dataset_comparison = ComparisonDataset.from_datasets(
                     dataset_item.a, dataset_item.b
@@ -353,7 +353,7 @@ class Zpool(ZpoolABC):
                     None, dataset_item.b
                 )
             for snapshot_item in dataset_comparison.merged:
-                table.append(self._comparison_table_row(snapshot_item))
+                table.append(self._comparison_table_row(snapshot_item, ignore = dataset_item.get_item().ignore))
 
         print(
             tabulate(
@@ -364,22 +364,27 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _comparison_table_row(item: ComparisonItemABC) -> List[str]:
+    def _comparison_table_row(item: ComparisonItemABC, ignore: bool = False) -> List[str]:
+
+        color1, color2 = ("white", "grey") if not ignore else ("red", "yellow")
+        colorR, colorG, colorB = ("red", "green", "blue") if not ignore else ("grey", "grey", "grey")
+
+        symbol = "X"
 
         entity = item.get_item()
         name = entity.name if isinstance(entity, SnapshotABC) else entity.subname
 
         if item.a is not None and item.b is not None:
-            a, b = colorize("X", "green"), colorize("X", "green")
+            a, b = colorize(symbol, colorG), colorize(symbol, colorG)
         elif item.a is None and item.b is not None:
-            a, b = "", colorize("X", "blue")
+            a, b = "", colorize(symbol, colorB)
         elif item.a is not None and item.b is None:
-            a, b = colorize("X", "red"), ""
+            a, b = colorize(symbol, colorR), ""
 
         return [
-            "- " + colorize(name, "grey")
+            "- " + colorize(name, color2)
             if isinstance(entity, SnapshotABC)
-            else colorize(name, "white"),
+            else colorize(name, color1),
             a,
             b,
         ]
