@@ -44,7 +44,8 @@ from .abc import (
     ZpoolABC,
 )
 from .command import Command
-from .comparison import Comparison
+from .comparisondataset import ComparisonDataset
+from .comparisonzpool import ComparisonZpool
 from .dataset import Dataset
 from .i18n import t
 from .io import colorize, humanize_size
@@ -106,7 +107,7 @@ class Zpool(ZpoolABC):
         assert self.side in ("source", "target")
         assert other.side in ("source", "target")
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
@@ -134,7 +135,7 @@ class Zpool(ZpoolABC):
         assert self.side in ("source", "target")
         assert other.side in ("source", "target")
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
 
         yield len(zpool_comparison), None
 
@@ -153,7 +154,7 @@ class Zpool(ZpoolABC):
         if self.side == "target" and self._config["keep_backlog"].value == True:
             return
 
-        dataset_comparison = Comparison.from_datasets(
+        dataset_comparison = ComparisonDataset.from_datasets(
             dataset_item.a, dataset_item.b
         )  # TODO namespace
 
@@ -178,7 +179,7 @@ class Zpool(ZpoolABC):
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = Comparison.from_zpools(self, other)  # TODO namespace
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)  # TODO namespace
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
@@ -206,7 +207,7 @@ class Zpool(ZpoolABC):
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
 
         yield len(zpool_comparison), None
 
@@ -229,7 +230,7 @@ class Zpool(ZpoolABC):
         if dataset_item.b is None:
             snapshots = list(dataset_item.a.snapshots)
         else:
-            dataset_comparison = Comparison.from_datasets(
+            dataset_comparison = ComparisonDataset.from_datasets(
                 dataset_item.a, dataset_item.b
             )
             snapshots = dataset_comparison.a_disjoint_head
@@ -332,19 +333,19 @@ class Zpool(ZpoolABC):
 
     def print_comparison_table(self, other: ZpoolABC):
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         table = []
 
         for dataset_item in zpool_comparison.merged:
             table.append(self._comparison_table_row(dataset_item))
             if dataset_item.complete:
-                dataset_comparison = Comparison.from_datasets(
+                dataset_comparison = ComparisonDataset.from_datasets(
                     dataset_item.a, dataset_item.b
                 )
             elif dataset_item.a is not None:
-                dataset_comparison = Comparison.from_datasets(dataset_item.a, None)
+                dataset_comparison = ComparisonDataset.from_datasets(dataset_item.a, None)
             else:
-                dataset_comparison = Comparison.from_datasets(None, dataset_item.b)
+                dataset_comparison = ComparisonDataset.from_datasets(None, dataset_item.b)
             for snapshot_item in dataset_comparison.merged:
                 table.append(self._comparison_table_row(snapshot_item))
 
