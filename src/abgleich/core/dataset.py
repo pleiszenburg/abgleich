@@ -116,6 +116,8 @@ class Dataset(DatasetABC):
     @property
     def changed(self) -> bool:
 
+        # TODO namespace: if last snapshot is from other namespace, make one ...
+
         if len(self) == 0:
             return True
         if self._config["always_changed"].value:

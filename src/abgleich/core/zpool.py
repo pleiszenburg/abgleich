@@ -179,7 +179,7 @@ class Zpool(ZpoolABC):
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = ComparisonZpool.from_zpools(self, other)  # TODO namespace
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
@@ -232,7 +232,7 @@ class Zpool(ZpoolABC):
         else:
             dataset_comparison = ComparisonDataset.from_datasets(
                 dataset_item.a, dataset_item.b
-            )
+            )  # TODO namespace
             snapshots = dataset_comparison.a_disjoint_head
 
         if len(snapshots) == 0:
@@ -293,7 +293,7 @@ class Zpool(ZpoolABC):
             and dataset["type"].value == "filesystem"
         ):
             return
-        if not dataset.changed:
+        if not dataset.changed:  # TODO namespace
             return
 
         return dataset.get_snapshot_transaction()
