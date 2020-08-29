@@ -51,7 +51,7 @@ from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
-from .transaction import TransactionList
+from .transactionlist import TransactionList
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

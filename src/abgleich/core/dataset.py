@@ -44,7 +44,8 @@ from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
-from .transaction import Transaction, TransactionMeta
+from .transaction import Transaction
+from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

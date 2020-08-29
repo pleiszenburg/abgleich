@@ -37,7 +37,7 @@ from typeguard import typechecked
 from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
-from ..core.transaction import TransactionList
+from ..core.transactionlist import TransactionList
 from ..core.i18n import t
 from ..core.zpool import Zpool
 from .. import __version__
