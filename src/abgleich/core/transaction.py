@@ -38,6 +38,7 @@ from .abc import CommandABC, TransactionABC, TransactionMetaABC
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class Transaction(TransactionABC):
     """

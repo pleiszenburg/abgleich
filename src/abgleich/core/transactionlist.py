@@ -52,6 +52,7 @@ TransactionIterableTypes = Union[
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class TransactionList(TransactionListABC):
     """
@@ -159,7 +160,9 @@ class TransactionList(TransactionListABC):
         )
 
     @staticmethod
-    def _table_format_cell(header: str, value: Union[TransactionMetaTypes, None]) -> str:
+    def _table_format_cell(
+        header: str, value: Union[TransactionMetaTypes, None]
+    ) -> str:
 
         FORMAT = {
             t("written"): lambda v: humanize_size(v, add_color=True),

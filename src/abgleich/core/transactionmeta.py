@@ -44,6 +44,7 @@ TransactionMetaTypes = Union[str, int, float]
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 @typechecked
 class TransactionMeta(TransactionMetaABC):
     """

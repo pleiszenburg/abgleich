@@ -302,7 +302,7 @@ class Zpool(ZpoolABC):
 
         table = []
         for dataset in self._datasets:
-            table.append(self._table_row(dataset, ignore = dataset.ignore))
+            table.append(self._table_row(dataset, ignore=dataset.ignore))
             for snapshot in dataset.snapshots:
                 table.append(self._table_row(snapshot))
 
@@ -320,7 +320,9 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _table_row(entity: Union[SnapshotABC, DatasetABC], ignore: bool = False) -> List[str]:
+    def _table_row(
+        entity: Union[SnapshotABC, DatasetABC], ignore: bool = False
+    ) -> List[str]:
 
         color = "white" if not ignore else "red"
 
@@ -339,7 +341,11 @@ class Zpool(ZpoolABC):
         table = []
 
         for dataset_item in zpool_comparison.merged:
-            table.append(self._comparison_table_row(dataset_item, ignore = dataset_item.get_item().ignore))
+            table.append(
+                self._comparison_table_row(
+                    dataset_item, ignore=dataset_item.get_item().ignore
+                )
+            )
             if dataset_item.complete:
                 dataset_comparison = ComparisonDataset.from_datasets(
                     dataset_item.a, dataset_item.b
@@ -353,7 +359,11 @@ class Zpool(ZpoolABC):
                     None, dataset_item.b
                 )
             for snapshot_item in dataset_comparison.merged:
-                table.append(self._comparison_table_row(snapshot_item, ignore = dataset_item.get_item().ignore))
+                table.append(
+                    self._comparison_table_row(
+                        snapshot_item, ignore=dataset_item.get_item().ignore
+                    )
+                )
 
         print(
             tabulate(
@@ -364,10 +374,14 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _comparison_table_row(item: ComparisonItemABC, ignore: bool = False) -> List[str]:
+    def _comparison_table_row(
+        item: ComparisonItemABC, ignore: bool = False
+    ) -> List[str]:
 
         color1, color2 = ("white", "grey") if not ignore else ("red", "yellow")
-        colorR, colorG, colorB = ("red", "green", "blue") if not ignore else ("grey", "grey", "grey")
+        colorR, colorG, colorB = (
+            ("red", "green", "blue") if not ignore else ("grey", "grey", "grey")
+        )
 
         symbol = "X"
 

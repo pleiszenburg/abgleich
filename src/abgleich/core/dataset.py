@@ -150,7 +150,7 @@ class Dataset(DatasetABC):
     @property
     def ignore(self) -> bool:
 
-        return self._subname in self._config['ignore'].value
+        return self._subname in self._config["ignore"].value
 
     @property
     def name(self) -> str:
