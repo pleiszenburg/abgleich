@@ -302,7 +302,7 @@ class Zpool(ZpoolABC):
 
         table = []
         for dataset in self._datasets:
-            table.append(self._table_row(dataset))
+            table.append(self._table_row(dataset, ignore = dataset.ignore))
             for snapshot in dataset.snapshots:
                 table.append(self._table_row(snapshot))
 
@@ -320,12 +320,14 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _table_row(entity: Union[SnapshotABC, DatasetABC]) -> List[str]:
+    def _table_row(entity: Union[SnapshotABC, DatasetABC], ignore: bool = False) -> List[str]:
+
+        color = "white" if not ignore else "red"
 
         return [
             "- " + colorize(entity.name, "grey")
             if isinstance(entity, SnapshotABC)
-            else colorize(entity.name, "white"),
+            else colorize(entity.name, color),
             humanize_size(entity["used"].value, add_color=True),
             humanize_size(entity["referenced"].value, add_color=True),
             f'{entity["compressratio"].value:.02f}',
