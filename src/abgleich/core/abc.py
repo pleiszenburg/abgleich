@@ -43,11 +43,15 @@ class CommandABC(ABC):
     pass
 
 
-class ComparisonABC(ABC):
+class ComparisonDatasetABC(ABC):
     pass
 
 
 class ComparisonItemABC(ABC):
+    pass
+
+
+class ComparisonZpoolABC(ABC):
     pass
 
 
