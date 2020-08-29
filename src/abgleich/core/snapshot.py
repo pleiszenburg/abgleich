@@ -97,18 +97,20 @@ class Snapshot(SnapshotABC):
 
     def get_cleanup_transactions(self) -> TransactionListABC:
 
-        return TransactionList(Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("cleanup_snapshot"),
-                    t("snapshot_subparent"): self._subparent,
-                    t("snapshot_name"): self._name,
-                }
-            ),
-            command=Command.from_list(
-                ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
-            ).on_side(side=self._side, config=self._config),
-        ))
+        return TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("cleanup_snapshot"),
+                        t("snapshot_subparent"): self._subparent,
+                        t("snapshot_name"): self._name,
+                    }
+                ),
+                command=Command.from_list(
+                    ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
+                ).on_side(side=self._side, config=self._config),
+            )
+        )
 
     def get_backup_transactions(
         self,
@@ -150,19 +152,21 @@ class Snapshot(SnapshotABC):
             side="target", config=self._config
         )
 
-        return TransactionList(Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("transfer_snapshot")
-                    if ancestor is None
-                    else t("transfer_snapshot_incremental"),
-                    t("snapshot_subparent"): self._subparent,
-                    t("ancestor_name"): "" if ancestor is None else ancestor.name,
-                    t("snapshot_name"): self.name,
-                }
-            ),
-            command=command,
-        ))
+        return TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("transfer_snapshot")
+                        if ancestor is None
+                        else t("transfer_snapshot_incremental"),
+                        t("snapshot_subparent"): self._subparent,
+                        t("ancestor_name"): "" if ancestor is None else ancestor.name,
+                        t("snapshot_name"): self.name,
+                    }
+                ),
+                command=command,
+            )
+        )
 
     @property
     def name(self) -> str:
