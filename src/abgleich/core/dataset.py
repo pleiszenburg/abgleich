@@ -147,6 +147,11 @@ class Dataset(DatasetABC):
         return len(output[0].strip(" \t\n")) > 0
 
     @property
+    def ignore(self) -> bool:
+
+        return self._subname in self._config['ignore'].value
+
+    @property
     def name(self) -> str:
 
         return self._name
