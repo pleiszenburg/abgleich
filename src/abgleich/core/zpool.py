@@ -44,13 +44,14 @@ from .abc import (
     ZpoolABC,
 )
 from .command import Command
-from .comparison import Comparison
+from .comparisondataset import ComparisonDataset
+from .comparisonzpool import ComparisonZpool
 from .dataset import Dataset
 from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
-from .transaction import TransactionList
+from .transactionlist import TransactionList
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -106,35 +107,24 @@ class Zpool(ZpoolABC):
         assert self.side in ("source", "target")
         assert other.side in ("source", "target")
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-
-            cleanup_transactions = self._get_cleanup_from_datasetitem(dataset_item)
-            if cleanup_transactions is None:
-                continue
-            transactions.extend(cleanup_transactions)
+            transactions.extend(self._get_cleanup_from_datasetitem(dataset_item))
 
         return transactions
 
     def generate_cleanup_transactions(
         self,
         other: ZpoolABC,
-    ) -> Generator[
-        Tuple[
-            int,
-            Union[None, Union[None, Generator[TransactionABC, None, None]]],
-        ],
-        None,
-        None,
-    ]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self.side != other.side
         assert self.side in ("source", "target")
         assert other.side in ("source", "target")
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
 
         yield len(zpool_comparison), None
 
@@ -144,16 +134,16 @@ class Zpool(ZpoolABC):
     def _get_cleanup_from_datasetitem(
         self,
         dataset_item: ComparisonItemABC,
-    ) -> Union[None, Generator[TransactionABC, None, None]]:
+    ) -> TransactionListABC:
 
-        if dataset_item.get_item().subname in self._config["ignore"].value:
-            return
+        if dataset_item.get_item().ignore:
+            return TransactionList()
         if dataset_item.a is None or dataset_item.b is None:
-            return
+            return TransactionList()
         if self.side == "target" and self._config["keep_backlog"].value == True:
-            return
+            return TransactionList()
 
-        dataset_comparison = Comparison.from_datasets(
+        dataset_comparison = ComparisonDataset.from_datasets(
             dataset_item.a, dataset_item.b
         )  # TODO namespace
 
@@ -168,7 +158,12 @@ class Zpool(ZpoolABC):
                 keep_backlog = -self._config["keep_backlog"].value
             snapshots = dataset_comparison.a_disjoint_tail[:keep_backlog]
 
-        return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
+        transactions = TransactionList()
+
+        for snapshot in snapshots:
+            transactions.extend(snapshot.get_cleanup_transactions())
+
+        return transactions
 
     def get_backup_transactions(
         self,
@@ -178,35 +173,25 @@ class Zpool(ZpoolABC):
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = Comparison.from_zpools(self, other)  # TODO namespace
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-            backup_transactions = self._get_backup_transactions_from_datasetitem(
+            transactions.extend(self._get_backup_transactions_from_datasetitem(
                 other, dataset_item
-            )
-            if backup_transactions is None:
-                continue
-            transactions.extend(backup_transactions)
+            ))
 
         return transactions
 
     def generate_backup_transactions(
         self,
         other: ZpoolABC,
-    ) -> Generator[
-        Tuple[
-            int,
-            Union[None, Union[None, Generator[TransactionABC, None, None]]],
-        ],
-        None,
-        None,
-    ]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self.side == "source"
         assert other.side == "target"
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
 
         yield len(zpool_comparison), None
 
@@ -219,23 +204,23 @@ class Zpool(ZpoolABC):
         self,
         other: ZpoolABC,
         dataset_item: ComparisonItemABC,
-    ) -> Union[None, Generator[TransactionABC, None, None]]:
+    ) -> TransactionListABC:
 
-        if dataset_item.get_item().subname in self._config["ignore"].value:
-            return
+        if dataset_item.get_item().ignore:
+            return TransactionList()
         if dataset_item.a is None:
-            return
+            return TransactionList()
 
         if dataset_item.b is None:
             snapshots = list(dataset_item.a.snapshots)
         else:
-            dataset_comparison = Comparison.from_datasets(
+            dataset_comparison = ComparisonDataset.from_datasets(
                 dataset_item.a, dataset_item.b
-            )
+            )  # TODO namespace
             snapshots = dataset_comparison.a_disjoint_head
 
         if len(snapshots) == 0:
-            return
+            return TransactionList()
 
         source_dataset = (
             self.root
@@ -248,13 +233,15 @@ class Zpool(ZpoolABC):
             else join(other.root, dataset_item.a.subname)
         )
 
-        return (
-            snapshot.get_backup_transaction(
+        transactions = TransactionList()
+
+        for snapshot in snapshots:
+            transactions.extend(snapshot.get_backup_transactions(
                 source_dataset,
                 target_dataset,
-            )
-            for snapshot in snapshots
-        )
+            ))
+
+        return transactions
 
     def get_snapshot_transactions(self) -> TransactionListABC:
 
@@ -263,16 +250,13 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset in self._datasets:
-            transaction = self._get_snapshot_transactions_from_dataset(dataset)
-            if transaction is None:
-                continue
-            transactions.append(dataset.get_snapshot_transaction())
+            transactions.extend(self._get_snapshot_transactions_from_dataset(dataset))
 
         return transactions
 
     def generate_snapshot_transactions(
         self,
-    ) -> Generator[Tuple[int, Union[None, TransactionABC]], None, None]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self._side == "source"
 
@@ -283,25 +267,25 @@ class Zpool(ZpoolABC):
 
     def _get_snapshot_transactions_from_dataset(
         self, dataset: DatasetABC
-    ) -> Union[None, TransactionABC]:
+    ) -> TransactionListABC:
 
-        if dataset.subname in self._config["ignore"].value:
-            return
+        if dataset.ignore:
+            return TransactionList()
         if (
             dataset.get("mountpoint").value is None
             and dataset["type"].value == "filesystem"
         ):
-            return
-        if not dataset.changed:
-            return
+            return TransactionList()
+        if not dataset.changed:  # TODO namespace
+            return TransactionList()
 
-        return dataset.get_snapshot_transaction()
+        return dataset.get_snapshot_transactions()
 
     def print_table(self):
 
         table = []
         for dataset in self._datasets:
-            table.append(self._table_row(dataset))
+            table.append(self._table_row(dataset, ignore=dataset.ignore))
             for snapshot in dataset.snapshots:
                 table.append(self._table_row(snapshot))
 
@@ -319,12 +303,16 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _table_row(entity: Union[SnapshotABC, DatasetABC]) -> List[str]:
+    def _table_row(
+        entity: Union[SnapshotABC, DatasetABC], ignore: bool = False
+    ) -> List[str]:
+
+        color = "white" if not ignore else "red"
 
         return [
             "- " + colorize(entity.name, "grey")
             if isinstance(entity, SnapshotABC)
-            else colorize(entity.name, "white"),
+            else colorize(entity.name, color),
             humanize_size(entity["used"].value, add_color=True),
             humanize_size(entity["referenced"].value, add_color=True),
             f'{entity["compressratio"].value:.02f}',
@@ -332,21 +320,33 @@ class Zpool(ZpoolABC):
 
     def print_comparison_table(self, other: ZpoolABC):
 
-        zpool_comparison = Comparison.from_zpools(self, other)
+        zpool_comparison = ComparisonZpool.from_zpools(self, other)
         table = []
 
         for dataset_item in zpool_comparison.merged:
-            table.append(self._comparison_table_row(dataset_item))
+            table.append(
+                self._comparison_table_row(
+                    dataset_item, ignore=dataset_item.get_item().ignore
+                )
+            )
             if dataset_item.complete:
-                dataset_comparison = Comparison.from_datasets(
+                dataset_comparison = ComparisonDataset.from_datasets(
                     dataset_item.a, dataset_item.b
                 )
             elif dataset_item.a is not None:
-                dataset_comparison = Comparison.from_datasets(dataset_item.a, None)
+                dataset_comparison = ComparisonDataset.from_datasets(
+                    dataset_item.a, None
+                )
             else:
-                dataset_comparison = Comparison.from_datasets(None, dataset_item.b)
+                dataset_comparison = ComparisonDataset.from_datasets(
+                    None, dataset_item.b
+                )
             for snapshot_item in dataset_comparison.merged:
-                table.append(self._comparison_table_row(snapshot_item))
+                table.append(
+                    self._comparison_table_row(
+                        snapshot_item, ignore=dataset_item.get_item().ignore
+                    )
+                )
 
         print(
             tabulate(
@@ -357,22 +357,31 @@ class Zpool(ZpoolABC):
         )
 
     @staticmethod
-    def _comparison_table_row(item: ComparisonItemABC) -> List[str]:
+    def _comparison_table_row(
+        item: ComparisonItemABC, ignore: bool = False
+    ) -> List[str]:
+
+        color1, color2 = ("white", "grey") if not ignore else ("red", "yellow")
+        colorR, colorG, colorB = (
+            ("red", "green", "blue") if not ignore else ("grey", "grey", "grey")
+        )
+
+        symbol = "X"
 
         entity = item.get_item()
         name = entity.name if isinstance(entity, SnapshotABC) else entity.subname
 
         if item.a is not None and item.b is not None:
-            a, b = colorize("X", "green"), colorize("X", "green")
+            a, b = colorize(symbol, colorG), colorize(symbol, colorG)
         elif item.a is None and item.b is not None:
-            a, b = "", colorize("X", "blue")
+            a, b = "", colorize(symbol, colorB)
         elif item.a is not None and item.b is None:
-            a, b = colorize("X", "red"), ""
+            a, b = colorize(symbol, colorR), ""
 
         return [
-            "- " + colorize(name, "grey")
+            "- " + colorize(name, color2)
             if isinstance(entity, SnapshotABC)
-            else colorize(name, "white"),
+            else colorize(name, color1),
             a,
             b,
         ]

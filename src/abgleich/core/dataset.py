@@ -39,12 +39,14 @@ except ImportError:
 
 from typeguard import typechecked
 
-from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .abc import ConfigABC, DatasetABC, PropertyABC, SnapshotABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
-from .transaction import Transaction, TransactionMeta
+from .transaction import Transaction
+from .transactionlist import TransactionList
+from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -116,6 +118,8 @@ class Dataset(DatasetABC):
     @property
     def changed(self) -> bool:
 
+        # TODO namespace: if last snapshot is from other namespace, make one ...
+
         if len(self) == 0:
             return True
         if self._config["always_changed"].value:
@@ -145,6 +149,11 @@ class Dataset(DatasetABC):
         return len(output[0].strip(" \t\n")) > 0
 
     @property
+    def ignore(self) -> bool:
+
+        return self._subname in self._config["ignore"].value
+
+    @property
     def name(self) -> str:
 
         return self._name
@@ -164,23 +173,26 @@ class Dataset(DatasetABC):
 
         return self._root
 
-    def get_snapshot_transaction(self) -> TransactionABC:
+    def get_snapshot_transactions(self) -> TransactionListABC:
 
         snapshot_name = self._new_snapshot_name()
-
-        return Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("snapshot"),
-                    t("dataset_subname"): self._subname,
-                    t("snapshot_name"): snapshot_name,
-                    t("written"): self._properties["written"].value,
-                }
-            ),
-            command=Command.from_list(
-                ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
-            ).on_side(side=self._side, config=self._config),
+        transactions = TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("snapshot"),
+                        t("dataset_subname"): self._subname,
+                        t("snapshot_name"): snapshot_name,
+                        t("written"): self._properties["written"].value,
+                    }
+                ),
+                command=Command.from_list(
+                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
+                ).on_side(side=self._side, config=self._config),
+            )
         )
+        # TODO append namespace transaction
+        return transactions
 
     def _new_snapshot_name(self) -> str:
 

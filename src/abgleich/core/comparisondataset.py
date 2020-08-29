@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/core/comparison.py: ZFS comparison
+    src/abgleich/core/comparisondataset.py: ZFS dataset comparison
 
     Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -33,18 +33,8 @@ from typing import Generator, List, Union
 
 from typeguard import typechecked
 
-from .abc import ComparisonABC, ComparisonItemABC, DatasetABC, SnapshotABC, ZpoolABC
+from .abc import ComparisonDatasetABC, ComparisonItemABC, DatasetABC, SnapshotABC
 from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# TYPING
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-ComparisonParentTypes = Union[
-    ZpoolABC,
-    DatasetABC,
-    None,
-]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -52,15 +42,15 @@ ComparisonParentTypes = Union[
 
 
 @typechecked
-class Comparison(ComparisonABC):
+class ComparisonDataset(ComparisonDatasetABC):
     """
     Immutable.
     """
 
     def __init__(
         self,
-        a: ComparisonParentTypes,
-        b: ComparisonParentTypes,
+        a: Union[DatasetABC, None],
+        b: Union[DatasetABC, None],
         merged: List[ComparisonItemABC],
     ):
 
@@ -75,7 +65,7 @@ class Comparison(ComparisonABC):
         return len(self._merged)
 
     @property
-    def a(self) -> ComparisonParentTypes:
+    def a(self) -> Union[DatasetABC, None]:
 
         return self._a
 
@@ -104,7 +94,7 @@ class Comparison(ComparisonABC):
         )
 
     @property
-    def b(self) -> ComparisonParentTypes:
+    def b(self) -> Union[DatasetABC, None]:
 
         return self._b
 
@@ -276,52 +266,6 @@ class Comparison(ComparisonABC):
                 if item.a.name != item.b.name:
                     raise ValueError("inconsistent snapshot names")
 
-    @staticmethod
-    def _merge_datasets(
-        items_a: Generator[DatasetABC, None, None],
-        items_b: Generator[DatasetABC, None, None],
-    ) -> List[ComparisonItemABC]:
-
-        items_a = {item.subname: item for item in items_a}
-        items_b = {item.subname: item for item in items_b}
-
-        names = list(items_a.keys() | items_b.keys())
-        merged = [
-            ComparisonItem(items_a.get(name, None), items_b.get(name, None))
-            for name in names
-        ]
-        merged.sort(key=lambda item: item.get_item().name)
-
-        return merged
-
-    @classmethod
-    def from_zpools(
-        cls,
-        zpool_a: Union[ZpoolABC, None],
-        zpool_b: Union[ZpoolABC, None],
-    ) -> ComparisonABC:
-
-        assert zpool_a is not None or zpool_b is not None
-
-        if (zpool_a is None) ^ (zpool_b is None):
-            return cls(
-                a=zpool_a,
-                b=zpool_b,
-                merged=ComparisonItem.list_from_singles(
-                    getattr(zpool_a, "datasets", None),
-                    getattr(zpool_b, "datasets", None),
-                ),
-            )
-
-        assert zpool_a is not zpool_b
-        assert zpool_a != zpool_b
-
-        return cls(
-            a=zpool_a,
-            b=zpool_b,
-            merged=cls._merge_datasets(zpool_a.datasets, zpool_b.datasets),
-        )
-
     @classmethod
     def _merge_snapshots(
         cls,
@@ -376,7 +320,7 @@ class Comparison(ComparisonABC):
         cls,
         dataset_a: Union[DatasetABC, None],
         dataset_b: Union[DatasetABC, None],
-    ) -> ComparisonABC:
+    ) -> ComparisonDatasetABC:
 
         assert dataset_a is not None or dataset_b is not None
 

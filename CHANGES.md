@@ -6,6 +6,7 @@
 - FEATURE: New configuration fields for `source` and `target` each: `processing`. They can carry shell commands for pre- and post-processing of data before and after it is transferred via ssh. This enables the use of e.g. `lzma` or `bzip2` as a custom transfer compression beyond the compression capabilities of `ssh` itself. See #23.
 - FEATURE: `abgleich clean` can also remove snapshots on `target` but only if they are not part of the current overlap with `source`. The behavior can be controlled via the new `keep_backlog` configuration option, see #24 and #25.
 - FEATURE: Configuration module contains default values for parameters, making it much easier to write lightweight configuration files, see #28. The configuration parser now also provides much more useful output.
+- FEATURE: `abgleich tree` and `abgleich compare` highlight ignored datasets.
 - FEATURE: Significantly more flexible shell command wrapper and, as a result, cleaned up transaction handling.
 - FIX: Many cleanups in code base, enabling future developments.
 

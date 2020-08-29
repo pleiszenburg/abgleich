@@ -32,12 +32,14 @@ from typing import Dict, List, Union
 
 from typeguard import typechecked
 
-from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
+from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
-from .transaction import Transaction, TransactionMeta
+from .transaction import Transaction
+from .transactionlist import TransactionList
+from .transactionmeta import TransactionMeta
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -82,9 +84,20 @@ class Snapshot(SnapshotABC):
 
         return self._properties[name]
 
-    def get_cleanup_transaction(self) -> TransactionABC:
+    def get(
+        self,
+        key: str,
+        default: Union[None, PropertyABC] = None,
+    ) -> Union[None, PropertyABC]:
 
-        return Transaction(
+        return self._properties.get(
+            key,
+            Property(key, None, None) if default is None else default,
+        )
+
+    def get_cleanup_transactions(self) -> TransactionListABC:
+
+        return TransactionList(Transaction(
             meta=TransactionMeta(
                 **{
                     t("type"): t("cleanup_snapshot"),
@@ -95,13 +108,13 @@ class Snapshot(SnapshotABC):
             command=Command.from_list(
                 ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
             ).on_side(side=self._side, config=self._config),
-        )
+        ))
 
-    def get_backup_transaction(
+    def get_backup_transactions(
         self,
         source_dataset: str,
         target_dataset: str,
-    ) -> TransactionABC:
+    ) -> TransactionListABC:
 
         assert self._side == "source"
 
@@ -137,7 +150,7 @@ class Snapshot(SnapshotABC):
             side="target", config=self._config
         )
 
-        return Transaction(
+        return TransactionList(Transaction(
             meta=TransactionMeta(
                 **{
                     t("type"): t("transfer_snapshot")
@@ -149,7 +162,7 @@ class Snapshot(SnapshotABC):
                 }
             ),
             command=command,
-        )
+        ))
 
     @property
     def name(self) -> str:

@@ -37,7 +37,7 @@ from typeguard import typechecked
 from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
-from ..core.transaction import TransactionList
+from ..core.transactionlist import TransactionList
 from ..core.i18n import t
 from ..core.zpool import Zpool
 from .. import __version__
@@ -215,8 +215,7 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         for number, transaction in gen:
-            if transaction is not None:
-                self._transactions.append(transaction)
+            self._transactions.extend(transaction)
             self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
@@ -234,8 +233,7 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         for number, transactions in gen:
-            if transactions is not None:
-                self._transactions.extend(transactions)
+            self._transactions.extend(transactions)
             self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
