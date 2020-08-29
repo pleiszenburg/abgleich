@@ -95,9 +95,9 @@ class Snapshot(SnapshotABC):
             Property(key, None, None) if default is None else default,
         )
 
-    def get_cleanup_transaction(self) -> TransactionABC:
+    def get_cleanup_transactions(self) -> TransactionListABC:
 
-        return Transaction(
+        return TransactionList(Transaction(
             meta=TransactionMeta(
                 **{
                     t("type"): t("cleanup_snapshot"),
@@ -108,7 +108,7 @@ class Snapshot(SnapshotABC):
             command=Command.from_list(
                 ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
             ).on_side(side=self._side, config=self._config),
-        )
+        ))
 
     def get_backup_transactions(
         self,

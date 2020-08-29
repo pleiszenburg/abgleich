@@ -111,25 +111,14 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-
-            cleanup_transactions = self._get_cleanup_from_datasetitem(dataset_item)
-            if cleanup_transactions is None:
-                continue
-            transactions.extend(cleanup_transactions)
+            transactions.extend(self._get_cleanup_from_datasetitem(dataset_item))
 
         return transactions
 
     def generate_cleanup_transactions(
         self,
         other: ZpoolABC,
-    ) -> Generator[
-        Tuple[
-            int,
-            Union[None, Union[None, Generator[TransactionABC, None, None]]],
-        ],
-        None,
-        None,
-    ]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self.side != other.side
         assert self.side in ("source", "target")
@@ -145,14 +134,14 @@ class Zpool(ZpoolABC):
     def _get_cleanup_from_datasetitem(
         self,
         dataset_item: ComparisonItemABC,
-    ) -> Union[None, Generator[TransactionABC, None, None]]:
+    ) -> TransactionListABC:
 
         if dataset_item.get_item().ignore:
-            return
+            return TransactionList()
         if dataset_item.a is None or dataset_item.b is None:
-            return
+            return TransactionList()
         if self.side == "target" and self._config["keep_backlog"].value == True:
-            return
+            return TransactionList()
 
         dataset_comparison = ComparisonDataset.from_datasets(
             dataset_item.a, dataset_item.b
@@ -169,7 +158,12 @@ class Zpool(ZpoolABC):
                 keep_backlog = -self._config["keep_backlog"].value
             snapshots = dataset_comparison.a_disjoint_tail[:keep_backlog]
 
-        return (snapshot.get_cleanup_transaction() for snapshot in snapshots)
+        transactions = TransactionList()
+
+        for snapshot in snapshots:
+            transactions.extend(snapshot.get_cleanup_transactions())
+
+        return transactions
 
     def get_backup_transactions(
         self,
