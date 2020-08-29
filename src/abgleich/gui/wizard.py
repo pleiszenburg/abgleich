@@ -233,8 +233,7 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         for number, transactions in gen:
-            if transactions is not None:
-                self._transactions.extend(transactions)
+            self._transactions.extend(transactions)
             self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
