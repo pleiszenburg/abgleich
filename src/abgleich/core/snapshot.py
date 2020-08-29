@@ -82,6 +82,17 @@ class Snapshot(SnapshotABC):
 
         return self._properties[name]
 
+    def get(
+        self,
+        key: str,
+        default: Union[None, PropertyABC] = None,
+    ) -> Union[None, PropertyABC]:
+
+        return self._properties.get(
+            key,
+            Property(key, None, None) if default is None else default,
+        )
+
     def get_cleanup_transaction(self) -> TransactionABC:
 
         return Transaction(
