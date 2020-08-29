@@ -147,7 +147,7 @@ class Zpool(ZpoolABC):
         dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
-        if dataset_item.get_item().subname in self._config["ignore"].value:
+        if dataset_item.get_item().ignore:
             return
         if dataset_item.a is None or dataset_item.b is None:
             return
@@ -222,7 +222,7 @@ class Zpool(ZpoolABC):
         dataset_item: ComparisonItemABC,
     ) -> Union[None, Generator[TransactionABC, None, None]]:
 
-        if dataset_item.get_item().subname in self._config["ignore"].value:
+        if dataset_item.get_item().ignore:
             return
         if dataset_item.a is None:
             return
@@ -286,7 +286,7 @@ class Zpool(ZpoolABC):
         self, dataset: DatasetABC
     ) -> Union[None, TransactionABC]:
 
-        if dataset.subname in self._config["ignore"].value:
+        if dataset.ignore:
             return
         if (
             dataset.get("mountpoint").value is None
