@@ -343,9 +343,13 @@ class Zpool(ZpoolABC):
                     dataset_item.a, dataset_item.b
                 )
             elif dataset_item.a is not None:
-                dataset_comparison = ComparisonDataset.from_datasets(dataset_item.a, None)
+                dataset_comparison = ComparisonDataset.from_datasets(
+                    dataset_item.a, None
+                )
             else:
-                dataset_comparison = ComparisonDataset.from_datasets(None, dataset_item.b)
+                dataset_comparison = ComparisonDataset.from_datasets(
+                    None, dataset_item.b
+                )
             for snapshot_item in dataset_comparison.merged:
                 table.append(self._comparison_table_row(snapshot_item))
 
