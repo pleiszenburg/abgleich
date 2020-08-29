@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Callable, Generator, List, Tuple, Union
+from typing import Callable, Generator, List, Union
 
 from tabulate import tabulate
 from typeguard import typechecked
@@ -37,16 +37,6 @@ from .abc import TransactionABC, TransactionListABC
 from .i18n import t
 from .io import colorize, humanize_size
 from .transactionmeta import TransactionMetaTypes
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# TYPES
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-TransactionIterableTypes = Union[
-    Generator[TransactionABC, None, None],
-    List[TransactionABC],
-    Tuple[TransactionABC],
-]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -123,9 +113,9 @@ class TransactionList(TransactionListABC):
         if self._changed is not None:
             self._link_transaction(transaction)
 
-    def extend(self, transactions: TransactionIterableTypes):
+    def extend(self, transactions: TransactionListABC):
 
-        transactions = list(transactions)
+        transactions = list(transactions.transactions)
         self._transactions.extend(transactions)
         if self._changed is not None:
             for transaction in transactions:
