@@ -264,16 +264,13 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset in self._datasets:
-            transaction = self._get_snapshot_transactions_from_dataset(dataset)
-            if transaction is None:
-                continue
-            transactions.append(transaction)
+            transactions.extend(self._get_snapshot_transactions_from_dataset(dataset))
 
         return transactions
 
     def generate_snapshot_transactions(
         self,
-    ) -> Generator[Tuple[int, Union[None, TransactionABC]], None, None]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self._side == "source"
 
@@ -284,19 +281,19 @@ class Zpool(ZpoolABC):
 
     def _get_snapshot_transactions_from_dataset(
         self, dataset: DatasetABC
-    ) -> Union[None, TransactionABC]:
+    ) -> TransactionListABC:
 
         if dataset.ignore:
-            return
+            return TransactionList()
         if (
             dataset.get("mountpoint").value is None
             and dataset["type"].value == "filesystem"
         ):
-            return
+            return TransactionList()
         if not dataset.changed:  # TODO namespace
-            return
+            return TransactionList()
 
-        return dataset.get_snapshot_transaction()
+        return dataset.get_snapshot_transactions()
 
     def print_table(self):
 

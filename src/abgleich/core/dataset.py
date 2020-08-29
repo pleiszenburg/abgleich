@@ -39,12 +39,13 @@ except ImportError:
 
 from typeguard import typechecked
 
-from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .abc import ConfigABC, DatasetABC, PropertyABC, SnapshotABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
 from .transaction import Transaction
+from .transactionlist import TransactionList
 from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
 
@@ -172,11 +173,10 @@ class Dataset(DatasetABC):
 
         return self._root
 
-    def get_snapshot_transaction(self) -> TransactionABC:
+    def get_snapshot_transactions(self) -> TransactionListABC:
 
         snapshot_name = self._new_snapshot_name()
-
-        return Transaction(
+        transactions = TransactionList(Transaction(
             meta=TransactionMeta(
                 **{
                     t("type"): t("snapshot"),
@@ -188,7 +188,9 @@ class Dataset(DatasetABC):
             command=Command.from_list(
                 ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
             ).on_side(side=self._side, config=self._config),
-        )
+        ))
+        # TODO append namespace transaction
+        return transactions
 
     def _new_snapshot_name(self) -> str:
 
