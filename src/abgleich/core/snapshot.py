@@ -32,12 +32,13 @@ from typing import Dict, List, Union
 
 from typeguard import typechecked
 
-from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
+from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
 from .transaction import Transaction
+from .transactionlist import TransactionList
 from .transactionmeta import TransactionMeta
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -109,11 +110,11 @@ class Snapshot(SnapshotABC):
             ).on_side(side=self._side, config=self._config),
         )
 
-    def get_backup_transaction(
+    def get_backup_transactions(
         self,
         source_dataset: str,
         target_dataset: str,
-    ) -> TransactionABC:
+    ) -> TransactionListABC:
 
         assert self._side == "source"
 
@@ -149,7 +150,7 @@ class Snapshot(SnapshotABC):
             side="target", config=self._config
         )
 
-        return Transaction(
+        return TransactionList(Transaction(
             meta=TransactionMeta(
                 **{
                     t("type"): t("transfer_snapshot")
@@ -161,7 +162,7 @@ class Snapshot(SnapshotABC):
                 }
             ),
             command=command,
-        )
+        ))
 
     @property
     def name(self) -> str:

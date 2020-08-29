@@ -183,26 +183,16 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-            backup_transactions = self._get_backup_transactions_from_datasetitem(
+            transactions.extend(self._get_backup_transactions_from_datasetitem(
                 other, dataset_item
-            )
-            if backup_transactions is None:
-                continue
-            transactions.extend(backup_transactions)
+            ))
 
         return transactions
 
     def generate_backup_transactions(
         self,
         other: ZpoolABC,
-    ) -> Generator[
-        Tuple[
-            int,
-            Union[None, Union[None, Generator[TransactionABC, None, None]]],
-        ],
-        None,
-        None,
-    ]:
+    ) -> Generator[Tuple[int, Union[None, TransactionListABC]], None, None]:
 
         assert self.side == "source"
         assert other.side == "target"
@@ -220,12 +210,12 @@ class Zpool(ZpoolABC):
         self,
         other: ZpoolABC,
         dataset_item: ComparisonItemABC,
-    ) -> Union[None, Generator[TransactionABC, None, None]]:
+    ) -> TransactionListABC:
 
         if dataset_item.get_item().ignore:
-            return
+            return TransactionList()
         if dataset_item.a is None:
-            return
+            return TransactionList()
 
         if dataset_item.b is None:
             snapshots = list(dataset_item.a.snapshots)
@@ -236,7 +226,7 @@ class Zpool(ZpoolABC):
             snapshots = dataset_comparison.a_disjoint_head
 
         if len(snapshots) == 0:
-            return
+            return TransactionList()
 
         source_dataset = (
             self.root
@@ -249,13 +239,15 @@ class Zpool(ZpoolABC):
             else join(other.root, dataset_item.a.subname)
         )
 
-        return (
-            snapshot.get_backup_transaction(
+        transactions = TransactionList()
+
+        for snapshot in snapshots:
+            transactions.extend(snapshot.get_backup_transactions(
                 source_dataset,
                 target_dataset,
-            )
-            for snapshot in snapshots
-        )
+            ))
+
+        return transactions
 
     def get_snapshot_transactions(self) -> TransactionListABC:
 
