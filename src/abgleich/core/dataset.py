@@ -176,6 +176,12 @@ class Dataset(DatasetABC):
     def get_snapshot_transactions(self) -> TransactionListABC:
 
         snapshot_name = self._new_snapshot_name()
+
+        command = ["zfs", "snapshot"]
+        if self._config["compatibility/tagging"].value:
+            command.extend(["-o", "abgleich:type=backup"])
+        command.append(f"{self._name:s}@{snapshot_name:s}")
+
         transactions = TransactionList(
             Transaction(
                 meta=TransactionMeta(
@@ -186,9 +192,9 @@ class Dataset(DatasetABC):
                         t("written"): self._properties["written"].value,
                     }
                 ),
-                command=Command.from_list(
-                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"]
-                ).on_side(side=self._side, config=self._config),
+                command=Command.from_list(command).on_side(
+                    side=self._side, config=self._config
+                ),
             )
         )
         # TODO append namespace transaction
