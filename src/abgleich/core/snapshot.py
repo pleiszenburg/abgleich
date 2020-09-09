@@ -152,7 +152,7 @@ class Snapshot(SnapshotABC):
             side="target", config=self._config
         )
 
-        return TransactionList(
+        transactions = TransactionList(
             Transaction(
                 meta=TransactionMeta(
                     **{
@@ -167,6 +167,29 @@ class Snapshot(SnapshotABC):
                 command=command,
             )
         )
+
+        if self._config["compatibility/tagging"].value:
+            transactions.append(
+                Transaction(
+                    meta=TransactionMeta(
+                        **{
+                            t("type"): t("tag_snapshot"),
+                            t("snapshot_subparent"): self._subparent,
+                            t("snapshot_name"): self.name,
+                        }
+                    ),
+                    command=Command.from_list(
+                        [
+                            "zfs",
+                            "set",
+                            "abgleich:type=backup",
+                            f"{target_dataset:s}@{self.name:s}",
+                        ]
+                    ).on_side(side="target", config=self._config),
+                )
+            )
+
+        return transactions
 
     @property
     def name(self) -> str:
