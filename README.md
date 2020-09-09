@@ -89,7 +89,7 @@ The prefix can be empty on either side. If a `host` is set to `localhost`, the `
 
 Custom pre- and post-processing can be applied after `send` and before `receive` per side via shell commands specified in the `processing` configuration option (underneath `source` and `target`). This can be useful for a custom transfer compression based on e.g. `lzma` or `bzip2`.
 
-`compatibility` adds options for making `abgleich` more compatible with other tools. If `target_samba_noshare` is active, for all new datasets on the target side the `sharesmb` property will - as part of backup operations - be set to `off`, preventing sharing/exposing backup datasets by accident. If `target_autosnapshot_ignore` is active, for all new datasets on the target side the `com.sun:auto-snapshot` property will - similarly as part of backup operations - be set to `false`, telling `zfs-auto-snapshot` to ignore the dataset.
+`compatibility` adds options for making `abgleich` more compatible with other tools. If `target_samba_noshare` is active, the `sharesmb` property will - as part of backup operations - be set to `off` for `{zpool}{/{prefix}}` on the target side, preventing sharing/exposing backup datasets by accident. If `target_autosnapshot_ignore` is active, the `com.sun:auto-snapshot` property will - similarly as part of backup operations - be set to `false` for `{zpool}{/{prefix}}` on the target side, telling `zfs-auto-snapshot` to ignore the dataset.
 
 ## USAGE
 

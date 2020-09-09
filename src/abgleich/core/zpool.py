@@ -182,6 +182,8 @@ class Zpool(ZpoolABC):
                 self._get_backup_transactions_from_datasetitem(other, dataset_item)
             )
 
+        transactions.extend(self._get_backup_propery_transactions(other))
+
         return transactions
 
     def generate_backup_transactions(
@@ -200,6 +202,9 @@ class Zpool(ZpoolABC):
             yield index, self._get_backup_transactions_from_datasetitem(
                 other, dataset_item
             )
+
+        for transaction in self._get_backup_propery_transactions(other):
+            yield len(zpool_comparison) - 1, transaction
 
     def _get_backup_transactions_from_datasetitem(
         self,
@@ -244,26 +249,26 @@ class Zpool(ZpoolABC):
                 )
             )
 
-        if (
-            dataset_item.b is None
-            and self._config["compatibility/target_samba_noshare"].value
-        ):
+        return transactions
+
+    def _get_backup_propery_transactions(self, other: ZpoolABC) -> TransactionListABC:
+
+        transactions = TransactionList()
+
+        if self._config["compatibility/target_samba_noshare"].value:
             transactions.append(
                 Transaction.set_property(
-                    item=target_dataset,
+                    item=other.root,
                     property=Property(name="sharesmb", value="off"),
                     side="target",
                     config=self._config,
                 )
             )
 
-        if (
-            dataset_item.b is None
-            and self._config["compatibility/target_autosnapshot_ignore"].value
-        ):
+        if self._config["compatibility/target_autosnapshot_ignore"].value:
             transactions.append(
                 Transaction.set_property(
-                    item=target_dataset,
+                    item=other.root,
                     property=Property(name="com.sun:auto-snapshot", value="false"),
                     side="target",
                     config=self._config,
