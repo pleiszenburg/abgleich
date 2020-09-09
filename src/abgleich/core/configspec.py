@@ -88,6 +88,11 @@ CONFIGSPEC = [
         default=False,
     ),
     ConfigField(
+        name="compatibility/target_samba_noshare",
+        validate=lambda v: isinstance(v, bool),
+        default=False,
+    ),
+    ConfigField(
         name="ssh/compression",
         validate=lambda v: isinstance(v, bool),
         default=False,

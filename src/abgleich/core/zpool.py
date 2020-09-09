@@ -51,6 +51,7 @@ from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
+from .transaction import Transaction
 from .transactionlist import TransactionList
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -240,6 +241,19 @@ class Zpool(ZpoolABC):
                 snapshot.get_backup_transactions(
                     source_dataset,
                     target_dataset,
+                )
+            )
+
+        if (
+            dataset_item.b is None
+            and self._config["compatibility/target_samba_noshare"].value
+        ):
+            transactions.append(
+                Transaction.set_property(
+                    item=target_dataset,
+                    property=Property(name="sharesmb", value="off"),
+                    side="target",
+                    config=self._config,
                 )
             )
 
