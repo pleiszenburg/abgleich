@@ -102,7 +102,7 @@ class Property(PropertyABC):
 
     def _export(self, value: PropertyTypes) -> str:
 
-        return "-" if value is None else str(value) # TODO improve!
+        return "-" if value is None else str(value)  # TODO improve!
 
     @classmethod
     def from_params(cls, name, value, src) -> PropertyABC:
