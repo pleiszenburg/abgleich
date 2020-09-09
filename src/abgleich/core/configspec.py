@@ -83,6 +83,11 @@ CONFIGSPEC = [
         default=True,
     ),
     ConfigField(
+        name="compatibility/tagging",
+        validate=lambda v: isinstance(v, bool),
+        default=False,
+    ),
+    ConfigField(
         name="ssh/compression",
         validate=lambda v: isinstance(v, bool),
         default=False,
