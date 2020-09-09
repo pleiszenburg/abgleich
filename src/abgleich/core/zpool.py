@@ -257,6 +257,19 @@ class Zpool(ZpoolABC):
                 )
             )
 
+        if (
+            dataset_item.b is None
+            and self._config["compatibility/target_autosnapshot_ignore"].value
+        ):
+            transactions.append(
+                Transaction.set_property(
+                    item=target_dataset,
+                    property=Property(name="com.sun:auto-snapshot", value="false"),
+                    side="target",
+                    config=self._config,
+                )
+            )
+
         return transactions
 
     def get_snapshot_transactions(self) -> TransactionListABC:

@@ -2,7 +2,8 @@
 
 ## 0.0.8 (2020-XX-XX)
 
-- FEATURE: Samba can optionally be told to NOT share/expose backup datasets on the target side, see #4.
+- FEATURE: `zfs-auto-snapshot` can be told to ignore backup datasets on the target side, see #3.
+- FEATURE: `samba` can optionally be told to NOT share/expose backup datasets on the target side, see #4.
 - FEATURE: `ssh`-port on source and target becomes configurable, see #22.
 - FEATURE: New configuration fields for `source` and `target` each: `processing`. They can carry shell commands for pre- and post-processing of data before and after it is transferred via ssh. This enables the use of e.g. `lzma` or `bzip2` as a custom transfer compression beyond the compression capabilities of `ssh` itself. See #23.
 - FEATURE: `abgleich clean` can also remove snapshots on `target` but only if they are not part of the current overlap with `source`. The behavior can be controlled via the new `keep_backlog` configuration option, see #24 and #25.

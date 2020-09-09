@@ -80,6 +80,7 @@ ssh:
     cipher: aes256-gcm@openssh.com
 compatibility:
     target_samba_noshare: yes
+    target_autosnapshot_ignore: yes
 ```
 
 The prefix can be empty on either side. If a `host` is set to `localhost`, the `user` field can be left empty. Both source and target can be remote hosts or localhost at the same time. `include_root` indicates whether `{zpool}{/{prefix}}` should be  included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `keep_backlog` is either an integer or a boolean. It specifies if (or how many) snapshots are kept on the target side if the target side be cleaned. Snapshots that are part of the overlap with the source side are never considered for removal. `suffix` contains the name suffix for new snapshots. Setting `always_changed` to `yes` causes `abgleich` to beliefe that all datasets have always changed since the last snapshot, completely ignoring what ZFS actually reports. No diff will be produced & checked for values of `written` lower than `written_threshold`. Checking diffs can be completely deactivated by setting `check_diff` to `no`. `digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups.
@@ -88,7 +89,7 @@ The prefix can be empty on either side. If a `host` is set to `localhost`, the `
 
 Custom pre- and post-processing can be applied after `send` and before `receive` per side via shell commands specified in the `processing` configuration option (underneath `source` and `target`). This can be useful for a custom transfer compression based on e.g. `lzma` or `bzip2`.
 
-`compatibility` add options for making `abgleich` more compatible with other tools. If `target_samba_noshare` is active, for all new datasets on the target side the `sharesmb` property will - as part of backup operations - be set to `off`, preventing sharing/exposing backup datasets by accident.
+`compatibility` adds options for making `abgleich` more compatible with other tools. If `target_samba_noshare` is active, for all new datasets on the target side the `sharesmb` property will - as part of backup operations - be set to `off`, preventing sharing/exposing backup datasets by accident. If `target_autosnapshot_ignore` is active, for all new datasets on the target side the `com.sun:auto-snapshot` property will - similarly as part of backup operations - be set to `false`, telling `zfs-auto-snapshot` to ignore the dataset.
 
 ## USAGE
 
