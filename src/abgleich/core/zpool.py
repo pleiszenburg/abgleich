@@ -177,9 +177,9 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for dataset_item in zpool_comparison.merged:
-            transactions.extend(self._get_backup_transactions_from_datasetitem(
-                other, dataset_item
-            ))
+            transactions.extend(
+                self._get_backup_transactions_from_datasetitem(other, dataset_item)
+            )
 
         return transactions
 
@@ -236,10 +236,12 @@ class Zpool(ZpoolABC):
         transactions = TransactionList()
 
         for snapshot in snapshots:
-            transactions.extend(snapshot.get_backup_transactions(
-                source_dataset,
-                target_dataset,
-            ))
+            transactions.extend(
+                snapshot.get_backup_transactions(
+                    source_dataset,
+                    target_dataset,
+                )
+            )
 
         return transactions
 
