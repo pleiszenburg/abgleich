@@ -170,22 +170,11 @@ class Snapshot(SnapshotABC):
 
         if self._config["compatibility/tagging"].value:
             transactions.append(
-                Transaction(
-                    meta=TransactionMeta(
-                        **{
-                            t("type"): t("tag_snapshot"),
-                            t("snapshot_subparent"): self._subparent,
-                            t("snapshot_name"): self.name,
-                        }
-                    ),
-                    command=Command.from_list(
-                        [
-                            "zfs",
-                            "set",
-                            "abgleich:type=backup",
-                            f"{target_dataset:s}@{self.name:s}",
-                        ]
-                    ).on_side(side="target", config=self._config),
+                Transaction.set_property(
+                    item=f"{target_dataset:s}@{self.name:s}",
+                    property=Property(name="abgleich:type", value="backup"),
+                    side="target",
+                    config=self._config,
                 )
             )
 
