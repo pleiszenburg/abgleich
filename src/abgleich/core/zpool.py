@@ -39,7 +39,6 @@ from .abc import (
     ConfigABC,
     DatasetABC,
     SnapshotABC,
-    TransactionABC,
     TransactionListABC,
     ZpoolABC,
 )
