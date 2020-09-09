@@ -182,7 +182,7 @@ class Dataset(DatasetABC):
             command.extend(["-o", "abgleich:type=backup"])
         command.append(f"{self._name:s}@{snapshot_name:s}")
 
-        transactions = TransactionList(
+        return TransactionList(
             Transaction(
                 meta=TransactionMeta(
                     **{
@@ -197,8 +197,6 @@ class Dataset(DatasetABC):
                 ),
             )
         )
-        # TODO append namespace transaction
-        return transactions
 
     def _new_snapshot_name(self) -> str:
 
