@@ -33,7 +33,13 @@ from typing import Generator, List, Union
 
 from typeguard import typechecked
 
-from .abc import ComparisonDatasetABC, ComparisonItemABC, DatasetABC, SnapshotABC
+from .abc import (
+    ComparisonDatasetABC,
+    ComparisonItemABC,
+    ConfigABC,
+    DatasetABC,
+    SnapshotABC,
+)
 from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -271,6 +277,7 @@ class ComparisonDataset(ComparisonDatasetABC):
         cls,
         items_a: Generator[SnapshotABC, None, None],
         items_b: Generator[SnapshotABC, None, None],
+        config: ConfigABC,
     ) -> List[ComparisonItemABC]:
 
         items_a, items_b = list(items_a), list(items_b)
@@ -320,6 +327,7 @@ class ComparisonDataset(ComparisonDatasetABC):
         cls,
         dataset_a: Union[DatasetABC, None],
         dataset_b: Union[DatasetABC, None],
+        config: ConfigABC,
     ) -> ComparisonDatasetABC:
 
         assert dataset_a is not None or dataset_b is not None
@@ -340,5 +348,7 @@ class ComparisonDataset(ComparisonDatasetABC):
         return cls(
             a=dataset_a,
             b=dataset_b,
-            merged=cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
+            merged=cls._merge_snapshots(
+                dataset_a.snapshots, dataset_b.snapshots, config
+            ),
         )
