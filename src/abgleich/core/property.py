@@ -55,7 +55,7 @@ class Property(PropertyABC):
         self,
         name: str,
         value: PropertyTypes,
-        src: PropertyTypes,
+        src: PropertyTypes = None,
     ):
 
         self._name = name
@@ -71,11 +71,19 @@ class Property(PropertyABC):
         return self._value
 
     @property
+    def value_export(self) -> str:
+        return self._export(self._value)
+
+    @property
     def src(self) -> PropertyTypes:
         return self._src
 
+    @property
+    def src_export(self) -> str:
+        return self._export(self._src)
+
     @classmethod
-    def _convert(cls, value: str) -> PropertyTypes:
+    def _import(cls, value: str) -> PropertyTypes:
 
         value = value.strip()
 
@@ -92,11 +100,15 @@ class Property(PropertyABC):
 
         return value
 
+    def _export(self, value: PropertyTypes) -> str:
+
+        return "-" if value is None else str(value)  # TODO improve!
+
     @classmethod
     def from_params(cls, name, value, src) -> PropertyABC:
 
         return cls(
             name=name,
-            value=cls._convert(value),
-            src=cls._convert(src),
+            value=cls._import(value),
+            src=cls._import(src),
         )

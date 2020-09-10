@@ -39,7 +39,6 @@ from .abc import (
     ConfigABC,
     DatasetABC,
     SnapshotABC,
-    TransactionABC,
     TransactionListABC,
     ZpoolABC,
 )
@@ -51,6 +50,7 @@ from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
+from .transaction import Transaction
 from .transactionlist import TransactionList
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,6 +181,8 @@ class Zpool(ZpoolABC):
                 self._get_backup_transactions_from_datasetitem(other, dataset_item)
             )
 
+        transactions.extend(self._get_backup_propery_transactions(other))
+
         return transactions
 
     def generate_backup_transactions(
@@ -199,6 +201,9 @@ class Zpool(ZpoolABC):
             yield index, self._get_backup_transactions_from_datasetitem(
                 other, dataset_item
             )
+
+        for transaction in self._get_backup_propery_transactions(other):
+            yield len(zpool_comparison) - 1, transaction
 
     def _get_backup_transactions_from_datasetitem(
         self,
@@ -240,6 +245,32 @@ class Zpool(ZpoolABC):
                 snapshot.get_backup_transactions(
                     source_dataset,
                     target_dataset,
+                )
+            )
+
+        return transactions
+
+    def _get_backup_propery_transactions(self, other: ZpoolABC) -> TransactionListABC:
+
+        transactions = TransactionList()
+
+        if self._config["compatibility/target_samba_noshare"].value:
+            transactions.append(
+                Transaction.set_property(
+                    item=other.root,
+                    property=Property(name="sharesmb", value="off"),
+                    side="target",
+                    config=self._config,
+                )
+            )
+
+        if self._config["compatibility/target_autosnapshot_ignore"].value:
+            transactions.append(
+                Transaction.set_property(
+                    item=other.root,
+                    property=Property(name="com.sun:auto-snapshot", value="false"),
+                    side="target",
+                    config=self._config,
                 )
             )
 

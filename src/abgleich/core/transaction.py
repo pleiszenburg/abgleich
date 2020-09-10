@@ -32,7 +32,11 @@ from typing import Callable, Union
 
 from typeguard import typechecked
 
-from .abc import CommandABC, TransactionABC, TransactionMetaABC
+from .abc import CommandABC, ConfigABC, PropertyABC, TransactionABC, TransactionMetaABC
+from .command import Command
+from .i18n import t
+from .transactionmeta import TransactionMeta
+
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -112,3 +116,29 @@ class Transaction(TransactionABC):
             self._complete = True
             if self._changed is not None:
                 self._changed()
+
+    @classmethod
+    def set_property(
+        cls,
+        item: str,
+        property: PropertyABC,
+        side: str,
+        config: ConfigABC,
+    ) -> TransactionABC:
+
+        return cls(
+            meta=TransactionMeta(
+                **{
+                    t("type"): t("set_property"),
+                    t("item"): item,
+                }
+            ),
+            command=Command.from_list(
+                [
+                    "zfs",
+                    "set",
+                    f"{property.name:s}={property.value_export:s}",
+                    item,
+                ]
+            ).on_side(side=side, config=config),
+        )

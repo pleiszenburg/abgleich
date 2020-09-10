@@ -152,7 +152,7 @@ class Snapshot(SnapshotABC):
             side="target", config=self._config
         )
 
-        return TransactionList(
+        transactions = TransactionList(
             Transaction(
                 meta=TransactionMeta(
                     **{
@@ -167,6 +167,18 @@ class Snapshot(SnapshotABC):
                 command=command,
             )
         )
+
+        if self._config["compatibility/tagging"].value:
+            transactions.append(
+                Transaction.set_property(
+                    item=f"{target_dataset:s}@{self.name:s}",
+                    property=Property(name="abgleich:type", value="backup"),
+                    side="target",
+                    config=self._config,
+                )
+            )
+
+        return transactions
 
     @property
     def name(self) -> str:
