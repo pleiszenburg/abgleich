@@ -76,6 +76,8 @@ class Snapshot(SnapshotABC):
         assert self._parent.startswith(self._root)
         self._subparent = self._parent[len(self._root) :].strip("/")
 
+        self._intermediates = []  # for namespaces / tagging
+
     def __eq__(self, other: SnapshotABC) -> bool:
 
         return self.subparent == other.subparent and self.name == other.name
@@ -209,6 +211,11 @@ class Snapshot(SnapshotABC):
     def root(self) -> str:
 
         return self._root
+
+    @property
+    def intermediates(self) -> List[SnapshotABC]:
+
+        return self._intermediates
 
     @classmethod
     def from_entity(

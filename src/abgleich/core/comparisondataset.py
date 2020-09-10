@@ -273,12 +273,29 @@ class ComparisonDataset(ComparisonDatasetABC):
                     raise ValueError("inconsistent snapshot names")
 
     @staticmethod
-    def _find_name(items: List[SnapshotABC], name: str) -> Union[int, None]:
+    def _find_name(snapshots: List[SnapshotABC], name: str) -> Union[int, None]:
 
         return next(
-            (index for (index, item) in enumerate(items) if item.name == name),
+            (index for (index, snapshot) in enumerate(snapshots) if snapshot.name == name),
             None,  # if nothing is found, return None
         )
+
+    @staticmethod
+    def _squash(snapshots: List[SnapshotABC]) -> List[SnapshotABC]:
+
+        squashed, buffer = [], []
+
+        for snapshot in snapshots:
+
+            if snapshot.get("abgleich:type").value != "backup":
+                buffer.append(snapshot)
+            else:
+                snapshot.intermediates.clear()
+                snapshot.intermediates.extend(buffer)
+                squashed.append(snapshot)
+                buffer.clear()
+
+        return squashed
 
     @classmethod
     def _merge_snapshots(
@@ -289,6 +306,9 @@ class ComparisonDataset(ComparisonDatasetABC):
     ) -> List[ComparisonItemABC]:
 
         items_a, items_b = list(items_a), list(items_b)
+
+        if config['compatibility/tagging'].value:
+            items_a, items_b = cls._squash(items_a), cls._squash(items_b)
 
         if len(items_a) == 0 and len(items_b) == 0:
             return []
