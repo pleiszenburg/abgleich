@@ -272,6 +272,14 @@ class ComparisonDataset(ComparisonDatasetABC):
                 if item.a.name != item.b.name:
                     raise ValueError("inconsistent snapshot names")
 
+    @staticmethod
+    def _find_name(items: List[SnapshotABC], name: str) -> Union[int, None]:
+
+        return next(
+            (index for (index, item) in enumerate(items) if item.name == name),
+            None,  # if nothing is found, return None
+        )
+
     @classmethod
     def _merge_snapshots(
         cls,
@@ -282,21 +290,19 @@ class ComparisonDataset(ComparisonDatasetABC):
 
         items_a, items_b = list(items_a), list(items_b)
 
-        names_a = [item.name for item in items_a]
-        names_b = [item.name for item in items_b]
-
-        assert len(set(names_a)) == len(items_a)  # unique names
-        assert len(set(names_b)) == len(items_b)  # unique names
-
         if len(items_a) == 0 and len(items_b) == 0:
             return []
+
+        assert len(set({item.name for item in items_a})) == len(items_a)  # unique names
+        assert len(set({item.name for item in items_b})) == len(items_b)  # unique names
+
         if len(items_a) == 0:
             return [ComparisonItem(None, item) for item in items_b]
         if len(items_b) == 0:
             return [ComparisonItem(item, None) for item in items_a]
 
-        start_b = names_a.index(names_b[0]) if names_b[0] in names_a else None
-        start_a = names_b.index(names_a[0]) if names_a[0] in names_b else None
+        start_b = cls._find_name(items_a, items_b[0].name)
+        start_a = cls._find_name(items_b, items_a[0].name)
 
         assert start_a is not None or start_b is not None  # overlap
 
