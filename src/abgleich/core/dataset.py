@@ -118,12 +118,15 @@ class Dataset(DatasetABC):
     @property
     def changed(self) -> bool:
 
-        # TODO namespace: if last snapshot is from other namespace, make one ...
-
         if len(self) == 0:
             return True
         if self._config["always_changed"].value:
             return True
+
+        if self._config["compatibility/tagging"].value:
+            if self._snapshots[-1].get("abgleich:type").value != "backup":
+                return True
+
         if self._properties["written"].value == 0:
             return False
         if self._properties["type"].value == "volume":
