@@ -276,7 +276,11 @@ class ComparisonDataset(ComparisonDatasetABC):
     def _find_name(snapshots: List[SnapshotABC], name: str) -> Union[int, None]:
 
         return next(
-            (index for (index, snapshot) in enumerate(snapshots) if snapshot.name == name),
+            (
+                index
+                for (index, snapshot) in enumerate(snapshots)
+                if snapshot.name == name
+            ),
             None,  # if nothing is found, return None
         )
 
@@ -307,7 +311,7 @@ class ComparisonDataset(ComparisonDatasetABC):
 
         items_a, items_b = list(items_a), list(items_b)
 
-        if config['compatibility/tagging'].value:
+        if config["compatibility/tagging"].value:
             items_a, items_b = cls._squash(items_a), cls._squash(items_b)
 
         if len(items_a) == 0 and len(items_b) == 0:
