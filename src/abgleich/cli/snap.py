@@ -44,7 +44,8 @@ from ..core.zpool import Zpool
 
 @click.command(short_help="create snapshots of changed datasets for backups")
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
-def snap(configfile):
+@click.option("--force", is_flag=True, help="enforce snapshot creation without user interaction")
+def snap(configfile, force):
 
     config = Config.from_fd(configfile)
 
@@ -60,6 +61,7 @@ def snap(configfile):
         return
     transactions.print_table()
 
-    click.confirm(t("Do you want to continue?"), abort=True)
+    if not force:
+        click.confirm(t("Do you want to continue?"), abort=True)
 
     transactions.run()
