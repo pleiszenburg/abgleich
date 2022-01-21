@@ -1,6 +1,6 @@
 # Changes
 
-## 0.0.8 (2020-XX-XX)
+## 0.0.8 (2022-01-21)
 
 - FEATURE: `zfs-auto-snapshot` can be told to ignore backup datasets on the target side, see #3.
 - FEATURE: `samba` can optionally be told to NOT share/expose backup datasets on the target side, see #4.
@@ -10,6 +10,7 @@
 - FEATURE: Configuration module contains default values for parameters, making it much easier to write lightweight configuration files, see #28. The configuration parser now also provides much more useful output.
 - FEATURE: `abgleich tree` and `abgleich compare` highlight ignored datasets.
 - FEATURE: Significantly more flexible shell command wrapper and, as a result, cleaned up transaction handling.
+- FEATURE: Python 3.9 and 3.10 compatibility.
 - FIX: Many cleanups in code base, enabling future developments.
 
 ## 0.0.7 (2020-08-05)
