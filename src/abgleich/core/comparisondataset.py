@@ -33,7 +33,13 @@ from typing import Generator, List, Union
 
 from typeguard import typechecked
 
-from .abc import ComparisonDatasetABC, ComparisonItemABC, DatasetABC, SnapshotABC
+from .abc import (
+    ComparisonDatasetABC,
+    ComparisonItemABC,
+    ConfigABC,
+    DatasetABC,
+    SnapshotABC,
+)
 from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -266,30 +272,61 @@ class ComparisonDataset(ComparisonDatasetABC):
                 if item.a.name != item.b.name:
                     raise ValueError("inconsistent snapshot names")
 
+    @staticmethod
+    def _find_name(snapshots: List[SnapshotABC], name: str) -> Union[int, None]:
+
+        return next(
+            (
+                index
+                for (index, snapshot) in enumerate(snapshots)
+                if snapshot.name == name
+            ),
+            None,  # if nothing is found, return None
+        )
+
+    @staticmethod
+    def _squash(snapshots: List[SnapshotABC]) -> List[SnapshotABC]:
+
+        squashed, buffer = [], []
+
+        for snapshot in snapshots:
+
+            if snapshot.get("abgleich:type").value != "backup":
+                buffer.append(snapshot)
+            else:
+                snapshot.intermediates.clear()
+                snapshot.intermediates.extend(buffer)
+                squashed.append(snapshot)
+                buffer.clear()
+
+        return squashed
+
     @classmethod
     def _merge_snapshots(
         cls,
         items_a: Generator[SnapshotABC, None, None],
         items_b: Generator[SnapshotABC, None, None],
+        config: ConfigABC,
     ) -> List[ComparisonItemABC]:
 
         items_a, items_b = list(items_a), list(items_b)
 
-        names_a = [item.name for item in items_a]
-        names_b = [item.name for item in items_b]
-
-        assert len(set(names_a)) == len(items_a)  # unique names
-        assert len(set(names_b)) == len(items_b)  # unique names
+        if config["compatibility/tagging"].value:
+            items_a, items_b = cls._squash(items_a), cls._squash(items_b)
 
         if len(items_a) == 0 and len(items_b) == 0:
             return []
+
+        assert len(set({item.name for item in items_a})) == len(items_a)  # unique names
+        assert len(set({item.name for item in items_b})) == len(items_b)  # unique names
+
         if len(items_a) == 0:
             return [ComparisonItem(None, item) for item in items_b]
         if len(items_b) == 0:
             return [ComparisonItem(item, None) for item in items_a]
 
-        start_b = names_a.index(names_b[0]) if names_b[0] in names_a else None
-        start_a = names_b.index(names_a[0]) if names_a[0] in names_b else None
+        start_b = cls._find_name(items_a, items_b[0].name)
+        start_a = cls._find_name(items_b, items_a[0].name)
 
         assert start_a is not None or start_b is not None  # overlap
 
@@ -320,6 +357,7 @@ class ComparisonDataset(ComparisonDatasetABC):
         cls,
         dataset_a: Union[DatasetABC, None],
         dataset_b: Union[DatasetABC, None],
+        config: ConfigABC,
     ) -> ComparisonDatasetABC:
 
         assert dataset_a is not None or dataset_b is not None
@@ -340,5 +378,7 @@ class ComparisonDataset(ComparisonDatasetABC):
         return cls(
             a=dataset_a,
             b=dataset_b,
-            merged=cls._merge_snapshots(dataset_a.snapshots, dataset_b.snapshots),
+            merged=cls._merge_snapshots(
+                dataset_a.snapshots, dataset_b.snapshots, config
+            ),
         )

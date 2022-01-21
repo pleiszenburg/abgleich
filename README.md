@@ -94,6 +94,7 @@ Whether or not snapshots are generated is based on the following sequence of che
 - Dataset is ignored: NO
 - Dataset has no snapshot: YES
 - If the `always_changed` configuration option is set to `yes`: YES
+- If the `tagging` configuration option underneath `compatibility` is set to yes and the last snapshot of the dataset has not been tagged by `abgleich` as a backup: YES
 - `written` property of dataset equals `0`: NO
 - Dataset is a volume: YES
 - If the `written_threshold` configuration is set and the `written` property of dataset is larger than the value of `written_threshold`: YES

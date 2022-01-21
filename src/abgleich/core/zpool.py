@@ -144,7 +144,7 @@ class Zpool(ZpoolABC):
             return TransactionList()
 
         dataset_comparison = ComparisonDataset.from_datasets(
-            dataset_item.a, dataset_item.b
+            dataset_item.a, dataset_item.b, self._config
         )  # TODO namespace
 
         if self.side == "source":
@@ -220,7 +220,7 @@ class Zpool(ZpoolABC):
             snapshots = list(dataset_item.a.snapshots)
         else:
             dataset_comparison = ComparisonDataset.from_datasets(
-                dataset_item.a, dataset_item.b
+                dataset_item.a, dataset_item.b, self._config
             )  # TODO namespace
             snapshots = dataset_comparison.a_disjoint_head
 
@@ -364,15 +364,15 @@ class Zpool(ZpoolABC):
             )
             if dataset_item.complete:
                 dataset_comparison = ComparisonDataset.from_datasets(
-                    dataset_item.a, dataset_item.b
+                    dataset_item.a, dataset_item.b, self._config
                 )
             elif dataset_item.a is not None:
                 dataset_comparison = ComparisonDataset.from_datasets(
-                    dataset_item.a, None
+                    dataset_item.a, None, self._config
                 )
             else:
                 dataset_comparison = ComparisonDataset.from_datasets(
-                    None, dataset_item.b
+                    None, dataset_item.b, self._config
                 )
             for snapshot_item in dataset_comparison.merged:
                 table.append(
