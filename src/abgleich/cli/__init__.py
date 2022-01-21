@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
 	src/abgleich/cli/__init__.py: CLI package root
 
-	Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+	Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
