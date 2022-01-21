@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.9 (2022-XX-XX)
+
+- (TBD)
+
 ## 0.0.8 (2022-01-21)
 
 - FEATURE: `zfs-auto-snapshot` can be told to ignore backup datasets on the target side, see #3.
