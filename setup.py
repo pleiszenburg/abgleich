@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     setup.py: Used for package distribution
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -42,7 +42,7 @@ import os
 
 # List all versions of Python which are supported
 python_minor_min = 6
-python_minor_max = 8
+python_minor_max = 10
 confirmed_python_versions = [
     "Programming Language :: Python :: 3.{MINOR:d}".format(MINOR=minor)
     for minor in range(python_minor_min, python_minor_max + 1)
@@ -73,8 +73,16 @@ with open(os.path.join(SRC_DIR, "abgleich", "__init__.py"), "r", encoding="utf-8
 
 # Requirements
 extras_require = {
-    "dev": ["black", "python-language-server[all]", "setuptools", "twine", "wheel",],
-    "gui": ["pyqt5",],
+    "dev": [
+        "black",
+        "python-language-server[all]",
+        "setuptools",
+        "twine",
+        "wheel",
+    ],
+    "gui": [
+        "pyqt5",
+    ],
 }
 extras_require["all"] = list(
     {rq for target in extras_require.keys() for rq in extras_require[target]}
@@ -95,15 +103,27 @@ setup(
     download_url="https://github.com/pleiszenburg/abgleich/archive/v%s.tar.gz"
     % __version__,
     license="LGPLv2",
-    keywords=["zfs", "ssh",],
+    keywords=[
+        "zfs",
+        "ssh",
+    ],
     scripts=[],
     include_package_data=True,
     python_requires=">=3.{MINOR:d}".format(MINOR=python_minor_min),
     setup_requires=[],
-    install_requires=["click", "tabulate", "pyyaml", "typeguard",],
+    install_requires=[
+        "click",
+        "tabulate",
+        "pyyaml",
+        "typeguard",
+    ],
     extras_require=extras_require,
     zip_safe=False,
-    entry_points={"console_scripts": ["abgleich = abgleich.cli:cli",],},
+    entry_points={
+        "console_scripts": [
+            "abgleich = abgleich.cli:cli",
+        ],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",

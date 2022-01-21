@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/gui/wizard_base.py: wizard gui base
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -46,6 +46,11 @@ from typeguard import typechecked
 
 @typechecked
 class WizardUiBase(QDialog):
+    """
+    UI definition.
+    Mutable.
+    """
+
     def __init__(self):
 
         super().__init__()  # skip WizardUiBaseABC

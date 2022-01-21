@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/dataset.py: ZFS dataset
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -29,22 +29,24 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import datetime
-import typing
+from typing import Dict, Generator, List, Union
 
 # Python <= 3.7.1 "fix"
 try:
     from typing import OrderedDict as DictType
 except ImportError:
-    from typing import Dict as DictType
+    DictType = Dict
 
-import typeguard
+from typeguard import typechecked
 
-from .abc import ConfigABC, DatasetABC, PropertyABC, TransactionABC, SnapshotABC
+from .abc import ConfigABC, DatasetABC, PropertyABC, SnapshotABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
-from .transaction import Transaction, TransactionMeta
+from .transaction import Transaction
+from .transactionlist import TransactionList
+from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,13 +54,17 @@ from .snapshot import Snapshot
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Dataset(DatasetABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self,
         name: str,
-        properties: typing.Dict[str, PropertyABC],
-        snapshots: typing.List[SnapshotABC],
+        properties: Dict[str, PropertyABC],
+        snapshots: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ):
@@ -69,7 +75,9 @@ class Dataset(DatasetABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]["zpool"], config[side]["prefix"])
+        self._root = root(
+            config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value
+        )
 
         assert self._name.startswith(self._root)
         self._subname = self._name[len(self._root) :].strip("/")
@@ -82,7 +90,7 @@ class Dataset(DatasetABC):
 
         return len(self._snapshots)
 
-    def __getitem__(self, key: typing.Union[str, int, slice]) -> PropertyABC:
+    def __getitem__(self, key: Union[str, int, slice]) -> PropertyABC:
 
         if isinstance(key, str):
             return self._properties[key]
@@ -90,13 +98,14 @@ class Dataset(DatasetABC):
 
     def get(
         self,
-        key: typing.Union[str, int, slice],
-        default: typing.Union[None, PropertyABC] = None,
-    ) -> typing.Union[None, PropertyABC]:
+        key: Union[str, int, slice],
+        default: Union[None, PropertyABC] = None,
+    ) -> Union[None, PropertyABC]:
 
         if isinstance(key, str):
             return self._properties.get(
-                key, Property(key, None, None) if default is None else default,
+                key,
+                Property(key, None, None) if default is None else default,
             )
 
         assert isinstance(key, int) or isinstance(key, slice)
@@ -111,26 +120,41 @@ class Dataset(DatasetABC):
 
         if len(self) == 0:
             return True
-        if self._config["always_changed"]:
+        if self._config["always_changed"].value:
             return True
+
+        if self._config["compatibility/tagging"].value:
+            if self._snapshots[-1].get("abgleich:type").value != "backup":
+                return True
+
         if self._properties["written"].value == 0:
             return False
         if self._properties["type"].value == "volume":
             return True
 
-        if self._config["written_threshold"] is not None:
-            if self._properties["written"].value > self._config["written_threshold"]:
+        if self._config["written_threshold"].value is not None:
+            if (
+                self._properties["written"].value
+                > self._config["written_threshold"].value
+            ):
                 return True
 
-        if not self._config["check_diff"]:
+        if not self._config["check_diff"].value:
             return True
 
-        output, _ = Command.on_side(
-            ["zfs", "diff", f"{self._name:s}@{self._snapshots[-1].name:s}"],
-            self._side,
-            self._config,
-        ).run()
-        return len(output.strip(" \t\n")) > 0
+        output, _ = (
+            Command.from_list(
+                ["zfs", "diff", f"{self._name:s}@{self._snapshots[-1].name:s}"]
+            )
+            .on_side(side=self._side, config=self._config)
+            .run()
+        )
+        return len(output[0].strip(" \t\n")) > 0
+
+    @property
+    def ignore(self) -> bool:
+
+        return self._subname in self._config["ignore"].value
 
     @property
     def name(self) -> str:
@@ -143,7 +167,7 @@ class Dataset(DatasetABC):
         return self._subname
 
     @property
-    def snapshots(self) -> typing.Generator[SnapshotABC, None, None]:
+    def snapshots(self) -> Generator[SnapshotABC, None, None]:
 
         return (snapshot for snapshot in self._snapshots)
 
@@ -152,33 +176,40 @@ class Dataset(DatasetABC):
 
         return self._root
 
-    def get_snapshot_transaction(self) -> TransactionABC:
+    def get_snapshot_transactions(self) -> TransactionListABC:
 
         snapshot_name = self._new_snapshot_name()
 
-        return Transaction(
-            TransactionMeta(
-                **{
-                    t("type"): t("snapshot"),
-                    t("dataset_subname"): self._subname,
-                    t("snapshot_name"): snapshot_name,
-                    t("written"): self._properties["written"].value,
-                }
-            ),
-            [
-                Command.on_side(
-                    ["zfs", "snapshot", f"{self._name:s}@{snapshot_name:s}"],
-                    self._side,
-                    self._config,
-                )
-            ],
+        command = ["zfs", "snapshot"]
+        if self._config["compatibility/tagging"].value:
+            command.extend(["-o", "abgleich:type=backup"])
+        command.append(f"{self._name:s}@{snapshot_name:s}")
+
+        return TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("snapshot"),
+                        t("dataset_subname"): self._subname,
+                        t("snapshot_name"): snapshot_name,
+                        t("written"): self._properties["written"].value,
+                    }
+                ),
+                command=Command.from_list(command).on_side(
+                    side=self._side, config=self._config
+                ),
+            )
         )
 
     def _new_snapshot_name(self) -> str:
 
         today = datetime.datetime.now().strftime("%Y%m%d")
-        max_snapshots = (10 ** self._config["digits"]) - 1
-        suffix = self._config["suffix"] if self._config["suffix"] is not None else ""
+        max_snapshots = (10 ** self._config["digits"].value) - 1
+        suffix = (
+            self._config["suffix"].value
+            if self._config["suffix"].value is not None
+            else ""
+        )
 
         todays_names = [
             snapshot.name
@@ -188,14 +219,14 @@ class Dataset(DatasetABC):
                     snapshot.name.startswith(today),
                     snapshot.name.endswith(suffix),
                     len(snapshot.name)
-                    == len(today) + self._config["digits"] + len(suffix),
+                    == len(today) + self._config["digits"].value + len(suffix),
                 )
             )
         ]
         todays_numbers = [
-            int(name[len(today) : len(today) + self._config["digits"]])
+            int(name[len(today) : len(today) + self._config["digits"].value])
             for name in todays_names
-            if name[len(today) : len(today) + self._config["digits"]].isnumeric()
+            if name[len(today) : len(today) + self._config["digits"].value].isnumeric()
         ]
         if len(todays_numbers) != 0:
             todays_numbers.sort()
@@ -211,7 +242,7 @@ class Dataset(DatasetABC):
     def from_entities(
         cls,
         name: str,
-        entities: DictType[str, typing.List[typing.List[str]]],
+        entities: DictType[str, List[List[str]]],
         side: str,
         config: ConfigABC,
     ) -> DatasetABC:
@@ -226,7 +257,11 @@ class Dataset(DatasetABC):
         snapshots.extend(
             (
                 Snapshot.from_entity(
-                    snapshot_name, entities[snapshot_name], snapshots, side, config,
+                    snapshot_name,
+                    entities[snapshot_name],
+                    snapshots,
+                    side,
+                    config,
                 )
                 for snapshot_name in entities.keys()
             )

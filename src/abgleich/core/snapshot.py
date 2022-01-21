@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/snapshot.py: ZFS snapshot
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -28,30 +28,36 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Dict, List, Union
 
-import typeguard
+from typeguard import typechecked
 
-from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC
+from .abc import ConfigABC, PropertyABC, SnapshotABC, TransactionABC, TransactionListABC
 from .command import Command
 from .i18n import t
 from .lib import root
 from .property import Property
-from .transaction import Transaction, TransactionMeta
+from .transaction import Transaction
+from .transactionlist import TransactionList
+from .transactionmeta import TransactionMeta
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Snapshot(SnapshotABC):
+    """
+    Immutable.
+    """
+
     def __init__(
         self,
         name: str,
         parent: str,
-        properties: typing.Dict[str, PropertyABC],
-        context: typing.List[SnapshotABC],
+        properties: Dict[str, PropertyABC],
+        context: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ):
@@ -63,10 +69,14 @@ class Snapshot(SnapshotABC):
         self._side = side
         self._config = config
 
-        self._root = root(config[side]["zpool"], config[side]["prefix"])
+        self._root = root(
+            config[f"{side:s}/zpool"].value, config[f"{side:s}/prefix"].value
+        )
 
         assert self._parent.startswith(self._root)
         self._subparent = self._parent[len(self._root) :].strip("/")
+
+        self._intermediates = []  # for namespaces / tagging
 
     def __eq__(self, other: SnapshotABC) -> bool:
 
@@ -76,68 +86,101 @@ class Snapshot(SnapshotABC):
 
         return self._properties[name]
 
-    def get_cleanup_transaction(self) -> TransactionABC:
+    def get(
+        self,
+        key: str,
+        default: Union[None, PropertyABC] = None,
+    ) -> Union[None, PropertyABC]:
 
-        assert self._side == "source"
-
-        return Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("cleanup_snapshot"),
-                    t("snapshot_subparent"): self._subparent,
-                    t("snapshot_name"): self._name,
-                }
-            ),
-            commands=[
-                Command.on_side(
-                    ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"],
-                    self._side,
-                    self._config,
-                )
-            ],
+        return self._properties.get(
+            key,
+            Property(key, None, None) if default is None else default,
         )
 
-    def get_backup_transaction(
-        self, source_dataset: str, target_dataset: str,
-    ) -> TransactionABC:
+    def get_cleanup_transactions(self) -> TransactionListABC:
+
+        return TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("cleanup_snapshot"),
+                        t("snapshot_subparent"): self._subparent,
+                        t("snapshot_name"): self._name,
+                    }
+                ),
+                command=Command.from_list(
+                    ["zfs", "destroy", f"{self._parent:s}@{self._name:s}"]
+                ).on_side(side=self._side, config=self._config),
+            )
+        )
+
+    def get_backup_transactions(
+        self,
+        source_dataset: str,
+        target_dataset: str,
+    ) -> TransactionListABC:
 
         assert self._side == "source"
 
         ancestor = self.ancestor
 
-        commands = [
-            Command.on_side(
-                ["zfs", "send", "-c", f"{source_dataset:s}@{self.name:s}",]
-                if ancestor is None
-                else [
-                    "zfs",
-                    "send",
-                    "-c",
-                    "-i",
-                    f"{source_dataset:s}@{ancestor.name:s}",
-                    f"{source_dataset:s}@{self.name:s}",
-                ],
-                "source",
-                self._config,
-            ),
-            Command.on_side(
-                ["zfs", "receive", f"{target_dataset:s}"], "target", self._config
-            ),
-        ]
-
-        return Transaction(
-            meta=TransactionMeta(
-                **{
-                    t("type"): t("transfer_snapshot")
-                    if ancestor is None
-                    else t("transfer_snapshot_incremental"),
-                    t("snapshot_subparent"): self._subparent,
-                    t("ancestor_name"): "" if ancestor is None else ancestor.name,
-                    t("snapshot_name"): self.name,
-                }
-            ),
-            commands=commands,
+        send = Command.from_list(
+            [
+                "zfs",
+                "send",
+                "-c",
+                f"{source_dataset:s}@{self.name:s}",
+            ]
+            if ancestor is None
+            else [
+                "zfs",
+                "send",
+                "-c",
+                "-i",
+                f"{source_dataset:s}@{ancestor.name:s}",
+                f"{source_dataset:s}@{self.name:s}",
+            ]
         )
+        receive = Command.from_list(["zfs", "receive", f"{target_dataset:s}"])
+
+        if self._config["source/processing"].set:
+            send = send | Command.from_str(self._config["source/processing"].value)
+        if self._config["target/processing"].set:
+            receive = (
+                Command.from_str(self._config["target/processing"].value) | receive
+            )
+
+        command = send.on_side(side="source", config=self._config) | receive.on_side(
+            side="target", config=self._config
+        )
+
+        transactions = TransactionList(
+            Transaction(
+                meta=TransactionMeta(
+                    **{
+                        t("type"): t("transfer_snapshot")
+                        if ancestor is None
+                        else t("transfer_snapshot_incremental"),
+                        t("snapshot_subparent"): self._subparent,
+                        t("ancestor_name"): "" if ancestor is None else ancestor.name,
+                        t("snapshot_name"): self.name,
+                    }
+                ),
+                command=command,
+            )
+        )
+
+        if self._config["compatibility/tagging"].value:
+            transactions.append(
+                Transaction.set_property(
+                    item=f"{target_dataset:s}@{self.name:s}",
+                    property=Property(name="abgleich:type", value="backup"),
+                    side="target",
+                    config=self._config,
+                )
+            )
+
+        return transactions
 
     @property
     def name(self) -> str:
@@ -155,7 +198,7 @@ class Snapshot(SnapshotABC):
         return self._subparent
 
     @property
-    def ancestor(self) -> typing.Union[None, SnapshotABC]:
+    def ancestor(self) -> Union[None, SnapshotABC]:
 
         assert self in self._context
         self_index = self._context.index(self)
@@ -169,12 +212,17 @@ class Snapshot(SnapshotABC):
 
         return self._root
 
+    @property
+    def intermediates(self) -> List[SnapshotABC]:
+
+        return self._intermediates
+
     @classmethod
     def from_entity(
         cls,
         name: str,
-        entity: typing.List[typing.List[str]],
-        context: typing.List[SnapshotABC],
+        entity: List[List[str]],
+        context: List[SnapshotABC],
         side: str,
         config: ConfigABC,
     ) -> SnapshotABC:

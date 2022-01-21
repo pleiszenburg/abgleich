@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/gui/wizard.py: wizard gui
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -37,7 +37,7 @@ from typeguard import typechecked
 from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
-from ..core.transaction import TransactionList
+from ..core.transactionlist import TransactionList
 from ..core.i18n import t
 from ..core.zpool import Zpool
 from .. import __version__
@@ -49,6 +49,11 @@ from .. import __version__
 
 @typechecked
 class WizardUi(WizardUiBase):
+    """
+    UI events and logic.
+    Mutable.
+    """
+
     def __init__(self, config: ConfigABC):
 
         super().__init__()
@@ -199,7 +204,7 @@ class WizardUi(WizardUiBase):
 
         self._init_step(index + 1)
 
-    def _prepare_snap(self):
+    def _prepare_snap(self) -> bool:
 
         zpool = Zpool.from_config("source", config=self._config)
 
@@ -210,14 +215,13 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         for number, transaction in gen:
-            if transaction is not None:
-                self._transactions.append(transaction)
+            self._transactions.extend(transaction)
             self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 
         return len(self._transactions) > 0
 
-    def _prepare(self, action: str):
+    def _prepare(self, action: str) -> bool:
 
         source_zpool = Zpool.from_config("source", config=self._config)
         target_zpool = Zpool.from_config("target", config=self._config)
@@ -229,8 +233,7 @@ class WizardUi(WizardUiBase):
         QApplication.processEvents()
 
         for number, transactions in gen:
-            if transactions is not None:
-                self._transactions.extend(transactions)
+            self._transactions.extend(transactions)
             self._ui["progress"].setValue(number + 1)
             QApplication.processEvents()
 

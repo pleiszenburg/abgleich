@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/config.py: Handles configuration data
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -29,9 +29,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Dict, TextIO, Union
 
-import typeguard
+from typeguard import typechecked
 import yaml
 
 try:
@@ -39,53 +39,79 @@ try:
 except ImportError:
     from yaml import FullLoader as Loader
 
-from .abc import ConfigABC
-from .lib import valid_name
+from .abc import ConfigABC, ConfigFieldABC
+from .configspec import CONFIGSPEC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
-class Config(ConfigABC, dict):
-    @classmethod
-    def from_fd(cls, fd: typing.TextIO):
+@typechecked
+class Config(ConfigABC):
+    """
+    Immutable.
+    """
 
-        ssh_schema = {
-            "compression": lambda v: isinstance(v, bool),
-            "cipher": lambda v: isinstance(v, str) or v is None,
-        }
+    def __init__(self, root: Union[str, None] = None, **kwargs: ConfigFieldABC):
 
-        side_schema = {
-            "zpool": lambda v: isinstance(v, str) and len(v) > 0,
-            "prefix": lambda v: isinstance(v, str) or v is None,
-            "host": lambda v: isinstance(v, str) and len(v) > 0,
-            "user": lambda v: isinstance(v, str) or v is None,
-        }
+        self._root = root
+        self._fields = kwargs
 
-        root_schema = {
-            "source": lambda v: cls._validate(data=v, schema=side_schema),
-            "target": lambda v: cls._validate(data=v, schema=side_schema),
-            "keep_snapshots": lambda v: isinstance(v, int) and v >= 1,
-            "suffix": lambda v: v is None or (isinstance(v, str) and valid_name(v)),
-            "digits": lambda v: isinstance(v, int) and v >= 1,
-            "ignore": lambda v: isinstance(v, list)
-            and all((isinstance(item, str) and len(item) > 0 for item in v)),
-            "ssh": lambda v: cls._validate(data=v, schema=ssh_schema),
-        }
+    def __repr__(self):
 
-        config = yaml.load(fd.read(), Loader=Loader)
-        cls._validate(data=config, schema=root_schema)
-        return cls(config)
+        return "<Config>" if self._root is None else f'<Config root="{self._root:s}">'
+
+    def __getitem__(self, key: str) -> ConfigFieldABC:
+
+        return (
+            self._fields[key]
+            if self._root is None
+            else self._fields[f"{self._root:s}/{key:s}"]
+        )
+
+    def group(self, root: str) -> ConfigABC:
+
+        return type(self)(root=root, **self._fields)
 
     @classmethod
-    def _validate(cls, data: typing.Dict, schema: typing.Dict):
+    def _flatten_dict_tree(cls, data: Dict, root: Union[str, None] = None) -> Dict:
 
-        for field, validator in schema.items():
-            if field not in data.keys():
-                raise KeyError(f'missing configuration field "{field:s}"')
-            if not validator(data[field]):
-                raise ValueError(f'invalid value in field "{field:s}"')
+        flat_data = {}
 
-        return True
+        for key, value in data.items():
+            if not isinstance(key, str):
+                raise TypeError("configuration key is no string", key)
+            if root is not None:
+                if len(root) > 0:
+                    key = f"{root:s}/{key:s}"
+            if isinstance(value, dict):
+                flat_data.update(cls._flatten_dict_tree(data=value, root=key))
+            else:
+                flat_data[key] = value
+
+        return flat_data
+
+    @classmethod
+    def from_fd(cls, fd: TextIO) -> ConfigABC:
+
+        return cls.from_text(fd.read())
+
+    @classmethod
+    def from_text(cls, text: str) -> ConfigABC:
+
+        config = yaml.load(text, Loader=Loader)
+
+        if not isinstance(config, dict):
+            raise TypeError("config is no dict", config)
+
+        config_fields = {field.name: field.copy() for field in CONFIGSPEC}
+        for key, value in cls._flatten_dict_tree(data=config).items():
+            if key not in config_fields.keys():
+                raise ValueError("unknown configuration key", key)
+            config_fields[key].value = value
+
+        if any((not field.valid for field in config_fields.values())):
+            raise ValueError("configuration is not valid")
+
+        return cls(**config_fields)

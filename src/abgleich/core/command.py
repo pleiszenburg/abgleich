@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/command.py: Sub-process wrapper for commands
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -28,115 +28,145 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import subprocess
-import typing
+import itertools
+from subprocess import Popen, PIPE
+from typing import List, Tuple, Union
+import shlex
 
-import typeguard
+from typeguard import typechecked
 
-from .abc import CommandABC
+from .abc import CommandABC, ConfigABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class Command(CommandABC):
-    def __init__(self, cmd: typing.List[str]):
+    """
+    Immutable.
+    """
 
-        self._cmd = cmd.copy()
+    def __init__(self, cmd: List[List[str]]):
+
+        self._cmd = [fragment.copy() for fragment in cmd]
+
+    def __repr__(self) -> str:
+
+        return "<Command>"
 
     def __str__(self) -> str:
 
-        return " ".join([item.replace(" ", "\\ ") for item in self._cmd])
+        return " | ".join([shlex.join(fragment) for fragment in self._cmd])
+
+    def __len__(self) -> int:
+
+        return len(self._cmd)
+
+    def __or__(self, other: CommandABC) -> CommandABC:  # pipe
+
+        return type(self)(self.cmd + other.cmd)
+
+    @staticmethod
+    def _com_to_str(com: Union[str, bytes, None]) -> str:
+
+        if com is None:
+            return ""
+
+        if isinstance(com, bytes):
+            return com.decode("utf-8")
+
+        return com
+
+    @staticmethod
+    def _split_list(data: List, delimiter: str) -> List[List]:
+
+        return [
+            list(sub_list)
+            for is_delimiter, sub_list in itertools.groupby(
+                data, lambda item: item == delimiter
+            )
+            if not is_delimiter
+        ]
 
     def run(
         self, returncode: bool = False
-    ) -> typing.Union[typing.Tuple[str, str], typing.Tuple[str, str, int, Exception]]:
+    ) -> Union[
+        Tuple[List[str], List[str], List[int], Exception], Tuple[List[str], List[str]]
+    ]:
 
-        proc = subprocess.Popen(
-            self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        output, errors = proc.communicate()
-        status = not bool(proc.returncode)
-        output, errors = output.decode("utf-8"), errors.decode("utf-8")
+        procs = []  # all processes, connected with pipes
+
+        for index, fragment in enumerate(self._cmd):  # create & connect processes
+
+            stdin = None if index == 0 else procs[-1].stdout  # output of last process
+            proc = Popen(
+                fragment,
+                stdout=PIPE,
+                stderr=PIPE,
+                stdin=stdin,
+            )
+            procs.append(proc)
+
+        output, errors, status = [], [], []
+
+        for proc in procs[::-1]:  # inverse order, last process first
+
+            out, err = proc.communicate()
+            output.append(self._com_to_str(out))
+            errors.append(self._com_to_str(err))
+            status.append(int(proc.returncode))
+
+        output.reverse()
+        errors.reverse()
+        status.reverse()
 
         exception = SystemError("command failed", str(self), output, errors)
 
         if returncode:
-            return output, errors, int(proc.returncode), exception
+            return output, errors, status, exception
 
-        if not status or len(errors.strip()) > 0:
+        if any((code != 0 for code in status)):  # some fragment failed:
             raise exception
 
         return output, errors
 
-    def run_pipe(self, other: CommandABC):
+    def on_side(self, side: str, config: ConfigABC) -> CommandABC:
 
-        proc_1 = subprocess.Popen(
-            self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        proc_2 = subprocess.Popen(
-            other.cmd,
-            stdin=proc_1.stdout,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        if config[f"{side:s}/host"].value == "localhost":
+            return self
 
-        output_2, errors_2 = proc_2.communicate()
-        status_2 = not bool(proc_2.returncode)
-        _, errors_1 = proc_1.communicate()
-        status_1 = not bool(proc_1.returncode)
+        side_config = config.group(side)
+        ssh_config = config.group("ssh")
 
-        errors_1 = errors_1.decode("utf-8")
-        output_2, errors_2 = output_2.decode("utf-8"), errors_2.decode("utf-8")
-
-        if any(
-            (
-                not status_1,
-                len(errors_1.strip()) > 0,
-                not status_2,
-                len(errors_2.strip()) > 0,
-            )
-        ):
-            raise SystemError(
-                "command pipe failed",
-                f"{str(self):s} | {str(other):s}",
-                errors_1,
-                output_2,
-                errors_2,
-            )
-
-        return errors_1, output_2, errors_2
-
-    @property
-    def cmd(self) -> typing.List[str]:
-
-        return self._cmd.copy()
-
-    @classmethod
-    def on_side(
-        cls, cmd: typing.List[str], side: str, config: typing.Dict
-    ) -> CommandABC:
-
-        if config[side]["host"] == "localhost":
-            return cls(cmd)
-        return cls.with_ssh(cmd, side_config=config[side], ssh_config=config["ssh"])
-
-    @classmethod
-    def with_ssh(
-        cls, cmd: typing.List[str], side_config: typing.Dict, ssh_config: typing.Dict
-    ) -> CommandABC:
-
-        cmd_str = " ".join([item.replace(" ", "\\ ") for item in cmd])
-        cmd = [
+        cmd_ssh = [
             "ssh",
             "-T",  # Disable pseudo-terminal allocation
-            "-o",
-            "Compression=yes" if ssh_config["compression"] else "Compression=no",
+            "-o",  # Option parameter
+            "Compression=yes" if ssh_config["compression"].value else "Compression=no",
         ]
-        if ssh_config["cipher"] is not None:
-            cmd.extend(("-c", ssh_config["cipher"]))
-        cmd.extend([f'{side_config["user"]:s}@{side_config["host"]:s}', cmd_str])
+        if side_config["port"].value != 0:
+            cmd_ssh.extend(["-p", f'{side_config["port"].value:d}'])
+        if ssh_config["cipher"].value is not None:
+            cmd_ssh.extend(("-c", ssh_config["cipher"].value))
+        cmd_ssh.extend(
+            [f'{side_config["user"].value:s}@{side_config["host"].value:s}', str(self)]
+        )
 
-        return cls(cmd)
+        return type(self)([cmd_ssh])
+
+    @property
+    def cmd(self) -> List[List[str]]:
+
+        return [fragment.copy() for fragment in self._cmd]
+
+    @classmethod
+    def from_str(cls, cmd: str) -> CommandABC:
+
+        return cls(cls._split_list(shlex.split(cmd), "|"))
+
+    @classmethod
+    def from_list(cls, cmd: List[str]) -> CommandABC:
+
+        return cls([cmd])

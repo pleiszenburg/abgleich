@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/lib.py: ZFS library
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -29,9 +29,9 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import re
-import typing
+from typing import Union
 
-import typeguard
+from typeguard import typechecked
 
 from .abc import ConfigABC
 from .command import Command
@@ -41,19 +41,23 @@ from .command import Command
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 def is_host_up(side: str, config: ConfigABC) -> bool:
 
     assert side in ("source", "target")
-    if config[side]["host"] == "localhost":
+    if config[f"{side:s}/host"].value == "localhost":
         return True
 
-    _, _, returncode, _ = Command.on_side(["exit"], side, config).run(returncode=True)
-    assert returncode in (0, 255)
-    return returncode == 0
+    _, _, returncode, _ = (
+        Command.from_list(["exit"])
+        .on_side(side=side, config=config)
+        .run(returncode=True)
+    )
+    assert returncode[0] in (0, 255)
+    return returncode[0] == 0
 
 
-@typeguard.typechecked
+@typechecked
 def join(*args: str) -> str:
 
     if len(args) < 2:
@@ -67,10 +71,12 @@ def join(*args: str) -> str:
     return "/".join(args)
 
 
-@typeguard.typechecked
-def root(zpool: str, prefix: typing.Union[str, None]) -> str:
+@typechecked
+def root(zpool: str, prefix: Union[str, None]) -> str:
 
     if prefix is None:
+        return zpool
+    if len(prefix) == 0:
         return zpool
     return join(zpool, prefix)
 
@@ -78,11 +84,15 @@ def root(zpool: str, prefix: typing.Union[str, None]) -> str:
 _name_re = re.compile("^[A-Za-z0-9_]+$")
 
 
-@typeguard.typechecked
+@typechecked
 def valid_name(name: str, min_len: int = 1) -> bool:
 
     assert min_len >= 0
 
     if len(name) < min_len:
         return False
+
+    if min_len == 0 and len(name) == 0:
+        return True
+
     return bool(_name_re.match(name))

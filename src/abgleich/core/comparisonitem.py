@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/core/filesystem.py: ZFS filesystem
+    src/abgleich/core/comparisonitem.py: ZFS comparison item
 
     Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,21 +24,35 @@ specific language governing rights and limitations under the License.
 
 """
 
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Union
+from typing import Generator, List, Union
 
 from typeguard import typechecked
 
-from .abc import PropertyABC
+from .abc import ComparisonItemABC, DatasetABC, SnapshotABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-PropertyTypes = Union[str, int, float, None]
+ComparisonGeneratorType = Union[
+    Generator[DatasetABC, None, None],
+    Generator[SnapshotABC, None, None],
+    None,
+]
+ComparisonItemType = Union[
+    DatasetABC,
+    SnapshotABC,
+    None,
+]
+ComparisonStrictItemType = Union[
+    DatasetABC,
+    SnapshotABC,
+]
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -46,69 +60,49 @@ PropertyTypes = Union[str, int, float, None]
 
 
 @typechecked
-class Property(PropertyABC):
+class ComparisonItem(ComparisonItemABC):
     """
     Immutable.
     """
 
-    def __init__(
-        self,
-        name: str,
-        value: PropertyTypes,
-        src: PropertyTypes = None,
-    ):
+    def __init__(self, a: ComparisonItemType, b: ComparisonItemType):
 
-        self._name = name
-        self._value = value
-        self._src = src
+        assert a is not None or b is not None
+        if a is not None and b is not None:
+            assert type(a) == type(b)
 
-    @property
-    def name(self) -> str:
-        return self._name
+        self._a, self._b = a, b
 
-    @property
-    def value(self) -> PropertyTypes:
-        return self._value
+    def get_item(self) -> ComparisonStrictItemType:
+
+        if self._a is not None:
+            return self._a
+        return self._b
 
     @property
-    def value_export(self) -> str:
-        return self._export(self._value)
+    def complete(self) -> bool:
+
+        return self._a is not None and self._b is not None
 
     @property
-    def src(self) -> PropertyTypes:
-        return self._src
+    def a(self) -> ComparisonItemType:
+
+        return self._a
 
     @property
-    def src_export(self) -> str:
-        return self._export(self._src)
+    def b(self) -> ComparisonItemType:
+
+        return self._b
 
     @classmethod
-    def _import(cls, value: str) -> PropertyTypes:
+    def list_from_singles(
+        cls,
+        items_a: ComparisonGeneratorType,
+        items_b: ComparisonGeneratorType,
+    ) -> List[ComparisonItemABC]:
 
-        value = value.strip()
+        assert (items_a is not None) ^ (items_b is not None)
 
-        if value.isnumeric():
-            return int(value)
-
-        if value.strip() == "" or value == "-" or value.lower() == "none":
-            return None
-
-        try:
-            return float(value)
-        except ValueError:
-            pass
-
-        return value
-
-    def _export(self, value: PropertyTypes) -> str:
-
-        return "-" if value is None else str(value)  # TODO improve!
-
-    @classmethod
-    def from_params(cls, name, value, src) -> PropertyABC:
-
-        return cls(
-            name=name,
-            value=cls._import(value),
-            src=cls._import(src),
-        )
+        if items_a is None:
+            return [cls(None, item) for item in items_b]
+        return [cls(item, None) for item in items_a]

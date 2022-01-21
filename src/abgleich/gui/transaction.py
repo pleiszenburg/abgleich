@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/gui/transaction.py: ZFS transactions
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -28,9 +28,9 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import typing
+from typing import Callable, Union
 
-import typeguard
+from typeguard import typechecked
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt5.QtGui import QColor
 
@@ -43,11 +43,13 @@ from ..core.i18n import t
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class TransactionListModel(QAbstractTableModel):
-    def __init__(
-        self, transactions: TransactionListABC, parent_changed: typing.Callable
-    ):
+    """
+    Mutable.
+    """
+
+    def __init__(self, transactions: TransactionListABC, parent_changed: Callable):
 
         super().__init__()
         self._transactions = transactions
@@ -59,7 +61,7 @@ class TransactionListModel(QAbstractTableModel):
 
     def data(
         self, index: QModelIndex, role: int
-    ) -> typing.Union[None, str, QColor]:  # TODO return type
+    ) -> Union[None, str, QColor]:  # TODO return type
 
         row, col = index.row(), index.column()
         col_key = self._cols[col]
@@ -94,7 +96,7 @@ class TransactionListModel(QAbstractTableModel):
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int
-    ) -> typing.Union[None, str]:
+    ) -> Union[None, str]:
 
         if role == Qt.DisplayRole:
 
@@ -112,7 +114,7 @@ class TransactionListModel(QAbstractTableModel):
 
         return len(self._cols)
 
-    def _transactions_changed(self, row: typing.Union[None, int] = None):
+    def _transactions_changed(self, row: Union[None, int] = None):
 
         old_rows, old_cols = self._rows, self._cols
         self._update_labels()

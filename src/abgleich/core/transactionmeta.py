@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/cli/snap.py: snap command entry point
+    src/abgleich/core/transactionmeta.py: ZFS transaction meta
 
     Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,42 +24,49 @@ specific language governing rights and limitations under the License.
 
 """
 
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import click
-import sys
+from typing import Generator, Union
 
-from ..core.config import Config
-from ..core.i18n import t
-from ..core.lib import is_host_up
-from ..core.zpool import Zpool
+from typeguard import typechecked
+
+from .abc import TransactionMetaABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
+# TYPES
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+TransactionMetaTypes = Union[str, int, float]
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# CLASS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@click.command(short_help="create snapshots of changed datasets for backups")
-@click.argument("configfile", type=click.File("r", encoding="utf-8"))
-def snap(configfile):
+@typechecked
+class TransactionMeta(TransactionMetaABC):
+    """
+    Immutable.
+    """
 
-    config = Config.from_fd(configfile)
+    def __init__(self, **kwargs: TransactionMetaTypes):
 
-    if not is_host_up("source", config):
-        print(f'{t("host is not up"):s}: source')
-        sys.exit(1)
+        self._meta = kwargs
 
-    zpool = Zpool.from_config("source", config=config)
-    transactions = zpool.get_snapshot_transactions()
+    def __getitem__(self, key: str) -> TransactionMetaTypes:
 
-    if len(transactions) == 0:
-        print(t("nothing to do"))
-        return
-    transactions.print_table()
+        return self._meta[key]
 
-    click.confirm(t("Do you want to continue?"), abort=True)
+    def __len__(self) -> int:
 
-    transactions.run()
+        return len(self._meta)
+
+    def get(self, key: str) -> Union[TransactionMetaTypes, None]:
+
+        return self._meta.get(key, None)
+
+    def keys(self) -> Generator[str, None, None]:
+
+        return (key for key in self._meta.keys())

@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/i18n.py: Translations
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 import locale
 import os
 
-import typeguard
+from typeguard import typechecked
 import yaml
 
 try:
@@ -49,8 +49,12 @@ except ImportError:
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typeguard.typechecked
+@typechecked
 class _Lang(dict):
+    """
+    Mutable.
+    """
+
     def __init__(self):
 
         super().__init__()

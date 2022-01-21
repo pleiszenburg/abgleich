@@ -8,7 +8,7 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/abc.py: Abstract base classes
 
-    Copyright (C) 2019-2020 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -28,56 +28,64 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import abc
+from abc import ABC
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASSES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class CloneABC(abc.ABC):
+class CloneABC(ABC):
     pass
 
 
-class CommandABC(abc.ABC):
+class CommandABC(ABC):
     pass
 
 
-class ComparisonABC(abc.ABC):
+class ComparisonDatasetABC(ABC):
     pass
 
 
-class ComparisonItemABC(abc.ABC):
+class ComparisonItemABC(ABC):
     pass
 
 
-class ConfigABC(abc.ABC):
+class ComparisonZpoolABC(ABC):
     pass
 
 
-class DatasetABC(abc.ABC):
+class ConfigABC(ABC):
     pass
 
 
-class PropertyABC(abc.ABC):
+class ConfigFieldABC(ABC):
     pass
 
 
-class SnapshotABC(abc.ABC):
+class DatasetABC(ABC):
     pass
 
 
-class TransactionABC(abc.ABC):
+class PropertyABC(ABC):
     pass
 
 
-class TransactionListABC(abc.ABC):
+class SnapshotABC(ABC):
     pass
 
 
-class TransactionMetaABC(abc.ABC):
+class TransactionABC(ABC):
     pass
 
 
-class ZpoolABC(abc.ABC):
+class TransactionListABC(ABC):
+    pass
+
+
+class TransactionMetaABC(ABC):
+    pass
+
+
+class ZpoolABC(ABC):
     pass

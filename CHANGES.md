@@ -1,8 +1,21 @@
 # Changes
 
+## 0.0.8 (2022-01-21)
+
+- FEATURE: `zfs-auto-snapshot` can be told to ignore backup datasets on the target side, see #3.
+- FEATURE: `samba` can optionally be told to NOT share/expose backup datasets on the target side, see #4.
+- FEATURE: `ssh`-port on source and target becomes configurable, see #22.
+- FEATURE: New configuration fields for `source` and `target` each: `processing`. They can carry shell commands for pre- and post-processing of data before and after it is transferred via ssh. This enables the use of e.g. `lzma` or `bzip2` as a custom transfer compression beyond the compression capabilities of `ssh` itself. See #23.
+- FEATURE: `abgleich clean` can also remove snapshots on `target` but only if they are not part of the current overlap with `source`. The behavior can be controlled via the new `keep_backlog` configuration option, see #24 and #25.
+- FEATURE: Configuration module contains default values for parameters, making it much easier to write lightweight configuration files, see #28. The configuration parser now also provides much more useful output.
+- FEATURE: `abgleich tree` and `abgleich compare` highlight ignored datasets.
+- FEATURE: Significantly more flexible shell command wrapper and, as a result, cleaned up transaction handling.
+- FEATURE: Python 3.9 and 3.10 compatibility.
+- FIX: Many cleanups in code base, enabling future developments.
+
 ## 0.0.7 (2020-08-05)
 
-- FIX: `tree` now property checks if source or target is up, depending on what a user wants to see, see #20.
+- FIX: `tree` now properly checks if source or target is up, depending on what a user wants to see, see #20.
 - FIX: All `abgleich` commands can properly initialize (instead of crashing) if the target tree is empty, see #19.
 - FIX: `tree` shows message if there is no tree instead of crashing, see #18.
 
