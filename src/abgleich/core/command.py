@@ -75,7 +75,10 @@ class Command(CommandABC):
             return ""
 
         if isinstance(com, bytes):
-            return com.decode("utf-8")
+            try:
+                return com.decode("utf-8")
+            except UnicodeDecodeError:
+                return repr(com)
 
         return com
 
