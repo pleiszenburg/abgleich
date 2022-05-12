@@ -69,19 +69,21 @@ class Command(CommandABC):
         return type(self)(self.cmd + other.cmd)
 
     @staticmethod
-    def _com_to_str(com: Union[str, bytes, None], max_length: int = 10_240) -> str:
+    def _com_to_str(com: Union[str, bytes, None], max_byte_chars: int = 102_400) -> str:
 
         if com is None:
             return ""
 
-        if isinstance(com, bytes):
-            try:
-                com = com.decode("utf-8")
-            except UnicodeDecodeError:
-                com = repr(com)
+        if not isinstance(com, bytes):
+            return com
 
-        if len(com) > max_length:
-            return f'[{len(com)-max_length:d} characters ...]\n{com[-max_length:]:s}'
+        try:
+            com = com.decode("utf-8")
+        except UnicodeDecodeError:
+            com = repr(com)
+
+        if len(com) > max_byte_chars:
+            return f'[{len(com)-max_byte_chars:d} characters ...]\n{com[-max_byte_chars:]:s}'
 
         return com
 
