@@ -108,7 +108,10 @@ class Transaction(TransactionABC):
             self._changed()
 
         try:
-            _, _ = self._command.run()
+            _, _ = self._command.run(
+                max_out_byte_chars=102_400,
+                max_err_byte_chars=102_400,
+            )
         except SystemError as error:
             self._error = error
         finally:
