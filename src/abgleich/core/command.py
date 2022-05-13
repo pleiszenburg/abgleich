@@ -30,7 +30,7 @@ specific language governing rights and limitations under the License.
 
 import itertools
 from subprocess import Popen, PIPE
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 import shlex
 
 from typeguard import typechecked
@@ -69,7 +69,7 @@ class Command(CommandABC):
         return type(self)(self.cmd + other.cmd)
 
     @staticmethod
-    def _com_to_str(com: Union[str, bytes, None], max_byte_chars: int = 102_400) -> str:
+    def _com_to_str(com: Union[str, bytes, None], max_byte_chars: Optional[int] = None) -> str:
 
         if com is None:
             return ""
@@ -82,8 +82,9 @@ class Command(CommandABC):
         except UnicodeDecodeError:
             com = repr(com)
 
-        if len(com) > max_byte_chars:
-            return f'[{len(com)-max_byte_chars:d} characters ...]\n{com[-max_byte_chars:]:s}'
+        if max_byte_chars is not None:
+            if len(com) > max_byte_chars:
+                return f'[{len(com)-max_byte_chars:d} characters ...]\n{com[-max_byte_chars:]:s}'
 
         return com
 
