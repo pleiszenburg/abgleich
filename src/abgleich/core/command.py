@@ -100,7 +100,10 @@ class Command(CommandABC):
         ]
 
     def run(
-        self, returncode: bool = False
+        self,
+        returncode: bool = False,
+        max_out_byte_chars: Optional[int] = None,
+        max_err_byte_chars: Optional[int] = None,
     ) -> Union[
         Tuple[List[str], List[str], List[int], Exception], Tuple[List[str], List[str]]
     ]:
@@ -123,8 +126,8 @@ class Command(CommandABC):
         for proc in procs[::-1]:  # inverse order, last process first
 
             out, err = proc.communicate()
-            output.append(self._com_to_str(out))
-            errors.append(self._com_to_str(err))
+            output.append(self._com_to_str(out, max_byte_chars=max_out_byte_chars))
+            errors.append(self._com_to_str(err, max_byte_chars=max_err_byte_chars))
             status.append(int(proc.returncode))
 
         output.reverse()
