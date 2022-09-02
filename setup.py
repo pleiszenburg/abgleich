@@ -75,7 +75,7 @@ with open(os.path.join(SRC_DIR, "abgleich", "__init__.py"), "r", encoding="utf-8
 extras_require = {
     "dev": [
         "black",
-        "python-language-server[all]",
+        "python-lsp-server[all]",
         "setuptools",
         "twine",
         "wheel",
