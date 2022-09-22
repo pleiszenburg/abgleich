@@ -2,7 +2,7 @@
 
 ## 0.0.9 (2022-XX-XX)
 
-- (TBD)
+- FIX: Improved error handling by not passing snapshots failed to send completely to stdout.
 
 ## 0.0.8 (2022-01-21)
 
