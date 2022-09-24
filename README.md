@@ -42,12 +42,11 @@ Rights to run the following commands are required:
 
 | command        | source | target |
 |----------------|:------:|:------:|
-| `zfs list`     |    x   |    x   |
-| `zfs get`      |    x   |    x   |
 | `zfs snapshot` |    x   |        |
 | `zfs send`     |    x   |        |
 | `zfs receive`  |        |    x   |
 | `zfs destroy`  |    x   |        |
+| `zfs diff`     |    x   |        |
 
 ### `config.yaml`
 
