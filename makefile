@@ -4,6 +4,7 @@ black:
 
 clean:
 	-rm -r build/*
+	-rm -r dist/*
 	find src/ -name '*.pyc' -exec sudo rm -f {} +
 	find src/ -name '*.pyo' -exec sudo rm -f {} +
 	find src/ -name '*~' -exec rm -f {} +
@@ -12,7 +13,6 @@ clean:
 	find src/ -name '*.html' -exec rm -f {} +
 	find src/ -name '*.so' -exec rm -f {} +
 	find src/ -name 'octave-workspace' -exec rm -f {} +
-	-rm -r dist/*
 
 release:
 	make clean
