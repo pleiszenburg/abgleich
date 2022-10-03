@@ -3,6 +3,7 @@
 ## 0.0.9 (2022-XX-XX)
 
 - FIX: Improved error handling by not passing snapshots failed to send completely to stdout.
+- DEV: Moved from `setuptools` for packaging to `pyproject.toml` via `flit`.
 
 ## 0.0.8 (2022-01-21)
 

@@ -13,18 +13,15 @@ clean:
 	find src/ -name '*.so' -exec rm -f {} +
 	find src/ -name 'octave-workspace' -exec rm -f {} +
 	-rm -r dist/*
-	-rm -r src/*.egg-info
 
 release:
 	make clean
-	python setup.py sdist bdist_wheel
-	python setup.py sdist
+	flit build
 	gpg --detach-sign -a dist/abgleich*.whl
 	gpg --detach-sign -a dist/abgleich*.tar.gz
 
 install:
-	pip install -vU pip setuptools
-	pip install -v -e .[all]
+	pip install -v -e .[all,gui]
 
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
