@@ -21,7 +21,7 @@ release:
 	gpg --detach-sign -a dist/abgleich*.tar.gz
 
 install:
-	pip install -v -e .[all,gui]
+	pip install -v -e .[dev,gui]
 
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
