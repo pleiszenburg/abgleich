@@ -48,7 +48,8 @@ from ..core.zpool import Zpool
 @click.command(short_help="cleanup older snapshots")
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
 @click.argument("side", default="source", type=str)
-def cleanup(configfile, side):
+@click.option("--force", is_flag=True, help="enforce cleanup without user interaction")
+def cleanup(configfile, side, force):
 
     config = Config.from_fd(configfile)
 
@@ -84,7 +85,8 @@ def cleanup(configfile, side):
         return
     transactions.print_table()
 
-    click.confirm(t("Do you want to continue?"), abort=True)
+    if not force:
+        click.confirm(t("Do you want to continue?"), abort=True)
 
     transactions.run()
 

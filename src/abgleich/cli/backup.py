@@ -44,7 +44,8 @@ from ..core.zpool import Zpool
 
 @click.command(short_help="backup a dataset tree into another")
 @click.argument("configfile", type=click.File("r", encoding="utf-8"))
-def backup(configfile):
+@click.option("--force", is_flag=True, help="enforce backup without user interaction")
+def backup(configfile, force):
 
     config = Config.from_fd(configfile)
 
@@ -63,6 +64,7 @@ def backup(configfile):
         return
     transactions.print_table()
 
-    click.confirm(t("Do you want to continue?"), abort=True)
+    if not force:
+        click.confirm(t("Do you want to continue?"), abort=True)
 
     transactions.run()
