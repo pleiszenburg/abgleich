@@ -14,6 +14,9 @@ clean:
 	find src/ -name '*.so' -exec rm -f {} +
 	find src/ -name 'octave-workspace' -exec rm -f {} +
 
+docs:
+	@(cd docs; make clean; make html)
+
 release:
 	make clean
 	flit build
@@ -27,3 +30,5 @@ upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
 		twine upload $$filename $$filename.asc ; \
 	done
+
+.PHONY: docs
