@@ -1,16 +1,17 @@
-.. abgleich documentation master file, created by
-   sphinx-quickstart on Mon Oct  3 20:02:35 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+:github_url:
 
-Welcome to abgleich's documentation!
-====================================
+abgleich
+========
+
+**zfs sync tool**
+
+*/ˈapɡlaɪ̯ç/* - German, noun, male: `comparison, replication, alignment`_
+
+.. _comparison, replication, alignment: https://dict.leo.org/englisch-deutsch/abgleich
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
 
 Indices and tables
 ==================
