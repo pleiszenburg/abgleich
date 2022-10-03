@@ -6,13 +6,13 @@
 
 ## CLI EXAMPLE
 
-![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo.png?raw=true "demo")
+![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/demo.png?raw=true "demo")
 
 ## GUI EXAMPLE
 
 | snap | backup | cleanup |
 |:----:|:------:|:-------:|
-| ![snap](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui01.png?raw=true "snap") | ![backup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui02.png?raw=true "backup") | ![cleanup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui03.png?raw=true "cleanup") |
+| ![snap](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui01.png?raw=true "snap") | ![backup](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui02.png?raw=true "backup") | ![cleanup](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui03.png?raw=true "cleanup") |
 
 ## INSTALLATION
 
