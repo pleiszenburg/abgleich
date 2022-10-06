@@ -44,11 +44,15 @@ Rights to run the following commands are required:
 
 | command        | source | target |
 |----------------|:------:|:------:|
-| `zfs snapshot` |    x   |        |
-| `zfs send`     |    x   |        |
-| `zfs receive`  |        |    x   |
+| `zfs create`   |        |    x   |
 | `zfs destroy`  |    x   |        |
 | `zfs diff`     |    x   |        |
+| `zfs mount`    |    x   |    x   |
+| `zfs receive`  |        |    x   |
+| `zfs send`     |    x   |        |
+| `zfs snapshot` |    x   |        |
+
+Permissions can be delegated via [zfs allow](https://openzfs.github.io/openzfs-docs/man/8/zfs-allow.8.html): `zfs allow -u user {operation} {zpool}`.
 
 ### `config.yaml`
 
