@@ -1,3 +1,5 @@
+![abgleich](src/abgleich/share/icon.svg "abgleich logo")
+
 # ABGLEICH
 
 */ˈapɡlaɪ̯ç/ ([German, noun, male: comparison, replication, alignment](https://dict.leo.org/englisch-deutsch/abgleich))*
@@ -8,13 +10,13 @@
 
 ## CLI EXAMPLE
 
-![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/demo.png?raw=true "demo")
+![demo](docs/source/_static/demo.png "demo")
 
 ## GUI EXAMPLE
 
 | snap | backup | cleanup |
 |:----:|:------:|:-------:|
-| ![snap](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui01.png?raw=true "snap") | ![backup](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui02.png?raw=true "backup") | ![cleanup](https://github.com/pleiszenburg/abgleich/blob/master/docs/source/_static/gui03.png?raw=true "cleanup") |
+| ![snap](docs/source/_static/gui01.png "snap") | ![backup](docs/source/_static/gui02.png "backup") | ![cleanup](docs/source/_static/gui03.png "cleanup") |
 
 ## INSTALLATION
 
