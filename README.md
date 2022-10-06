@@ -1,4 +1,4 @@
-![abgleich](src/abgleich/share/icon.svg "abgleich logo")
+<img src="src/abgleich/share/icon.svg" alt="abgleich logo" width="256" height="256">
 
 # ABGLEICH
 
