@@ -39,6 +39,11 @@ try:
 except ImportError:
     from yaml import FullLoader as Loader
 
+try:
+    from yaml import CDumper as Dumper
+except ImportError:
+    from yaml import Dumper
+
 from .abc import ConfigABC, ConfigFieldABC
 from .configspec import CONFIGSPEC
 
@@ -89,7 +94,11 @@ class Config(ConfigABC):
         Export configuration to YAML string
         """
 
-        return ''  # TODO
+        config = {}
+
+        # TODO
+
+        return yaml.dump(config, Dumper = Dumper)
 
     @classmethod
     def _flatten_dict_tree(cls, data: Dict, root: Union[str, None] = None) -> Dict:
