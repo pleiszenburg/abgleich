@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/gui/lib.py: gui library
+    src/abgleich/core/typeguard.py: Wrapper for typeguard for debugging
 
     Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -25,26 +25,14 @@ specific language governing rights and limitations under the License.
 """
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# IMPORT
+# WRAPPER
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Type
-import sys
+import os
+import warnings
 
-from PyQt5.QtWidgets import QApplication, QDialog
-
-from ..core.abc import ConfigABC
-from ..core.typeguard import typechecked
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ROUTINES
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-@typechecked
-def run_app(Window: Type[QDialog], config: ConfigABC):
-
-    app = QApplication(sys.argv)
-    window = Window(config)
-    window.show()
-    sys.exit(app.exec_())
+if os.environ.get('ABGLEICH_DEBUG', '0') == '1':
+    from typeguard import typechecked
+    warnings.warn("abgleich running in debug mode with activated run-time type checks", RuntimeWarning)
+else:
+    typechecked = lambda x: x

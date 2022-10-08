@@ -30,9 +30,8 @@ specific language governing rights and limitations under the License.
 
 from typing import Generator, Union
 
-from typeguard import typechecked
-
 from .abc import TransactionMetaABC
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPES

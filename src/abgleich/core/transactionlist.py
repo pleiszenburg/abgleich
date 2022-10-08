@@ -31,12 +31,12 @@ specific language governing rights and limitations under the License.
 from typing import Callable, Generator, List, Union
 
 from tabulate import tabulate
-from typeguard import typechecked
 
 from .abc import TransactionABC, TransactionListABC
 from .i18n import t
 from .io import colorize, humanize_size
 from .transactionmeta import TransactionMetaTypes
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

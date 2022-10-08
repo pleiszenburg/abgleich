@@ -31,7 +31,6 @@ specific language governing rights and limitations under the License.
 
 from typing import Dict, TextIO, Union
 
-from typeguard import typechecked
 import yaml
 
 try:
@@ -46,6 +45,7 @@ except ImportError:
 
 from .abc import ConfigABC, ConfigFieldABC
 from .configspec import CONFIGSPEC
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

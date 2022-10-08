@@ -31,9 +31,8 @@ specific language governing rights and limitations under the License.
 
 from typing import Generator, List, Union
 
-from typeguard import typechecked
-
 from .abc import ComparisonItemABC, DatasetABC, SnapshotABC
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING

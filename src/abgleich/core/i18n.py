@@ -31,7 +31,6 @@ specific language governing rights and limitations under the License.
 import locale
 import os
 
-from typeguard import typechecked
 import yaml
 
 try:
@@ -43,6 +42,8 @@ try:
     from yaml import CDumper as Dumper
 except ImportError:
     from yaml import Dumper
+
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

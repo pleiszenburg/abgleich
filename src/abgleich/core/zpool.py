@@ -32,7 +32,6 @@ from collections import OrderedDict
 from typing import Generator, List, Tuple, Union
 
 from tabulate import tabulate
-from typeguard import typechecked
 
 from .abc import (
     ComparisonItemABC,
@@ -52,6 +51,7 @@ from .lib import join, root
 from .property import Property
 from .transaction import Transaction
 from .transactionlist import TransactionList
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

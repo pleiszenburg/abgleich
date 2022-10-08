@@ -31,10 +31,9 @@ specific language governing rights and limitations under the License.
 import re
 from typing import Union
 
-from typeguard import typechecked
-
 from .abc import ConfigABC
 from .command import Command
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES

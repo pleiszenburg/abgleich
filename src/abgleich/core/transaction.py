@@ -30,13 +30,11 @@ specific language governing rights and limitations under the License.
 
 from typing import Callable, Union
 
-from typeguard import typechecked
-
 from .abc import CommandABC, ConfigABC, PropertyABC, TransactionABC, TransactionMetaABC
 from .command import Command
 from .i18n import t
 from .transactionmeta import TransactionMeta
-
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

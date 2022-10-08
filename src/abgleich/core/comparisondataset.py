@@ -31,8 +31,6 @@ specific language governing rights and limitations under the License.
 import itertools
 from typing import Generator, List, Union
 
-from typeguard import typechecked
-
 from .abc import (
     ComparisonDatasetABC,
     ComparisonItemABC,
@@ -41,6 +39,7 @@ from .abc import (
     SnapshotABC,
 )
 from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

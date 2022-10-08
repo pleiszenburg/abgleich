@@ -32,13 +32,13 @@ import os
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMessageBox
-from typeguard import typechecked
 
 from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
 from ..core.transactionlist import TransactionList
 from ..core.i18n import t
+from ..core.typeguard import typechecked
 from ..core.zpool import Zpool
 from .. import __version__
 

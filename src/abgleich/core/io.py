@@ -30,7 +30,7 @@ specific language governing rights and limitations under the License.
 
 from typing import Union
 
-from typeguard import typechecked
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CONSTANTS

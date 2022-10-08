@@ -30,9 +30,8 @@ specific language governing rights and limitations under the License.
 
 from typing import Callable, List, Union
 
-from typeguard import typechecked
-
 from .abc import ConfigFieldABC
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING

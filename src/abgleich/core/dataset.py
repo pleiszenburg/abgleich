@@ -37,8 +37,6 @@ try:
 except ImportError:
     DictType = Dict
 
-from typeguard import typechecked
-
 from .abc import ConfigABC, DatasetABC, PropertyABC, SnapshotABC, TransactionListABC
 from .command import Command
 from .i18n import t
@@ -48,6 +46,7 @@ from .transaction import Transaction
 from .transactionlist import TransactionList
 from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
+from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
