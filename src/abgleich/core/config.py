@@ -71,8 +71,25 @@ class Config(ConfigABC):
         )
 
     def group(self, root: str) -> ConfigABC:
+        """
+        Easy access to configuration groups (aka paths)
+        """
 
         return type(self)(root=root, **self._fields)
+
+    def to_fd(self, fd: TextIO):
+        """
+        Export configuration to handle on opened YAML file
+        """
+
+        fd.write(self.to_text())
+
+    def to_text(self):
+        """
+        Export configuration to YAML string
+        """
+
+        return ''  # TODO
 
     @classmethod
     def _flatten_dict_tree(cls, data: Dict, root: Union[str, None] = None) -> Dict:
@@ -94,11 +111,17 @@ class Config(ConfigABC):
 
     @classmethod
     def from_fd(cls, fd: TextIO) -> ConfigABC:
+        """
+        Import configuration from handle on opened YAML file
+        """
 
         return cls.from_text(fd.read())
 
     @classmethod
     def from_text(cls, text: str) -> ConfigABC:
+        """
+        Import configuration from YAML string
+        """
 
         config = yaml.load(text, Loader=Loader)
 
