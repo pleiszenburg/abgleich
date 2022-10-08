@@ -117,9 +117,11 @@ class ConfigField(ConfigFieldABC):
     @property
     def valid(self) -> bool:
 
-        return (self._value is not None and self._validate(self._value)) or (
-            self._default is not None and self._validate(self._default)
-        )
+        if self._value is not None:
+            return self._validate(self._value)
+
+        # if self._default is not None
+        return self._validate(self._default)
 
     @property
     def required(self) -> bool:
