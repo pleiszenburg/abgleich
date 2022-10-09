@@ -71,6 +71,7 @@ class ConfigField(ConfigFieldABC):
 
         return (
             "<ConfigField "
+            f'set="{"yes" if self.set else "no"}" '
             f'required="{str(self.required):s}" '
             f'value="{str(self._value):s}" '
             f'default="{str(self._default):s}"'
