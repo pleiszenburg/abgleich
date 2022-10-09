@@ -100,7 +100,7 @@ class Config(ConfigABC):
             if field.set
         }
 
-        config = self._tree_to_flat(config)
+        config = self._flat_to_tree(config)
 
         return yaml.dump(config, Dumper=Dumper, allow_unicode=True, indent=4)
 
@@ -138,7 +138,7 @@ class Config(ConfigABC):
                 tree[root] = {}
             tree[root][key] = value
 
-        for key, value in tree:
+        for key, value in tree.items():
             if not isinstance(value, dict):
                 continue
             tree[key] = cls._flat_to_tree(value)

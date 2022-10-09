@@ -39,16 +39,19 @@ ignore:
 include_root: true
 keep_backlog: true
 keep_snapshots: 2
-source/host: localhost
-source/prefix: username
-source/zpool: sourcepool
-ssh/cipher: aes256-gcm@openssh.com
-ssh/compression: false
+source:
+    host: sourcehost
+    prefix: sourceprefix
+    zpool: sourcepool
+ssh:
+    cipher: aes256-gcm@openssh.com
+    compression: false
 suffix: _backup
-target/host: targethost
-target/prefix: dataset
-target/user: username
-target/zpool: targetpool
+target:
+    host: targethost
+    prefix: targetprefix
+    user: targetuser
+    zpool: targetpool
 written_threshold: 1048576
 """
 
