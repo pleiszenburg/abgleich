@@ -53,11 +53,13 @@ class ConfigField(ConfigFieldABC):
     def __init__(
         self,
         name: str,
+        description: str,
         validate: Callable,
         default: ConfigValueTypes = None,
     ):
 
         self._name = name
+        self._description = description
         self._default = default
         self._validate = validate
 
@@ -82,6 +84,7 @@ class ConfigField(ConfigFieldABC):
 
         return type(self)(
             name=self._name,
+            description=self._description,
             default=self._default,
             validate=self._validate,
         )
@@ -90,6 +93,11 @@ class ConfigField(ConfigFieldABC):
     def name(self) -> str:
 
         return self._name
+
+    @property
+    def description(self) -> str:
+
+        return self._description
 
     @property
     def value(self) -> ConfigValueTypes:
