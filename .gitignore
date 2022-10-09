@@ -9,3 +9,5 @@ notes.md
 config.yaml
 dist/
 build/
+.coverage
+htmlcov
