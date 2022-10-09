@@ -5,6 +5,7 @@
 - FEATURE: Introduced a debug mode, activated by setting the `ABGLEICH_DEBUG` environment variable to `1`. Debug features were previously hard-coded activated, making `abgleich` now with debug features deactivated by default much faster.
 - FIX: Improved error handling by not passing snapshots failed to send completely to stdout.
 - DEV: Moved from `setuptools` for packaging to `pyproject.toml` via `flit`.
+- DEV: Added rudimentary test suite.
 
 ## 0.0.8 (2022-01-21)
 
