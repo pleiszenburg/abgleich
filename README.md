@@ -152,3 +152,9 @@ Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI. This command 
 `abgleich` uses Python's [type hints](https://docs.python.org/3/library/typing.html) and enforces them with [typeguard](https://github.com/agronholm/typeguard) at runtime. It furthermore makes countless assertions.
 
 The enforcement of types and assertions can be controlled through the `PYTHONOPTIMIZE` environment variable. If set to `0` (the implicit default value), all checks are activated. `abgleich` will run slow. For safety, this mode is highly recommended. For significantly higher speed, all type checks and most assertions can be deactivated by setting `PYTHONOPTIMIZE` to `1` or `2`, e.g. `PYTHONOPTIMIZE=1 abgleich tree config.yaml`. This is not recommended. You may want to check if another tool or configuration has altered this environment variable by running `echo $PYTHONOPTIMIZE`.
+
+## FOR PRODUCTION ENVIRONMENTS
+
+`abgleich` is using **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from `0.0.x` to `0.1.y` or going from `0.1.x` to `0.2.y` therefore indicates a breaking change.
+
+If you are relying on `abgleich` in one way or another, please consider monitoring the project: [its repository on Github](https://github.com/pleiszenburg/abgleich) and [its chatroom](https://matrix.to/#/#abgleich:matrix.org).
