@@ -206,9 +206,9 @@ class ComparisonDataset(ComparisonDatasetABC):
         target_names = {item.name for item in target}
 
         if len(source_names) != len(source):
-            raise ValueError("source contains doublicate entires")
+            raise ValueError("source contains duplicate entires")
         if len(target_names) != len(target):
-            raise ValueError("target contains doublicate entires")
+            raise ValueError("target contains duplicate entires")
 
         overlap_tail = []
         for item in source:
