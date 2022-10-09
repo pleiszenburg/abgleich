@@ -13,6 +13,7 @@ clean:
 	find src/ -name '*.html' -exec rm -f {} +
 	find src/ -name '*.so' -exec rm -f {} +
 	find src/ -name 'octave-workspace' -exec rm -f {} +
+	coverage erase
 
 docs:
 	@(cd docs; make clean; make html)
