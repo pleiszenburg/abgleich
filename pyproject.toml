@@ -55,8 +55,12 @@ abgleich = "abgleich.cli:cli"
 [project.optional-dependencies]
 dev = [
     "black",
+    "coverage[toml]",
+    "deepdiff6",
     "flit",
     "myst-parser",
+    "pytest",
+    "pytest-cov",
     "python-lsp-server[all]",
     "Sphinx",
     "sphinx_rtd_theme",

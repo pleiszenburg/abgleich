@@ -26,6 +26,11 @@ release:
 install:
 	pip install -v -e .[dev,gui]
 
+test:
+	make clean
+	pytest --cov=abgleich
+	coverage html -i
+
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
 		twine upload $$filename $$filename.asc ; \
