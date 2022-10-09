@@ -33,10 +33,10 @@ from typing import Callable, Generator, List, Union
 from tabulate import tabulate
 
 from .abc import TransactionABC, TransactionListABC
+from .debug import typechecked
 from .i18n import t
 from .io import colorize, humanize_size
 from .transactionmeta import TransactionMetaTypes
-from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

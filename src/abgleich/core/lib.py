@@ -33,7 +33,7 @@ from typing import Union
 
 from .abc import ConfigABC
 from .command import Command
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES

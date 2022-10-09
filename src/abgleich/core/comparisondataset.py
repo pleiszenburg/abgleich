@@ -39,7 +39,7 @@ from .abc import (
     SnapshotABC,
 )
 from .comparisonitem import ComparisonItem, ComparisonItemType, ComparisonStrictItemType
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

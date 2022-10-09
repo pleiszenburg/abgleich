@@ -39,6 +39,7 @@ except ImportError:
 
 from .abc import ConfigABC, DatasetABC, PropertyABC, SnapshotABC, TransactionListABC
 from .command import Command
+from .debug import typechecked
 from .i18n import t
 from .lib import root
 from .property import Property
@@ -46,7 +47,6 @@ from .transaction import Transaction
 from .transactionlist import TransactionList
 from .transactionmeta import TransactionMeta
 from .snapshot import Snapshot
-from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

@@ -36,9 +36,9 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 from .transaction import TransactionListModel
 from .wizard_base import WizardUiBase
 from ..core.abc import ConfigABC
+from ..core.debug import typechecked
 from ..core.transactionlist import TransactionList
 from ..core.i18n import t
-from ..core.typeguard import typechecked
 from ..core.zpool import Zpool
 from .. import __version__
 

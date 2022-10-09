@@ -38,7 +38,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-from ..core.typeguard import typechecked
+from ..core.debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

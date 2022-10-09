@@ -45,7 +45,7 @@ except ImportError:
 
 from .abc import ConfigABC, ConfigFieldABC
 from .configspec import CONFIGSPEC
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

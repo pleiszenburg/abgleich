@@ -34,7 +34,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QDialog
 
 from ..core.abc import ConfigABC
-from ..core.typeguard import typechecked
+from ..core.debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES

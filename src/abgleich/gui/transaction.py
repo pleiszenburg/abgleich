@@ -34,9 +34,9 @@ from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt5.QtGui import QColor
 
 from ..core.abc import TransactionListABC
+from ..core.debug import typechecked
 from ..core.io import humanize_size
 from ..core.i18n import t
-from ..core.typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

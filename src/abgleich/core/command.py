@@ -34,7 +34,7 @@ from typing import List, Optional, Tuple, Union
 import shlex
 
 from .abc import CommandABC, ConfigABC
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

@@ -45,13 +45,13 @@ from .command import Command
 from .comparisondataset import ComparisonDataset
 from .comparisonzpool import ComparisonZpool
 from .dataset import Dataset
+from .debug import typechecked
 from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
 from .property import Property
 from .transaction import Transaction
 from .transactionlist import TransactionList
-from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

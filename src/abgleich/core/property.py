@@ -31,7 +31,7 @@ specific language governing rights and limitations under the License.
 from typing import Union
 
 from .abc import PropertyABC
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING

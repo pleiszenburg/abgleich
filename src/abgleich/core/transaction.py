@@ -32,9 +32,9 @@ from typing import Callable, Union
 
 from .abc import CommandABC, ConfigABC, PropertyABC, TransactionABC, TransactionMetaABC
 from .command import Command
+from .debug import typechecked
 from .i18n import t
 from .transactionmeta import TransactionMeta
-from .typeguard import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS

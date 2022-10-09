@@ -32,7 +32,7 @@ from typing import Generator, List, Union
 
 from .abc import ComparisonItemABC, ComparisonZpoolABC, DatasetABC, ZpoolABC
 from .comparisonitem import ComparisonItem
-from .typeguard import typechecked
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
