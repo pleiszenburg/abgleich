@@ -102,7 +102,7 @@ class Config(ConfigABC):
 
         config = self._tree_to_flat(config)
 
-        return yaml.dump(config, Dumper = Dumper)
+        return yaml.dump(config, Dumper=Dumper, allow_unicode=True, indent=4)
 
     @classmethod
     def _tree_to_flat(cls, data: Dict, root: Union[str, None] = None) -> Dict:
