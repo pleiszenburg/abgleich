@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/core/typeguard.py: Wrapper for typeguard for debugging
+    src/abgleich/core/debug.py: Tools for debugging
 
     Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -34,5 +34,7 @@ import warnings
 if os.environ.get('ABGLEICH_DEBUG', '0') == '1':
     from typeguard import typechecked
     warnings.warn("abgleich running in debug mode with activated run-time type checks", RuntimeWarning)
+    DEBUG = True
 else:
     typechecked = lambda x: x
+    DEBUG = False
