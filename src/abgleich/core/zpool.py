@@ -140,7 +140,7 @@ class Zpool(ZpoolABC):
             return TransactionList()
         if dataset_item.a is None or dataset_item.b is None:
             return TransactionList()
-        if self.side == "target" and self._config["keep_backlog"].value == True:
+        if self.side == "target" and self._config["keep_backlog"].value == -1:
             return TransactionList()
 
         dataset_comparison = ComparisonDataset.from_datasets(
@@ -152,7 +152,7 @@ class Zpool(ZpoolABC):
                 : -self._config["keep_snapshots"].value
             ]
         else:  # target
-            if self._config["keep_backlog"].value in (False, 0):
+            if self._config["keep_backlog"].value == 0:
                 keep_backlog = None
             else:
                 keep_backlog = -self._config["keep_backlog"].value

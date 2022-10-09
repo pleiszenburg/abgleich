@@ -46,8 +46,8 @@ CONFIGSPEC = [
     ConfigField(
         name="keep_backlog",
         description=t(f""),
-        validate=lambda v: (isinstance(v, int) and v >= 0) or isinstance(v, bool),
-        default=True,
+        validate=lambda v: isinstance(v, int) and (v >= -1),
+        default=-1,
     ),
     ConfigField(
         name="suffix",
