@@ -39,7 +39,7 @@ from .lib import valid_name
 CONFIGSPEC = [
     ConfigField(
         name="keep_snapshots",
-        description=t(f""),
+        description=t(f"How many snapshots should always be kept on the source side? Minimum is one."),
         validate=lambda v: isinstance(v, int) and v >= 1,
         default=1,
     ),
