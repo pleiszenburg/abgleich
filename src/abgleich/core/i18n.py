@@ -30,6 +30,7 @@ specific language governing rights and limitations under the License.
 
 import locale
 import os
+import warnings
 
 import yaml
 
@@ -43,7 +44,7 @@ try:
 except ImportError:
     from yaml import Dumper
 
-from .typeguard import typechecked
+from .debug import DEBUG, typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -67,7 +68,10 @@ class _Lang(dict):
 
     def __call__(self, name: str) -> str:
 
-        assert len(name) > 0
+        if len(name) == 0:
+            if DEBUG:
+                warnings.warn("empty text can not be translated", RuntimeWarning)
+            return ""
 
         if int(os.environ.get("ABGLEICH_TRANSLATE", "0")) == 1:
             if name not in self.keys():
