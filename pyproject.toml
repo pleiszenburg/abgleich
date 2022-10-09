@@ -92,8 +92,7 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | env??
-  | env
+  | env([0-9]+)
 )/
 '''
 
