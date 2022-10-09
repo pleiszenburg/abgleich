@@ -96,3 +96,17 @@ exclude = '''
   | env
 )/
 '''
+
+[tool.coverage.paths]
+source = [
+    "src/",
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+relative_files = true
+source_pkgs = ["abgleich"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
