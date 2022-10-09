@@ -94,16 +94,20 @@ class Config(ConfigABC):
         Export configuration to YAML string
         """
 
-        config = {}
+        config = {
+            name: field.value
+            for name, field in self._fields.items()
+            if field.set
+        }
 
-        # TODO
+        config = self._tree_to_flat(config)
 
         return yaml.dump(config, Dumper = Dumper)
 
     @classmethod
-    def _flatten_dict_tree(cls, data: Dict, root: Union[str, None] = None) -> Dict:
+    def _tree_to_flat(cls, data: Dict, root: Union[str, None] = None) -> Dict:
 
-        flat_data = {}
+        flat = {}
 
         for key, value in data.items():
             if not isinstance(key, str):
@@ -112,11 +116,34 @@ class Config(ConfigABC):
                 if len(root) > 0:
                     key = f"{root:s}/{key:s}"
             if isinstance(value, dict):
-                flat_data.update(cls._flatten_dict_tree(data=value, root=key))
+                flat.update(cls._tree_to_flat(data=value, root=key))
             else:
-                flat_data[key] = value
+                flat[key] = value
 
-        return flat_data
+        return flat
+
+    @classmethod
+    def _flat_to_tree(cls, data: Dict) -> Dict:
+
+        tree = {}
+
+        for key, value in data.items():
+
+            if '/' not in key:
+                tree[key] = value
+                continue
+
+            root, key = key.split('/', 1)
+            if root not in tree.keys():
+                tree[root] = {}
+            tree[root][key] = value
+
+        for key, value in tree:
+            if not isinstance(value, dict):
+                continue
+            tree[key] = cls._flat_to_tree(value)
+
+        return tree
 
     @classmethod
     def from_fd(cls, fd: TextIO) -> ConfigABC:
@@ -132,18 +159,18 @@ class Config(ConfigABC):
         Import configuration from YAML string
         """
 
-        config = yaml.load(text, Loader=Loader)
+        raw = yaml.load(text, Loader=Loader)
 
-        if not isinstance(config, dict):
-            raise TypeError("config is no dict", config)
+        if not isinstance(raw, dict):
+            raise TypeError("raw configuration is no dict", raw)
 
-        config_fields = {field.name: field.copy() for field in CONFIGSPEC}
-        for key, value in cls._flatten_dict_tree(data=config).items():
-            if key not in config_fields.keys():
+        config = {field.name: field.copy() for field in CONFIGSPEC}
+        for key, value in cls._tree_to_flat(data=raw).items():
+            if key not in config.keys():
                 raise ValueError("unknown configuration key", key)
-            config_fields[key].value = value
+            config[key].value = value
 
-        if any((not field.valid for field in config_fields.values())):
+        if any((not field.valid for field in config.values())):
             raise ValueError("configuration is not valid")
 
-        return cls(**config_fields)
+        return cls(**config)
