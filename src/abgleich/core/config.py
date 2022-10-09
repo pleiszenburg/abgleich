@@ -95,9 +95,7 @@ class Config(ConfigABC):
         """
 
         config = {
-            name: field.value
-            for name, field in self._fields.items()
-            if field.set
+            name: field.value for name, field in self._fields.items() if field.set
         }
 
         config = self._flat_to_tree(config)
@@ -129,11 +127,11 @@ class Config(ConfigABC):
 
         for key, value in data.items():
 
-            if '/' not in key:
+            if "/" not in key:
                 tree[key] = value
                 continue
 
-            root, key = key.split('/', 1)
+            root, key = key.split("/", 1)
             if root not in tree.keys():
                 tree[root] = {}
             tree[root][key] = value

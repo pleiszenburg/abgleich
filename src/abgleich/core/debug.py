@@ -31,9 +31,13 @@ specific language governing rights and limitations under the License.
 import os
 import warnings
 
-if os.environ.get('ABGLEICH_DEBUG', '0') == '1':
+if os.environ.get("ABGLEICH_DEBUG", "0") == "1":
     from typeguard import typechecked
-    warnings.warn("abgleich running in debug mode with activated run-time type checks", RuntimeWarning)
+
+    warnings.warn(
+        "abgleich running in debug mode with activated run-time type checks",
+        RuntimeWarning,
+    )
     DEBUG = True
 else:
     typechecked = lambda x: x

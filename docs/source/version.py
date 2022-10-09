@@ -41,6 +41,7 @@ SRC_DIR = "src"
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 def parse_version(code: str) -> str:
 
     tree = ast.parse(code)
@@ -54,11 +55,17 @@ def parse_version(code: str) -> str:
             continue
         return item.value.s
 
+
 def get_version() -> str:
 
     path = os.path.join(
-        os.path.dirname(__file__), '..', '..', SRC_DIR, "abgleich", "__init__.py",
-        )
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        SRC_DIR,
+        "abgleich",
+        "__init__.py",
+    )
 
     with open(path, "r", encoding="utf-8") as f:
         version = parse_version(f.read())

@@ -26,7 +26,8 @@ specific language governing rights and limitations under the License.
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from docs.source.version import get_version
 
@@ -38,45 +39,57 @@ from docs.source.version import get_version
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'abgleich'
-author = 'Sebastian M. Ernst'
-copyright = f'2019-2022 {author:s}'
+project = "abgleich"
+author = "Sebastian M. Ernst"
+copyright = f"2019-2022 {author:s}"
 release = get_version()
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',
-    'sphinx_rtd_theme',
-    'myst_parser',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
+    "sphinx_rtd_theme",
+    "myst_parser",
 ]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
 html_context = {
-    'sidebar_external_links_caption': 'Links',
-    'sidebar_external_links': [
+    "sidebar_external_links_caption": "Links",
+    "sidebar_external_links": [
         # ('<i class="fa fa-rss fa-fw"></i> Blog', 'https://www.000'),
-        ('<i class="fa fa-github fa-fw"></i> Source Code', 'https://github.com/pleiszenburg/abgleich'),
-        ('<i class="fa fa-bug fa-fw"></i> Issue Tracker', 'https://github.com/pleiszenburg/abgleich/issues'),
+        (
+            '<i class="fa fa-github fa-fw"></i> Source Code',
+            "https://github.com/pleiszenburg/abgleich",
+        ),
+        (
+            '<i class="fa fa-bug fa-fw"></i> Issue Tracker',
+            "https://github.com/pleiszenburg/abgleich/issues",
+        ),
         # ('<i class="fa fa-envelope fa-fw"></i> Mailing List', 'https://groups.io/g/abgleich-dev'),
-        ('<i class="fa fa-comments fa-fw"></i> Chat', 'https://matrix.to/#/#abgleich:matrix.org'),
+        (
+            '<i class="fa fa-comments fa-fw"></i> Chat',
+            "https://matrix.to/#/#abgleich:matrix.org",
+        ),
         # ('<i class="fa fa-file-text fa-fw"></i> Citation', 'https://doi.org/000'),
-        ('<i class="fa fa-info-circle fa-fw"></i> pleiszenburg.de', 'https://www.pleiszenburg.de/'),
+        (
+            '<i class="fa fa-info-circle fa-fw"></i> pleiszenburg.de',
+            "https://www.pleiszenburg.de/",
+        ),
     ],
 }
 
-always_document_param_types = True # sphinx_autodoc_typehints
+always_document_param_types = True  # sphinx_autodoc_typehints
 
-napoleon_include_special_with_doc = True # napoleon
+napoleon_include_special_with_doc = True  # napoleon
 # napoleon_use_param = True
 # napoleon_type_aliases = True
