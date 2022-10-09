@@ -5,6 +5,7 @@ black:
 clean:
 	-rm -r build/*
 	-rm -r dist/*
+	-rm -r htmlcov/*
 	find src/ -name '*.pyc' -exec sudo rm -f {} +
 	find src/ -name '*.pyo' -exec sudo rm -f {} +
 	find src/ -name '*~' -exec rm -f {} +
@@ -29,8 +30,8 @@ install:
 
 test:
 	make clean
-	pytest --cov=abgleich
-	coverage html -i
+	ABGLEICH_DEBUG=1 pytest --cov=abgleich
+	coverage html
 
 upload:
 	for filename in $$(ls dist/*.tar.gz dist/*.whl) ; do \
