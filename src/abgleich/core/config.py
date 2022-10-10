@@ -172,3 +172,22 @@ class Config(ConfigABC):
             raise ValueError("configuration is not valid")
 
         return cls(**config)
+
+    @classmethod
+    def from_cli(cls):
+
+        config = {field.name: field.copy() for field in CONFIGSPEC}
+
+        source_keys = [key for key in config.keys() if key.startswith('source/')]
+        target_keys = [key for key in config.keys() if key.startswith('target/')]
+        other_keys = [key for key in config.keys() if key not in source_keys and key not in target_keys]
+
+        source_keys.sort()
+        target_keys.sort()
+        other_keys.sort()
+
+        for keys in (source_keys, target_keys, other_keys):
+            for key in keys:
+                config[key].prompt()
+
+        return cls(**config)
