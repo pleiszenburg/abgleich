@@ -43,4 +43,5 @@ from ..core.i18n import t
 @click.argument("configfile", type=click.File("w", encoding="utf-8"))
 def init(configfile):
 
-    pass  # TODO
+    c = Config.from_cli()
+    c.to_fd(configfile)
