@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Callable, List, Union, Type
+from typing import Callable, List, Optional, Union, Type
 
 from .abc import ConfigFieldABC
 from .debug import typechecked
@@ -56,15 +56,17 @@ class ConfigField(ConfigFieldABC):
         name: str,
         description: str,
         type_: Type,
-        validate: Callable = lambda v: True,
+        validate: Optional[Callable] = None,
         default: ConfigValueTypes = None,
+        import_: Optional[Callable] = None,
     ):
 
         self._name = name
         self._description = description
         self._type = type_
         self._default = default
-        self._validate_func = validate
+        self._validate_func = validate if validate is not None else lambda v: True
+        self._import = import_ if import_ is not None else lambda v: type_(v)
 
         if self._default is not None:
             if not self._validate(self._default):
@@ -92,6 +94,7 @@ class ConfigField(ConfigFieldABC):
             default=self._default,
             validate=self._validate_func,
             type_=self._type,
+            import_=self._import,
         )
 
     def prompt(self):
@@ -116,7 +119,7 @@ class ConfigField(ConfigFieldABC):
                     break  # OK, use default, leave
             else:  # some value at least one character long given
                 try:
-                    value = self._type(value)  # attempt to convert to type
+                    value = self._import(value)  # attempt to convert to type / import value
                 except ValueError:
                     print(t('Can not be converted to type') + f' "{getattr(self._type, "__name__", str(type)):s}". ' + t('Try again.'))
                     continue  # FAIL, try again
