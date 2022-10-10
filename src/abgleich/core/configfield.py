@@ -28,7 +28,7 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Callable, List, Union
+from typing import Callable, List, Union, Type
 
 from .abc import ConfigFieldABC
 from .debug import typechecked
@@ -54,14 +54,16 @@ class ConfigField(ConfigFieldABC):
         self,
         name: str,
         description: str,
-        validate: Callable,
+        type_: Type,
+        validate: Callable = lambda v: True,
         default: ConfigValueTypes = None,
     ):
 
         self._name = name
         self._description = description
+        self._type = type_
         self._default = default
-        self._validate = validate
+        self._validate_func = validate
 
         if self._default is not None:
             if not self._validate(self._default):
@@ -75,10 +77,15 @@ class ConfigField(ConfigFieldABC):
             "<ConfigField "
             f'set="{"yes" if self.set else "no"}" '
             f'required="{str(self.required):s}" '
+            f'type="{getattr(self._type, "__name__", str(type)):s}" '
             f'value="{str(self._value):s}" '
             f'default="{str(self._default):s}"'
             ">"
         )
+
+    def _validate(self, value):
+
+        return isinstance(value, self._type) and self._validate_func(value)
 
     def copy(self) -> ConfigFieldABC:
 
@@ -86,7 +93,8 @@ class ConfigField(ConfigFieldABC):
             name=self._name,
             description=self._description,
             default=self._default,
-            validate=self._validate,
+            validate=self._validate_func,
+            type_=self._type,
         )
 
     @property

@@ -42,7 +42,8 @@ CONFIGSPEC = [
         description=t(
             f"Defines how many snapshots should always be kept on the source side. Minimum is one."
         ),
-        validate=lambda v: isinstance(v, int) and v >= 1,
+        validate=lambda v: v >= 1,
+        type_=int,
         default=1,
     ),
     ConfigField(
@@ -50,13 +51,15 @@ CONFIGSPEC = [
         description=t(
             f"Degines how many snapshots should always be kept on the target side beyond the required overlap with the source side. Set to -1 for all."
         ),
-        validate=lambda v: isinstance(v, int) and (v >= -1),
+        validate=lambda v: v >= -1,
+        type_=int,
         default=-1,
     ),
     ConfigField(
         name="suffix",
         description=t(f"The suffix that snapshot names should carry."),
-        validate=lambda v: isinstance(v, str) and valid_name(v, min_len=0),
+        validate=lambda v: valid_name(v, min_len=0),
+        type_=str,
         default="",
     ),
     ConfigField(
@@ -64,7 +67,8 @@ CONFIGSPEC = [
         description=t(
             f"Snapshots made on the same day get enumerated within their name. Defines how many digits this number should have."
         ),
-        validate=lambda v: isinstance(v, int) and v >= 1,
+        validate=lambda v: v >= 1,
+        type_=int,
         default=2,
     ),
     ConfigField(
@@ -72,7 +76,7 @@ CONFIGSPEC = [
         description=t(
             f"Assume that datasets and volumes have always been changed, forcing `abgleich snap` to create snapshots for all of them on every run."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=False,
     ),
     ConfigField(
@@ -80,7 +84,8 @@ CONFIGSPEC = [
         description=t(
             f"The creation of a snapshot is triggered if at least this many bytes have been written to a dataset or volume."
         ),
-        validate=lambda v: isinstance(v, int) and v > 0,
+        validate=lambda v: v > 0,
+        type_=int,
         default=1024**2,
     ),
     ConfigField(
@@ -88,7 +93,7 @@ CONFIGSPEC = [
         description=t(
             f"Check the `diff` of a dataset if more than zero but less than `written_threshold` bytes have been written to it before creating a snapshot. Generating `diff`s can be slow or even fail under certain circumstances."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=True,
     ),
     ConfigField(
@@ -96,8 +101,8 @@ CONFIGSPEC = [
         description=t(
             f"Ignore the following list of datasets and volumes for all operations."
         ),
-        validate=lambda v: isinstance(v, list)
-        and all((isinstance(item, str) and len(item) > 0 for item in v)),
+        validate=lambda v: all((isinstance(item, str) and len(item) > 0 for item in v)),
+        type_=list,
         default=list(),
     ),
     ConfigField(
@@ -105,7 +110,7 @@ CONFIGSPEC = [
         description=t(
             f"Include the root (source prefix & target prefix) into all operations."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=True,
     ),
     ConfigField(
@@ -113,7 +118,7 @@ CONFIGSPEC = [
         description=t(
             f"Make `abgleich` work around snapshots created by other tools on the source side."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=False,
     ),
     ConfigField(
@@ -121,7 +126,7 @@ CONFIGSPEC = [
         description=t(
             f"Tell ZFS on the target side to not expose datasets and volumes via NFS."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=False,
     ),
     ConfigField(
@@ -129,19 +134,19 @@ CONFIGSPEC = [
         description=t(
             f"Tell `zfs-auto-snapshot` on the target side to ignore datasets and volumes."
         ),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=False,
     ),
     ConfigField(
         name="ssh/compression",
         description=t(f"Activate compression during `ssh` transfers."),
-        validate=lambda v: isinstance(v, bool),
+        type_=bool,
         default=False,
     ),
     ConfigField(
         name="ssh/cipher",
         description=t(f"Specify `OpenSSH` cipher."),
-        validate=lambda v: isinstance(v, str),
+        type_=str,
         default="",
     ),
 ]
@@ -153,30 +158,33 @@ for _side in ("source", "target"):
             ConfigField(
                 name=f"{_side}/zpool",
                 description=t(f"Name of zpool on {_side:s} side."),
-                validate=lambda v: isinstance(v, str) and len(v) > 0,
+                validate=lambda v: len(v) > 0,
+                type_=str,
             ),
             ConfigField(
                 name=f"{_side}/prefix",
                 description=t(f"Path to root dataset/volume in zpool on {_side:s} side."),
-                validate=lambda v: isinstance(v, str),
+                type_=str,
                 default="",
             ),
             ConfigField(
                 name=f"{_side}/host",
                 description=t(f"Hostname or IP address of {_side:s} side."),
-                validate=lambda v: isinstance(v, str) and len(v) > 0,
+                validate=lambda v: len(v) > 0,
+                type_=str,
                 default="localhost",
             ),
             ConfigField(
                 name=f"{_side}/user",
                 description=t(f"Username on {_side:s} side (SSH)."),
-                validate=lambda v: isinstance(v, str),
+                type_=str,
                 default="",
             ),
             ConfigField(
                 name=f"{_side}/port",
                 description=t(f"Port on {_side:s} side (SSH)."),
-                validate=lambda v: isinstance(v, int) and v >= 0,
+                validate=lambda v: v >= 0,
+                type_=int,
                 default=0,
             ),
             ConfigField(
@@ -184,7 +192,7 @@ for _side in ("source", "target"):
                 description=t(
                     "Pre-processing command on source side." if _side == 'source' else "Post-processing command on target side."
                 ),
-                validate=lambda v: isinstance(v, str),
+                type_=str,
                 default="",
             ),
         ]
