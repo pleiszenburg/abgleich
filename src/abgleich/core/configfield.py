@@ -32,6 +32,7 @@ from typing import Callable, List, Union, Type
 
 from .abc import ConfigFieldABC
 from .debug import typechecked
+from .i18n import t
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # TYPING
@@ -83,10 +84,6 @@ class ConfigField(ConfigFieldABC):
             ">"
         )
 
-    def _validate(self, value):
-
-        return isinstance(value, self._type) and self._validate_func(value)
-
     def copy(self) -> ConfigFieldABC:
 
         return type(self)(
@@ -96,6 +93,34 @@ class ConfigField(ConfigFieldABC):
             validate=self._validate_func,
             type_=self._type,
         )
+
+    def prompt(self):
+
+        default = ""
+        if self._default is not None:
+            default = f' [{self._default}]'
+        msg = t('Enter a valid value for') + f' "{self._name:s}"{default:s}. {self.description:s}'
+        print(msg)
+
+        while True:
+            value = input('? ')
+            if len(value) == 0:
+                value = self._default
+            else:
+                try:
+                    value = self._type(value)
+                except ValueError:
+                    print(t('Can not be converted to type') + f' "{getattr(self._type, "__name__", str(type)):s}". ' + t('Try again.'))
+                    continue
+            try:
+                self.value = value
+                break
+            except ValueError:
+                print(t('Not a valid value for') + f' "{self.name:s}". ' + t('Try again.'))
+
+    def _validate(self, value):
+
+        return isinstance(value, self._type) and self._validate_func(value)
 
     @property
     def name(self) -> str:
