@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/cli/_main_.py: CLI auto-detection
+    src/abgleich/cli/_main.py: CLI auto-detection
 
     Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
