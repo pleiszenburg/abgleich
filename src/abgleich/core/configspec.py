@@ -152,36 +152,38 @@ for _side in ("source", "target"):
         [
             ConfigField(
                 name=f"{_side}/zpool",
-                description=t(f""),
+                description=t(f"Name of zpool on {_side:s} side."),
                 validate=lambda v: isinstance(v, str) and len(v) > 0,
             ),
             ConfigField(
                 name=f"{_side}/prefix",
-                description=t(f""),
+                description=t(f"Path to root dataset/volume in zpool on {_side:s} side."),
                 validate=lambda v: isinstance(v, str),
                 default="",
             ),
             ConfigField(
                 name=f"{_side}/host",
-                description=t(f""),
+                description=t(f"Hostname or IP address of {_side:s} side."),
                 validate=lambda v: isinstance(v, str) and len(v) > 0,
                 default="localhost",
             ),
             ConfigField(
                 name=f"{_side}/user",
-                description=t(f""),
+                description=t(f"Username on {_side:s} side (SSH)."),
                 validate=lambda v: isinstance(v, str),
                 default="",
             ),
             ConfigField(
                 name=f"{_side}/port",
-                description=t(f""),
+                description=t(f"Port on {_side:s} side (SSH)."),
                 validate=lambda v: isinstance(v, int) and v >= 0,
                 default=0,
             ),
             ConfigField(
                 name=f"{_side}/processing",
-                description=t(f""),
+                description=t(
+                    "Pre-processing command on source side." if _side == 'source' else "Post-processing command on target side."
+                ),
                 validate=lambda v: isinstance(v, str),
                 default="",
             ),
