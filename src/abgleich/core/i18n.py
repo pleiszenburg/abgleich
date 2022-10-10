@@ -75,6 +75,7 @@ class _Lang(dict):
 
         if int(os.environ.get("ABGLEICH_TRANSLATE", "0")) == 1:
             if name not in self.keys():
+                warnings.warn(f"adding text for translation: {name:s}", RuntimeWarning)
                 self._add_item(name)
 
         return self.get(name, {}).get(self._lang, name)
