@@ -96,16 +96,22 @@ class ConfigField(ConfigFieldABC):
 
     def prompt(self):
 
-        default = ""
-        if self._default is not None:
-            default = f' [{self._default}]'
-        msg = t('Enter a valid value for') + f' "{self._name:s}"{default:s}. {self.description:s}'
+        appendix = ""
+        if self.required:
+            appendix = f'({t("required"):s})'
+        else:
+            appendix = f'[{self._default}]'
+        msg = t('Enter a valid value for') + f' "{self._name:s}" {appendix:s}. {self.description:s}'
         print(msg)
 
         while True:
             value = input('? ')
             if len(value) == 0:
-                value = self._default
+                if self.required:
+                    print(t('Value required for') + f' "{self.name:s}". ' + t('Try again.'))
+                    continue
+                else:
+                    break
             else:
                 try:
                     value = self._type(value)
