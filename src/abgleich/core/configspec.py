@@ -182,7 +182,7 @@ for _side in ("source", "target"):
             ),
             ConfigField(
                 name=f"{_side}/port",
-                description=t(f"Port on {_side:s} side (SSH)."),
+                description=t(f'Port on {_side:s} side (SSH). "0" indicates SSH to fall back to its own configuration.'),
                 validate=lambda v: v >= 0,
                 type_=int,
                 default=0,
