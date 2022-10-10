@@ -99,10 +99,11 @@ CONFIGSPEC = [
     ConfigField(
         name="ignore",
         description=t(
-            f"Ignore the following list of datasets and volumes for all operations."
+            f"Ignore the following comma-separated list of datasets and volumes for all operations."
         ),
         validate=lambda v: all((isinstance(item, str) and len(item) > 0 for item in v)),
         type_=list,
+        import_=lambda v: list({item.strip() for item in v.split(',') if len(item.strip()) > 0}),
         default=list(),
     ),
     ConfigField(
