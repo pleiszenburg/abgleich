@@ -104,25 +104,29 @@ class ConfigField(ConfigFieldABC):
         msg = t('Enter a valid value for') + f' "{self._name:s}" {appendix:s}. {self.description:s}'
         print(msg)
 
-        while True:
+        while True:  # repeat until input value makes sense
+
             value = input('? ')
-            if len(value) == 0:
-                if self.required:
+
+            if len(value) == 0:  # empty value, i.e. no value, given
+                if self.required:  # value required, i.e. no default possible
                     print(t('Value required for') + f' "{self.name:s}". ' + t('Try again.'))
-                    continue
+                    continue  # FAIL, try again
                 else:
-                    break
-            else:
+                    break  # OK, use default, leave
+            else:  # some value at least one character long given
                 try:
-                    value = self._type(value)
+                    value = self._type(value)  # attempt to convert to type
                 except ValueError:
                     print(t('Can not be converted to type') + f' "{getattr(self._type, "__name__", str(type)):s}". ' + t('Try again.'))
-                    continue
+                    continue  # FAIL, try again
+
             try:
-                self.value = value
-                break
+                self.value = value  # attempt to set value
+                break  # OK, value set, leave
             except ValueError:
                 print(t('Not a valid value for') + f' "{self.name:s}". ' + t('Try again.'))
+                continue  # FAIL, try again
 
     def _validate(self, value):
 
