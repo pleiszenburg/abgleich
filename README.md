@@ -123,6 +123,10 @@ Custom pre- and post-processing can be applied after `send` and before `receive`
 
 All potentially changing or destructive actions are listed in detail before the user is asked to confirm them. None of the commands listed below create, change or destroy a zpool, dataset or snapshot on their own without the user's explicit consent.
 
+### `abgleich init config.yaml`
+
+Initializes `abgleich` and generates configuration via a small CLI-based wizard.
+
 ### `abgleich tree config.yaml [source|target]`
 
 Show ZFS tree with snapshots, disk space and compression ratio. Append `source` or `target` (optional).
