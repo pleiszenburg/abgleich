@@ -16,9 +16,10 @@ User's guide
 
 .. warning::
 
-    This manual describes what makes *abgleich* special and how it runs on top of *ZFS*. It does **NOT** substitute the `OpenZFS documentation`_. Please read the latter first if you have never used ZFS before.
+    This manual describes what makes *abgleich* special and how it runs on top of *ZFS*. It does **NOT** substitute the `OpenZFS documentation`_. Please read the latter first if you have never used ZFS before. Besides the official documentation, an excellent yet dated basic introduction into ZFS is provided in a `series of blog posts`_ by Aaron Toponce.
 
 .. _OpenZFS documentation: https://openzfs.github.io/openzfs-docs/
+.. _series of blog posts: https://pthree.org/2012/04/17/install-zfs-on-debian-gnulinux/
 
 .. toctree::
     :maxdepth: 2
