@@ -82,7 +82,7 @@ Getting ``abgleich``
 .. _pip: https://pip.pypa.io/en/stable/
 .. _virtual environment: https://docs.python.org/3/library/venv.html
 
-On a Debian/Ubuntu-based system, a basic installation workflow may look as follows:
+A basic installation workflow may look as follows:
 
 .. code:: bash
 
@@ -97,9 +97,15 @@ An installation also including a :ref:`GUI <gui>` can be triggered by running:
 
     pip install abgleich[gui]
 
+You can check your installation by running:
+
+.. code:: bash
+
+    abgleich --help
+
 .. note::
 
-    If ``abgleich`` was installed into a virtual environment, this virtual environment must always be explicitly activated for each particular shell session prior to using ``abgleich`` later on.
+    If ``abgleich`` was installed into a virtual environment, this virtual environment must be explicitly activated for each particular shell session prior to using any of ``abgleich``'s commands.
 
 .. note::
 
