@@ -63,6 +63,7 @@ dev = [
     "pytest-cov",
     "python-lsp-server[all]",
     "Sphinx",
+    "sphinx-click",
     "sphinx_rtd_theme",
     "sphinx-autodoc-typehints",
     "typeguard",
