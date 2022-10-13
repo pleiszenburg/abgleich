@@ -19,7 +19,7 @@ While the tool can be used on headless servers, it is explicitly also aiming at 
 
 ZFS ability to create and clone snapshots allows to mimic workflows similar to what is possible with ``git``. Similar to ``git`` "commits", the idea is to only create snapshots if a dataset/volume actually contains changes. In the ZFS world, this is a rather unusual design choice as it is common practise to generate snapshot in fixed time intervals regardless of changes in the dataset/volume. ``abgleich`` implements special logic to safely and quickly determine if a dataset/volume contains "uncommitted" changes.
 
-With regards to similarities to ``git``, ``abgleich`` aims to provide the ability to synchronize "projects" (datasets/volumes) across multiple computers in addition to providing backup functionality. Projects can be "moved" or "cloned" from one machine to the next, allowing a user to always work on them efficiently and locally.
+With regards to similarities to ``git``, ``abgleich`` aims to provide the ability to synchronize "projects" (datasets/volumes) across multiple computers in addition to providing backup functionality. Projects can be "moved" or "cloned" from one machine to the next, allowing a user to always work on them efficiently and locally. Besides, synchronization operations can happen both in a pull and a push configuration.
 
 Basic workflow
 --------------
