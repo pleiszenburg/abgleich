@@ -1,22 +1,24 @@
+.. _installation:
+
 Installation
 ============
 
 Prerequisites
 -------------
 
-There are anywhere from one to three systems with the following distinct characteristics:
+There are anywhere from one to three machines with the following distinct characteristics:
 
 1) Running ``abgleich``.
 2) The location of the ``source`` zpool.
 3) The location of the ``target`` zpool.
 
-On the system that is running ``abgleich`` itself, ``python3`` (`CPython`_ 3.6 or later) and ``ssh`` is required. ``abgleich`` can be operated both from the ``source`` and the ``target`` side but also from a third, otherwise unrelated system. In addition, both the ``source`` and the ``target`` side must provide a shell as well as ``ssh`` next to ``ZFS`` drivers and at least one zpool. ``source`` and ``target`` can be on the same system if two local zpools are supposed to be synchronized.
+On the machine that is running ``abgleich`` itself, ``python3`` (`CPython`_ 3.6 or later) and ``ssh`` is required. ``abgleich`` can be operated both from the ``source`` and the ``target`` side but also from a third, otherwise unrelated machine. In addition, both the ``source`` and the ``target`` side must provide a shell as well as ``ssh`` next to ``ZFS`` drivers and at least one zpool. ``source`` and ``target`` can be on the same machine if two local zpools are supposed to be synchronized.
 
 .. _CPython: https://en.wikipedia.org/wiki/CPython
 
 .. note::
 
-    If everything happens on a single system, no ``ssh`` is required.
+    If everything happens on a single machine, no ``ssh`` is required.
 
 On Debian/Ubuntu-based systems, all potentially required prerequisites other than ZFS can be installed as follows:
 
@@ -28,7 +30,7 @@ On Debian/Ubuntu-based systems, all potentially required prerequisites other tha
 
     It is strongly recommended to operate ``abgleich`` with user privileges only.
 
-It is recommended to created dedicated user accounts on all involved systems and to grant them specific rights only. If operations must be triggered on remote systems, `public key authentication must be configured`_ for ``ssh`` for the relevant user accounts on all involved machines. For additional details, see man pages of `ssh-keygen`_ and `ssh`_ itself.
+It is recommended to created dedicated user accounts on all involved machines and to grant them specific rights only. If operations must be triggered on remote machines, `public key authentication must be configured`_ for ``ssh`` for the relevant user accounts on all involved machines. For additional details, see man pages of `ssh-keygen`_ and `ssh`_ itself.
 
 .. _public key authentication must be configured: https://help.ubuntu.com/community/SSH/OpenSSH/Keys
 .. _ssh-keygen: https://linux.die.net/man/1/ssh-keygen
