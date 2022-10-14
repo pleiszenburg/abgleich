@@ -3,6 +3,7 @@
 Installation
 ============
 
+
 Prerequisites
 -------------
 
@@ -72,6 +73,7 @@ For more details, see `man page for ZFS allow`_.
 
 .. _man page for ZFS allow: https://openzfs.github.io/openzfs-docs/man/8/zfs-allow.8.html
 
+
 Getting ``abgleich``
 --------------------
 
@@ -109,9 +111,6 @@ You can check your installation by running:
 
     If ``abgleich`` was installed into a virtual environment, this virtual environment must be explicitly activated for each particular shell session prior to using any of ``abgleich``'s commands.
 
-.. note::
-
-    If you are relying on *abgleich*, please notice that it uses **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from ``0.0.x`` to ``0.1.y`` or going from ``0.1.x`` to ``0.2.y`` therefore indicates a breaking change. For as long as *abgleich* has development status "alpha", please expect more breaking changes to come.
 
 Upgrading ``abgleich``
 ----------------------
