@@ -4,14 +4,14 @@ version = 4
 
 [[package]]
 name = "abgleich-cli"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 dependencies = [
  "abgleich-lib",
 ]
 
 [[package]]
 name = "abgleich-lib"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 dependencies = [
  "chrono",
  "clap",
