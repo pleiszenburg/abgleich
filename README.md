@@ -7,7 +7,7 @@
 
 ## Installation
 
-`abgleich` is written in Rust and can be statically linked against [musl](https://en.wikipedia.org/wiki/Musl), allowing self-contained portable binaries, trivial deployment and maximum compatibility. The primary target platforms are **Linux** and **FreeBSD** on x86_64. Both x86 (32 bit) and ARM support are theoretically trivial but currently untested territory - pull requests welcome. `abgleich` does not need to run on any target system, only the box where it gets invoked. Everything else is left to `ssh`, `sh`/`bash` and the operating system.
+`abgleich` is written in Rust and can be statically linked against [musl](https://en.wikipedia.org/wiki/Musl), allowing self-contained portable binaries, trivial deployment and maximum compatibility. The primary target platforms are **Linux** and **FreeBSD** on x86_64. Both x86 (32 bit) and ARM support are theoretically trivial but currently untested territory - pull requests welcome. `abgleich` does not need to run on any target system, only the box where it gets invoked. Everything else is left to `ssh`, `bash` and the operating system.
 
 ### Pre-Built Binaries
 
