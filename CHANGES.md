@@ -1,8 +1,10 @@
 # Changes
 
-## 0.1.0 (2022-XX-XX)
+## 0.1.0 (2026-XX-XX)
 
 **CAUTION**: The configuration layout changed, effectively **BREAKING BACKWARDS COMPATIBILITY** for most use-cases!
+
+With this release, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2.
 
 The `keep_backlog` configuration parameter, which could previously be both a boolean and an integer, is now only allowed to be an integer. If no snapshots shall be kept on the target side, it must now be set to `0`. If all snapshots shall be kept on the target side (default behavior), it must now be set to `-1`. Arbitrary numbers greater than `0` remains unaffected by this change.
 

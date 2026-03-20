@@ -4,6 +4,9 @@
 
 */ˈapɡlaɪ̯ç/ ([German, noun, male: comparison, replication, alignment](https://dict.leo.org/englisch-deutsch/abgleich))*
 
+[!NOTE]
+As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation. With release 0.1, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2 as found in branch `master`.
+
 ## SYNOPSIS
 
 [`abgleich`](https://dict.leo.org/englisch-deutsch/abgleich?side=right) is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes a GUI.
