@@ -1,7 +1,7 @@
 # Abgleich
 
-[!NOTE]
-As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation.
+> [!NOTE]
+> As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation.
 
 `abgleich` is an opinionated [ZFS](https://en.wikipedia.org/wiki/ZFS) management and backup tool, to a certain extend inspired by workflows established by [distributed version control](https://en.wikipedia.org/wiki/Distributed_version_control) software like `git`. Think of snapshots as commits. No change, no snapshot, unless you say so explicitly. While branches are allowed, the downside is that classic merges and rebases are technically not feasible on ZFS. Nevertheless, `abgleich` can efficiently transfer ZFS datasets and snapshots from one zpool to another, regardless of the zpools' locations. Push and pull operation is therefore possible, but also transfers between two remote hosts.
 
