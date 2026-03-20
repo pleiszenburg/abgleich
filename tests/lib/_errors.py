@@ -1,0 +1,2 @@
+class OutputParserError(Exception):
+    pass

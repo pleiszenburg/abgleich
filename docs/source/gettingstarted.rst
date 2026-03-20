@@ -7,15 +7,14 @@ Getting Started
 
     This chapter assumes that your systems meet all required prerequisites and you have ``abgleich`` installed. For details see :ref:`chapter on prerequisites and installation <installation>`.
 
-
 Workflow
 --------
 
 The fundamental idea is to **synchronize portions of two zpools** on potentially, but not necessarily, two different physical computers. The first one is called the ``source``, the second one is called the ``target``. A **typical workflow has three steps**:
 
 1) **snap**: Creating snapshots on the ``source`` side for datasets/volumes containing changes since last snapshot.
-2) **backup**: Copying those snapshots currently not present on the ``target`` from the ``source`` to the ``target``.
-3) **cleanup**: Removing all but the last ``n`` snapshots per dataset/volume on the ``source`` side. Optionally also remove all but the last ``m`` snapshots from the ``target`` side which do not overlap with snapshots on the ``source`` side.
+2) **sync**: Copying those snapshots currently not present on the ``target`` from the ``source`` to the ``target``.
+3) **free**: Removing all but the last ``n`` snapshots per dataset/volume on the ``source`` side. Optionally also remove all but the last ``m`` snapshots from the ``target`` side which do not overlap with snapshots on the ``source`` side.
 
 
 Example ZFS deployment
@@ -67,5 +66,6 @@ In this step, ``sourcepool/data`` and ``targetpool/sourcebackup/data`` are recur
 
 Cleanup
 -------
+
 
 - TODO image

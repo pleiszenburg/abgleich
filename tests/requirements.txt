@@ -1,0 +1,6 @@
+pytest
+python-lsp-server[all]
+pyyaml
+termcolor
+tomlkit
+typeguard

@@ -1,0 +1,92 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# ------------------------------------------------------------------
+# Two minimal FreeBSD VMs with passwordless SSH (FreeBSD)
+# ------------------------------------------------------------------
+
+VAGRANT_BOX     = "generic/freebsd14"
+VAGRANT_BOX_VER = ">= 0"
+
+LINUX_A_IP   = "192.168.56.10"
+LINUX_B_IP   = "192.168.56.11"
+FREEBSD_A_IP = "192.168.56.20"
+FREEBSD_B_IP = "192.168.56.21"
+
+# Pinned MAC addresses (host-only adapter)
+FREEBSD_A_MAC = "080027C0C0C0"
+FREEBSD_B_MAC = "080027D0D0D0"
+
+VM_CPUS      = 1
+VM_MEMORY_MB = 1024
+
+Vagrant.configure("2") do |config|
+
+  config.ssh.shell = "sh"
+
+  # rsync is used because VBoxSF on FreeBSD guests is unreliable.
+  config.vm.synced_folder "../../../", "/project",
+    type: "rsync",
+    rsync__exclude: [".git/"]
+
+  config.vm.provision "shell",
+    path: "provision/base.sh",
+    env: {
+      "LINUX_A_IP"   => LINUX_A_IP,
+      "LINUX_B_IP"   => LINUX_B_IP,
+      "FREEBSD_A_IP" => FREEBSD_A_IP,
+      "FREEBSD_B_IP" => FREEBSD_B_IP,
+    }
+
+  config.vm.provision "file",
+    source: "../keys/id_ed25519",
+    destination: "/tmp/zfs_test_key"
+  config.vm.provision "file",
+    source: "../keys/id_ed25519.pub",
+    destination: "/tmp/zfs_test_key.pub"
+  config.vm.provision "shell",
+    path: "provision/deploy_ssh_keys.sh"
+
+  config.vm.define "freebsd-a", primary: true do |node|
+    node.vm.box         = VAGRANT_BOX
+    node.vm.box_version = VAGRANT_BOX_VER
+    node.vm.hostname    = "freebsd-a"
+
+    node.vm.network "private_network",
+      ip:  FREEBSD_A_IP,
+      mac: FREEBSD_A_MAC,
+      virtualbox__intnet: false   # host-only, not internal-only
+
+    node.vm.provider "virtualbox" do |vb|
+      vb.name         = "zfs-test-freebsd-a"
+      vb.cpus         = VM_CPUS
+      vb.memory       = VM_MEMORY_MB
+      vb.linked_clone = true      # COW from base image
+
+      vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+      vb.customize ["modifyvm", :id, "--vram", "16"]
+    end
+  end
+
+  config.vm.define "freebsd-b" do |node|
+    node.vm.box         = VAGRANT_BOX
+    node.vm.box_version = VAGRANT_BOX_VER
+    node.vm.hostname    = "freebsd-b"
+
+    node.vm.network "private_network",
+      ip:  FREEBSD_B_IP,
+      mac: FREEBSD_B_MAC,
+      virtualbox__intnet: false
+
+    node.vm.provider "virtualbox" do |vb|
+      vb.name         = "zfs-test-freebsd-b"
+      vb.cpus         = VM_CPUS
+      vb.memory       = VM_MEMORY_MB
+      vb.linked_clone = true
+
+      vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+      vb.customize ["modifyvm", :id, "--vram", "16"]
+    end
+  end
+
+end

@@ -1,0 +1,19 @@
+[package]
+name = "abgleich-cli"
+version = "0.2.0"
+edition = "2024"
+authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
+description = "zfs sync tool, cli"
+license = "MIT"
+publish = false  # "private"!
+repository = "https://github.com/pleiszenburg/abgleich"
+
+[[bin]]
+name = "abgleich"
+path = "src/main.rs"
+
+[dependencies]
+abgleich-lib = { version = "*", path = "../abgleich-lib/", features = ["cli"] }
+
+[features]
+default = []

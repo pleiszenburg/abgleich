@@ -9,20 +9,23 @@
 Bugs & Known Issues
 ===================
 
-Please report bugs in *abgleich*'s `GitHub issue tracker`_.
+Please report bugs in *abgleich*'s `GitHub issue tracker`_. Add the version of ``abgleich`` to all reports, i.e. ``abgleich --version``.
 
 .. _GitHub issue tracker: https://github.com/pleiszenburg/abgleich/issues
 
 How to bisect issues
 --------------------
 
-You can activate additional debugging features intended for developers by setting the ``ABGLEICH_DEBUG`` environment variable to ``1`` before running *abgleich*. For this to work, the `typeguard package`_ must be present on your system.
+You can activate additional debugging features intended for developers by setting the ``ABGLEICH_LOGLEVEL`` environment variable to ``0`` before running *abgleich*.
 
-.. _typeguard package: https://typeguard.readthedocs.io/
+Known Issue: The Property Parser
+--------------------------------
 
-Translations
-------------
+Properties of ZFS datasets and snapshots are extracted by ``abgleich`` by running:
 
-*abgleich* can be translated, i.e. it allows internationalization / i18n. Currently, next to English, German is also offered. *abgleich* detects the system language during its start and attempts to display all of its messages accordingly. If no translation can be provided for a given message, *abgleich* falls back to English. Translations can be added or corrected by editing `translations.yaml`_. If a string is completely missing from ``translations.yaml`` even in its primary language, English, one can run *abgleich* with the ``ABGLEICH_TRANSLATE`` environment variable set to ``1``. This activates a mechanism that automatically adds missing strings to ``translations.yaml`` whenever they are encountered while running *abgleich*.
+.. code:: bash
 
-.. _translations.yaml: https://github.com/pleiszenburg/abgleich/blob/develop/src/abgleich/share/translations.yaml
+    zfs get -Hp all dataset  # specifically one dataset
+    zfs get -rHp all dataset  # dataset and all descendants recursively
+
+Although the property parser in ``abgleich`` has been extensively tested, there can be false assumptions about data types and default values, effectively breaking the application. For security purposes, ``abgleich`` throws an exception and exists if it encounters an unexpected value, without any further actions taken. If you observe such an issue, please provide the output of the above ZFS commands for verification.

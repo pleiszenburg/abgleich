@@ -1,0 +1,12 @@
+# Generate a fresh Ed25519 keypair in this directory (skips if already present)
+default: generate-keys
+
+generate-keys:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -f "{{ justfile_directory() }}/id_ed25519" ]; then
+        echo "SSH keypair already exists in {{ justfile_directory() }} – skipping."
+    else
+        ssh-keygen -t ed25519 -f "{{ justfile_directory() }}/id_ed25519" -N "" -C "vagrant-environment"
+        echo "✓ Keypair generated in {{ justfile_directory() }}"
+    fi

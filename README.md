@@ -1,167 +1,127 @@
-<img src="src/abgleich/share/icon.svg" alt="abgleich logo" width="256" height="256">
-
-# ABGLEICH
-
-*/ˈapɡlaɪ̯ç/ ([German, noun, male: comparison, replication, alignment](https://dict.leo.org/englisch-deutsch/abgleich))*
+# Abgleich
 
 [!NOTE]
-As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation. With release 0.1, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2 as found in branch `master`.
+As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation.
 
-## SYNOPSIS
+`abgleich` is an opinionated [ZFS](https://en.wikipedia.org/wiki/ZFS) management and backup tool, to a certain extend inspired by workflows established by [distributed version control](https://en.wikipedia.org/wiki/Distributed_version_control) software like `git`. Think of snapshots as commits. No change, no snapshot, unless you say so explicitly. While branches are allowed, the downside is that classic merges and rebases are technically not feasible on ZFS. Nevertheless, `abgleich` can efficiently transfer ZFS datasets and snapshots from one zpool to another, regardless of the zpools' locations. Push and pull operation is therefore possible, but also transfers between two remote hosts.
 
-[`abgleich`](https://dict.leo.org/englisch-deutsch/abgleich?side=right) is a simple ZFS sync tool. It displays source and target ZFS zpool, dataset and snapshot trees. It creates meaningful snapshots only if datasets have actually been changed. It compares a source zpool tree to a target, backup zpool tree. It pushes backups from a source to a target. It cleanes up older snapshots on the source side if they are present on the target side. It runs on a command line and produces nice, user-friendly, human-readable, colorized output. It also includes a GUI.
+## Installation
 
-## CLI EXAMPLE
+`abgleich` is written in Rust and can be statically linked against [musl](https://en.wikipedia.org/wiki/Musl), allowing self-contained portable binaries, trivial deployment and maximum compatibility. The primary target platforms are **Linux** and **FreeBSD** on x86_64. Both x86 (32 bit) and ARM support are theoretically trivial but currently untested territory - pull requests welcome. `abgleich` does not need to run on any target system, only the box where it gets invoked. Everything else is left to `ssh`, `sh`/`bash` and the operating system.
 
-![demo](docs/source/_static/demo.png "demo")
+### Pre-Built Binaries
 
-## GUI EXAMPLE
+Pre-built binaries for Linux and FreeBSD can be found on the [releases page](https://github.com/pleiszenburg/abgleich/releases).
 
-| snap | backup | cleanup |
-|:----:|:------:|:-------:|
-| ![snap](docs/source/_static/gui01.png "snap") | ![backup](docs/source/_static/gui02.png "backup") | ![cleanup](docs/source/_static/gui03.png "cleanup") |
-
-## INSTALLATION
-
-The base CLI tool can be installed as follows:
+You can use the following command on Linux or FreeBSD to download the latest release. Simply replace `DEST` with the directory where you would like to put `abgleich`:
 
 ```bash
-pip install -vU abgleich
+curl --proto '=https' --tlsv1.2 -sSf https://abgleich.pleiszenburg.de/install.sh | bash -s -- --to DEST
 ```
 
-An installation also including a GUI can be triggered by running:
+For example, to install `abgleich` to `~/bin`:
 
 ```bash
-pip install -vU abgleich[gui]
+# create ~/bin
+mkdir -p ~/bin
+
+# download and extract abgleich to ~/bin/abgleich
+curl --proto '=https' --tlsv1.2 -sSf https://abgleich.pleiszenburg.de/install.sh | bash -s -- --to ~/bin
+
+# add `~/bin` to the paths that your shell searches for executables
+# this line should be added to your shells initialization file,
+# e.g. `~/.bashrc` or `~/.zshrc`
+export PATH="$PATH:$HOME/bin"
+
+# abgleich should now be executable
+abgleich --help
 ```
 
-Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.11 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). GUI support requires [Qt5](https://en.wikipedia.org/wiki/Qt_(software)) in addition. Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
+### Dependencies
 
-`abgleich`, CPython and the Unix shell must only be installed on one of the involved systems. Any remote system will be contacted via ssh and provided with direct ZFS commands.
+Certain synchronization operations specifically require `bash`, `pv`, `nc` and `xz` to be present on certain hosts.
 
-## INITIALIZATION
+## Quick Start
 
-All actions involving a remote host assume that `ssh` with public key authentication instead of passwords is correctly configured and working.
+Minimal typical setup: A workstation with a local ZFS pool `tank` whose datasets are snapshotted and then synced to a remote backup machine `nas` that has a pool called `backup`. SSH access to `nas` is assumed to work with public-key authentication, and the login user can run ZFS commands as `root` via passwordless `sudo`.
 
-Let's assume that everything in `source_tank/data` and below should be synced with `target_tank/some_backup/data`. `source_tank` and `target_tank` are zpools. `data` is the "prefix" for the source zpool, `some_backup/data` is the corresponding "prefix" for the target zpool. For `abgleich` to work, `source_tank/data` and `target_tank/some_backup` must exist. `target_tank/some_backup/data` must not exist. The latter will be created by `abgleich`. It is highly recommended to set the mountpoint of `target_tank/some_backup` to `none` before running `abgleich` for the first time.
+### Inspect pools
 
-Rights to run the following commands are required:
+```bash
+# list all zpools visible on localhost
+abgleich ls
 
-| command        | source | target |
-|----------------|:------:|:------:|
-| `zfs create`   |        |    x   |
-| `zfs destroy`  |    x   |        |
-| `zfs diff`     |    x   |        |
-| `zfs mount`    |    x   |    x   |
-| `zfs receive`  |        |    x   |
-| `zfs send`     |    x   |        |
-| `zfs snapshot` |    x   |        |
+# show the dataset tree of a local pool
+abgleich ls tank
 
-Permissions can be delegated via [zfs allow](https://openzfs.github.io/openzfs-docs/man/8/zfs-allow.8.html): `zfs allow -u user {operation} {zpool}`.
+# show a subsection of the dataset tree of a local pool
+abgleich ls tank/some/data/set
 
-### `config.yaml`
+# list zpools visible on the remote host
+abgleich ls nas:
 
-Complete example configuration file:
-
-```yaml
-source:
-    zpool: tank_ssd
-    prefix:
-    host: localhost
-    user:
-    port:
-target:
-    zpool: tank_hdd
-    prefix: BACKUP_SOMEMACHINE
-    host: bigdata
-    user: zfsadmin
-    port:
-include_root: yes
-keep_snapshots: 2
-keep_backlog: True
-always_changed: no
-written_threshold: 1048576
-check_diff: yes
-suffix: _backup
-digits: 2
-ignore:
-    - home/user/CACHE
-    - home/user/CCACHE
-ssh:
-    compression: no
-    cipher: aes256-gcm@openssh.com
-compatibility:
-    target_samba_noshare: yes
-    target_autosnapshot_ignore: yes
+# show a dataset tree of the remote host
+abgleich ls nas:tank
 ```
 
-`zpool` defines the name of the zpools on source and target sides. The `prefix` value defines a "path" to a dataset underneath the `zpool`, so the name of the zpool itself is not part of the `prefix`. The `prefix` can be empty on either side. Prefixes can differ between source and target side. `host` specifies a value used by `ssh`. It does not have to be an actual host name. It can also be an alias from ssh's configuration. If a `host` is set to `localhost`, `ssh` wont be used and the `user` field can be left empty or omitted. Both source and target can be remote hosts or `localhost` at the same time. The `port` parameter specifies a custom `ssh` port. It can be left empty or omitted. `ssh` will then use its defaults or configuration to determine the correct port.
+### Snapshot
 
-`include_root` indicates whether `{zpool}{/{prefix}}` should be included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `keep_backlog` is an integer. It specifies how many snapshots are kept on the target side beyond the overlap between source and target if the target side is cleaned. If set to `-1`, all snapshots are being kept (default behavior). Snapshots that are part of the overlap with the source side are never considered for removal. `suffix` contains the name suffix for new snapshots.
+```bash
+abgleich snap tank
+```
 
-Whether or not snapshots are generated is based on the following sequence of checks:
+`abgleich` lists planned transactions and asks for confirmation before executing aforementioned transactions, i.e. changing anything. Think of `gparted`. Datasets that have not changed since the last snapshot are skipped by default. The current user is assumed to be allowed to create snapshots. If another user is allowed to create snapshots and passwordless `sudo` to said user for `zfs` is allowed:
 
-- Dataset is ignored: NO
-- Dataset has no snapshot: YES
-- If the `always_changed` configuration option is set to `yes`: YES
-- If the `tagging` configuration option underneath `compatibility` is set to yes and the last snapshot of the dataset has not been tagged by `abgleich` as a backup: YES
-- `written` property of dataset equals `0`: NO
-- Dataset is a volume: YES
-- If the `written_threshold` configuration is set and the `written` property of dataset is larger than the value of `written_threshold`: YES
-- If the `check_diff` configuration option is set to `no`: YES
-- If `zfs diff` produces any output relative to the last snapshot: YES
-- Otherwise: NO
+```bash
+abgleich snap otheruser%tank
+```
 
-Setting `always_changed` to `yes` causes `abgleich` to beliefe that all datasets have always changed since the last snapshot, completely ignoring what ZFS actually reports. No diff will be produced & checked for values of `written` lower than `written_threshold`. Checking diffs can be completely deactivated by setting `check_diff` to `no`.
+### Sync to backup
 
-`digits` specifies how many digits are used for a decimal number describing the n-th snapshot per dataset per day as part of the name of new snapshots. `ignore` lists stuff underneath the `prefix` which will be ignored by this tool, i.e. no snapshots, backups or cleanups.
+```bash
+abgleich sync tank nas:root%backup
+```
 
-`ssh` allows to fine-tune the speed of backups. In fast local networks, it is best to set `compression` to `no` because the compression is usually slowing down the transfer. However, for low-bandwidth transmissions, it makes sense to set it to `yes`. For significantly better speed in fast local networks, make sure that both the source and the target system support a common cipher, which is accelerated by [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) on both ends. The `ssh` port can be specified per side via the `port` configuration option, i.e. for source and/or target.
+`nas:root%backup` is the location of the target: `nas` is the SSH hostname, `root%` means ZFS commands are run as `root` via `sudo` on the remote side, and `backup` is the target pool. The first run performs a full initial transfer. Subsequent runs send only the snapshots added since the last sync.
 
-Custom pre- and post-processing can be applied after `send` and before `receive` per side via shell commands specified in the `processing` configuration option (underneath `source` and `target`). This can be useful for a custom transfer compression based on e.g. `lzma` or `bzip2`.
+### Free old snapshots from source
 
-`compatibility` adds options for making `abgleich` more compatible with other tools. If `target_samba_noshare` is active, the `sharesmb` property will - as part of backup operations - be set to `off` for `{zpool}{/{prefix}}` on the target side, preventing sharing/exposing backup datasets by accident. If `target_autosnapshot_ignore` is active, the `com.sun:auto-snapshot` property will - similarly as part of backup operations - be set to `false` for `{zpool}{/{prefix}}` on the target side, telling `zfs-auto-snapshot` to ignore the dataset.
+Once snapshots exist safely on the backup, the oldest ones can be removed from the source, `tank`, to reclaim space:
 
-## USAGE
+```bash
+abgleich free tank nas:root%backup
+```
 
-All potentially changing or destructive actions are listed in detail before the user is asked to confirm them. None of the commands listed below create, change or destroy a zpool, dataset or snapshot on their own without the user's explicit consent.
+By default, the two most recent snapshots shared with the backup are always kept on the source.
 
-### `abgleich init config.yaml`
+### Automation
 
-Initializes `abgleich` and generates configuration via a small CLI-based wizard.
+The `-y` flag skips the confirmation prompt, which is useful for unattended scripts and cron jobs. For scripts, all commands can also generate JSON output using `-j`.
 
-### `abgleich tree config.yaml [source|target]`
+```bash
+abgleich snap -yj tank
+abgleich sync -yj tank nas:root%backup
+abgleich free -yj tank nas:root%backup
+```
 
-Show ZFS tree with snapshots, disk space and compression ratio. Append `source` or `target` (optional).
+### Configuration
 
-### `abgleich snap config.yaml`
+Short aliases for locations and can be configured via an `abgleich.yaml` config file. Custom per-dataset ZFS properties allow fine-grained control, i.e. snapshot policy, overlap count and more.
 
-Determine which datasets on the source side have been changed since last snapshot. Generate snapshots on the source side where applicable.
+## Concept: Locations
 
-### `abgleich compare config.yaml`
+ZFS datasets are addressed through **locations**. Locations have three fragments:
 
-Compare source ZFS tree with target ZFS tree. See what is missing where.
+1. An optional **route**, a sequence of hosts that `abgleich` can use to "hop" through using `ssh`, separated by forward slashes, `/`. If left empty or not present, `localhost` is assumed and `ssh` is not used. If a route is specified, it is terminated with a colon, `:`.
+2. An optional **user** name used to gain required privileges for ZFS operations on the target system, the "final" host. If not present, the current user is assumed to have sufficient privileges. If a user is specified, it is terminated with a percent sign, `%`.
+3. A **root** dataset , optionally followed by a single forward slash, `/`.
 
-### `abgleich backup config.yaml`
+Example: `gateway/backupbox:backupuser%tank/some/dataset`.
 
-Send (new) datasets and new snapshots from source to target.
+`abgleich` would first ssh into `gateway` and from there into `backupbox`. It would then use `sudo -u backupuser [command]` to gain required privileges and perform `command`, likely against `tank/some/dataset`. Logins with `ssh` are assumed to work without passwords, i.e. with public keys instead. `ssh`'s configuration is left entirely to `ssh`, e.g. through the contents of `~/.ssh` and/or `/etc/ssh`. From a security point of view, it is assumed that the user allowed to perform ZFS operations is not necessarily the same user allowed to log in via `ssh`. However, it is assumed that the login user can use `sudo -u [username]` or simply `sudo` (for user `root`) without password for all relevant ZFS commands, e.g. `zfs` and `zpool`, among others.
 
-### `abgleich cleanup config.yaml [source|target]`
+Operations usually target a certain dataset and possibly its descendants. Similar to shell operations on directories, `abgleich` uses a tailing slash to indicate that only descendants are targeted but not the root dataset. Without the slash as in the above example, `tank/some/dataset` and its descendants are both targeted. With a tailing slash, i.e. `tank/some/dataset/`, the dataset `dataset` itself is excluded.
 
-Cleanup older local snapshots on source side if they are present on both sides. Of those snapshots present on both sides, keep at least `keep_snapshots` number of snapshots on source side. Or: Cleanup older snapshots on target side. Beyond the overlap with source, keep at least `keep_backlog` snapshots. If `keep_backlog` is `False`, all snapshots older than the overlap will be removed. If `keep_backlog` is `True`, no snapshots will be removed. If `abgleich clean` runs against the target side, an extra warning will be displayed and must be confirmed by the user before any dangerous actions are attempted.
+## Backwards Compatibility
 
-### `abgleich wizard config.yaml`
-
-Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI. This command is only available if `abgleich` was installed with GUI support.
-
-## SPEED
-
-`abgleich` uses Python's [type hints](https://docs.python.org/3/library/typing.html) and enforces them with [typeguard](https://github.com/agronholm/typeguard) at runtime. It furthermore makes countless assertions.
-
-The enforcement of types and assertions can be controlled through the `PYTHONOPTIMIZE` environment variable. If set to `0` (the implicit default value), all checks are activated. `abgleich` will run slow. For safety, this mode is highly recommended. For significantly higher speed, all type checks and most assertions can be deactivated by setting `PYTHONOPTIMIZE` to `1` or `2`, e.g. `PYTHONOPTIMIZE=1 abgleich tree config.yaml`. This is not recommended. You may want to check if another tool or configuration has altered this environment variable by running `echo $PYTHONOPTIMIZE`.
-
-## FOR PRODUCTION ENVIRONMENTS
-
-`abgleich` is using **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from `0.0.x` to `0.1.y` or going from `0.1.x` to `0.2.y` therefore indicates a breaking change.
-
-If you are relying on `abgleich` in one way or another, please consider monitoring the project: [its repository on Github](https://github.com/pleiszenburg/abgleich) and [its chatroom](https://matrix.to/#/#abgleich:matrix.org).
+If you are relying on `abgleich`, please notice that it uses **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from ``0.0.x`` to ``0.1.y`` or going from ``0.1.x`` to ``0.2.y`` therefore indicates a breaking change.

@@ -1,0 +1,9 @@
+[workspace]
+members = ["abgleich-cli", "abgleich-lib"]
+resolver = "2"
+
+[profile.release]
+lto = true
+opt-level = "z"  # Optimize for size.
+strip = true  # Automatically strip symbols from the binary.
+panic = "abort"

@@ -1,5 +1,53 @@
 # Changes
 
+## Roadmap
+
+- Sub-command for borrowing / lending a dataset temporarily to another zpool/machine while freezing it on the source
+- Sub-command for moving a dataset and its backup to other machines
+- Sub-command similar to `git branch` which creates a new dataset from a snapshot and optionally detached it
+- Sub-command which (very poorly) mimics `git merge --squash`, possibly relying on `rsync`
+- Resuming interrupted sending transactions, see [receive_resume_token](https://openzfs.github.io/openzfs-docs/man/master/8/zfs-receive.8.html#receive_resume_token)
+- Some kind of light-weight native GUI, i.e. no Web or Electron application
+- Translations / internationalization
+- Python API around the Rust core crate for advanced scripting usage or integration into third-party web applications
+
+## 0.2.0 (2026-XX-XX)
+
+**CAUTION**: Deployment, CLI and configuration changed, **BREAKING BACKWARDS COMPATIBILITY** for all use-cases!
+
+Complete Rust-rewrite, resulting in a fully statically linked, portable binary. Other than copying the binary somewhere into `PATH`, no further installation steps are required. Compatible with and tested on Linux and FreeBSD.
+
+Most configuration is handled via ZFS properties on datasets and can be overridden with environment variables. The formerly required YAML configuration file has become optional and now only covers the definition of location aliases. SSH-specific options have been removed entirely and are left to SSH configuration.
+
+Locations take over as a powerful concept to describe sources and targets for operations, including multiple hop ssh connections, specific user accounts and root datasets.
+
+Renamed CLI sub-commands:
+
+- `clean`: `free`
+- `tree`: `ls` with overall more functionality
+- `snap`: unchanged
+- `backup`: `sync`
+
+Features (yet) missing compared to 0.1:
+
+- `init` sub-command
+- translation (i18n)
+- GUI
+- Python API
+- Peaceful coexistence with `zfs-auto-snapshot`
+- Cleanup on target side
+
+Other:
+
+- FEATURE: FreeBSD support, assuming OpenZFS
+- FEATURE: All commands can produce JSON output with `-j`.
+- FEATURE: Locations strings including routes, user names and root datasets
+- FEATURE: Snapshot names based on custom format strings
+- FEATURE: Built-in support for optional `xz`-compressed transfers
+- FEATURE: Optional bandwidth limit on transfers to avoid congestion in overall bandwidth-limited settings
+- FEATURE: Optional insecure but fast transfers via `nc`
+- DEV: Test suite running on dedicated VMs, both Linux and FreeBSD
+
 ## 0.1.0 (2026-XX-XX)
 
 **CAUTION**: The configuration layout changed, effectively **BREAKING BACKWARDS COMPATIBILITY** for most use-cases!

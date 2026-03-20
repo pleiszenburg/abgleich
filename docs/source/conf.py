@@ -15,7 +15,7 @@ The contents of this file are subject to the GNU Lesser General Public License
 Version 2.1 ("LGPL" or "License"). You may not use this file except in
 compliance with the License. You may obtain a copy of the License at
 https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
-https://github.com/pleiszenburg/abgleich/blob/release_0.1/LICENSE
+https://github.com/pleiszenburg/abgleich/blob/master/LICENSE
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -48,10 +48,6 @@ release = get_version()
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints",
-    "sphinx_click",
     "sphinx_rtd_theme",
     "myst_parser",
 ]
@@ -88,9 +84,3 @@ html_context = {
         ),
     ],
 }
-
-always_document_param_types = True  # sphinx_autodoc_typehints
-
-napoleon_include_special_with_doc = True  # napoleon
-# napoleon_use_param = True
-# napoleon_type_aliases = True

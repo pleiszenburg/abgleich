@@ -1,0 +1,155 @@
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+
+snapshot_name := "clean"
+
+# ---------------------------------------------------------------------------
+# Core lifecycle
+# ---------------------------------------------------------------------------
+
+# Show available recipes
+default:
+    @just --list --unsorted
+
+# Create VMs and take snapshot (keys must already exist in vagrant/keys/)
+setup: up snapshot
+    @echo "✓ FreeBSD vms ready. Run 'just test freebsd' to execute a test cycle."
+
+# Create and provision VMs (idempotent)
+up:
+    vagrant up
+
+# Halt both VMs gracefully
+halt:
+    vagrant halt
+
+# Destroy VMs
+destroy:
+    vagrant destroy -f
+
+# Tear down VMs
+clean: destroy
+    @echo "✓ Fully cleaned."
+
+# ---------------------------------------------------------------------------
+# Snapshot management  (fast restore for test reruns)
+# ---------------------------------------------------------------------------
+
+# Take a clean snapshot of both VMs (VMs must be running or halted)
+snapshot:
+    @echo "Taking snapshot '{{ snapshot_name }}' ..."
+    vagrant snapshot save freebsd-a {{ snapshot_name }}
+    vagrant snapshot save freebsd-b {{ snapshot_name }}
+    @echo "✓ Snapshot '{{ snapshot_name }}' saved."
+
+# Restore both VMs to the clean snapshot
+restore:
+    @echo "Restoring snapshot '{{ snapshot_name }}' ..."
+    vagrant snapshot restore freebsd-a {{ snapshot_name }}
+    vagrant snapshot restore freebsd-b {{ snapshot_name }}
+    @echo "✓ VMs restored to '{{ snapshot_name }}'."
+
+# Delete the named snapshot
+snapshot-delete:
+    vagrant snapshot delete freebsd-a {{ snapshot_name }} || true
+    vagrant snapshot delete freebsd-b {{ snapshot_name }} || true
+
+# ---------------------------------------------------------------------------
+# Test cycle
+# ---------------------------------------------------------------------------
+
+# Restore VMs to the clean snapshot, wait for SSH, then resync project files
+reset:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just restore
+    echo "Waiting for SSH on both nodes ..."
+    just ssh-wait freebsd-a
+    just ssh-wait freebsd-b
+    echo "✓ Both nodes reachable."
+    echo "Syncing project files to VMs ..."
+    vagrant rsync
+
+# Run tests (VMs assumed running; syncs project files first)
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Syncing project files to VMs ..."
+    vagrant rsync
+    env_args=""
+    for var in $(compgen -v ABGLEICH) $(compgen -v RUST); do
+        printf -v escaped '%q' "${!var}"
+        env_args+="${var}=${escaped} "
+    done
+    vagrant ssh freebsd-a -- -t -t "bash -lc 'cd /project && ${env_args}just pytest'"
+
+# Filter & debug tests
+debug expression:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Syncing project files to VMs ..."
+    vagrant rsync
+    env_args=""
+    for var in $(compgen -v ABGLEICH) $(compgen -v RUST); do
+        printf -v escaped '%q' "${!var}"
+        env_args+="${var}=${escaped} "
+    done
+    vagrant ssh freebsd-a -- -t -t "bash -lc 'cd /project && ${env_args}just pytest-debug {{expression}}'"
+
+# ---------------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------------
+
+# SSH into a node: just ssh freebsd-a
+ssh node:
+    vagrant ssh {{ node }}
+
+# Wait until SSH is reachable on a node (timeout 60s)
+ssh-wait node:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for i in $(seq 1 30); do
+        if vagrant ssh {{ node }} -- true 2>/dev/null; then
+            exit 0
+        fi
+        sleep 2
+    done
+    echo "ERROR: {{ node }} did not become reachable within 60 s" >&2
+    exit 1
+
+# Run a command on both nodes
+both *CMD:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "── freebsd-a ──"
+    vagrant ssh freebsd-a -- {{ CMD }}
+    echo "── freebsd-b ──"
+    vagrant ssh freebsd-b -- {{ CMD }}
+
+# Re-run only provisioning (no full rebuild)
+provision:
+    vagrant provision
+
+# Show VM status
+status:
+    vagrant status
+
+# Verify that the two VMs can reach each other over SSH
+verify-ssh:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "freebsd-a → freebsd-b ..."
+    vagrant ssh freebsd-a -- 'ssh freebsd-b hostname'
+    echo "freebsd-b → freebsd-a ..."
+    vagrant ssh freebsd-b -- 'ssh freebsd-a hostname'
+    echo "✓ Bidirectional SSH works."
+
+# List ZFS-eligible disks on both nodes (FreeBSD)
+list-disks:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "── freebsd-a ──"
+    vagrant ssh freebsd-a -- 'geom disk list | grep "Geom name"'
+    echo "── freebsd-b ──"
+    vagrant ssh freebsd-b -- 'geom disk list | grep "Geom name"'

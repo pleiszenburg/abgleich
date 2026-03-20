@@ -1,12 +1,13 @@
 Introduction
 ============
 
+
 Why another tool for performing ZFS-related tasks?
 --------------------------------------------------
 
-ZFS is useful in many different ways. It does not restrict the user to a specific workflow. Instead, it provides an impressive collection of basic tools, commands, APIs and "building blocks" for doing just about anything imaginable when it comes to storage while being actually incredible reliable. Next to ZFS' reliability, ZFS's ``send`` & ``receive`` commands are really fast operations, no matter how many small files or fragments are that being dealt with. The mentioned commands can also handle sending and receiving compressed datasets without extra decompression/compression steps which are rather common in other, similar tools. ZFS' stream or pipe-based approach, tightly integrating into Unix-like environments, is easily extensible and a true invitation for writing advanced, custom tools on top.
+ZFS is useful in many different ways. It does not restrict the user to a specific workflow. Instead, it provides an impressive collection of basic tools, commands, APIs and "building blocks" for doing just about anything imaginable when it comes to storage while being actually incredible reliable. Next to ZFS' reliability, ZFS's ``send`` & ``receive`` commands are really fast operations, no matter how many small files or fragments are being dealt with. The mentioned commands can also handle sending and receiving compressed datasets without extra decompression/compression steps which is rather common in other, similar tools. ZFS' stream or pipe-based approach, tightly integrating into Unix-like environments, is easily extensible and a true invitation for writing advanced, custom tools on top.
 
-In stark contrast, while searching for a management, replication and backup tool for ZFS around 2016, one gap stood out in this part of the ecosystem: A lack of quality, limited reliability especially in a mathematical sense and basically no meaningful form of code structure, e.g. object orientation. Many tools are written in shell languages such as e.g. ``bash`` or, even worse, in languages like ``PHP``. Virtually all of them come without proper test suites. Most of them fall apart when using them in an "unusual manner" just a tiny little bit. All of them make implicit assumptions about the structure and usage of zpools and/or surrounding computer networks, which, if not followed precisely to the letter, can cause data loss in worst-case-scenarios. None of the tools make an effort to model zpools or their workflows in any form, making them extra hard to debug or understand and ultimately impossible to extend. As a less problematic but still annoying side note, most existing tools are lacking any form of proper user interface. The CLI interfaces commonly found require a ton of experience and are not forgiving mistakes. Native GUIs are virtually non-existing. Web UIs intended for system administrators and narrow use cases are usually the only half-decent user interfaces available.
+In stark contrast, while searching for a management, replication and backup tool for ZFS around 2016, one gap stood out in this part of the ecosystem: A lack of quality, limited reliability especially in a mathematical sense and basically no meaningful form of code structure, e.g. object orientation. Many tools were written in shell languages such as e.g. ``bash`` or, even worse, in languages like ``PHP``. Virtually all of them came without proper test suites. Most of them fell apart when using them in an "unusual manner" just a tiny little bit. All of them made implicit assumptions about the structure and usage of zpools and/or surrounding computer networks, which, if not followed precisely to the letter, could cause data loss in worst-case-scenarios. None of the tools made an effort to model zpools or their workflows in any form, making them extra hard to debug or understand and ultimately impossible to extend. As a less problematic but still annoying side note, most existing tools were lacking any form of proper user interface. The CLI interfaces commonly found required a ton of experience and were not forgiving mistakes. Native GUIs were virtually non-existing. Web UIs intended for system administrators and narrow use cases were usually the only half-decent user interfaces available.
 
 
 Design goals
@@ -38,7 +39,7 @@ A discussion and "live" demo of ``abgleich`` (in German) can be found `here`_.
 Alternative ZFS-based Tools
 ---------------------------
 
-The one and only, the classic, the bash-nightmare: `zfs-auto-snapshot`_.
+The one and only, the classic, the "bash-nightmare": `zfs-auto-snapshot`_.
 
 .. _zfs-auto-snapshot: https://github.com/zfsonlinux/zfs-auto-snapshot
 
@@ -46,13 +47,13 @@ The one and only, the classic, the bash-nightmare: `zfs-auto-snapshot`_.
 Noteworthy alternative sync and backup tools
 --------------------------------------------
 
-It has been attempted to build similar tools on top of `BTRFS`_, which did not take of as much as initially expected despite being seen as a better or purer version of ZFS, i.e. less licensing issues. Noteworthy examples include `btrfs-sxbackup`_ and `btrbk`_.
+It has been attempted to build similar tools on top of `BTRFS`_, which did not take off as much as initially expected despite being seen as a better or purer version of ZFS, i.e. less licensing issues. Noteworthy examples include `btrfs-sxbackup`_ and `btrbk`_.
 
 .. _BTRFS: https://btrfs.wiki.kernel.org/index.php/Main_Page
 .. _btrfs-sxbackup: https://github.com/masc3d/btrfs-sxbackup
 .. _btrbk: https://github.com/digint/btrbk
 
-Besides, there is a rather mature family of similar tools based on `rsync`_, which primarely suffer from the significant performance overhead of having to go through all of the filesystem's layers where ZFS-based tools in comparison can operate on a rather low block-level.
+Besides, there is a rather mature family of similar tools based on `rsync`_, which primarily suffer from the significant performance overhead of having to go through all of the filesystem's layers where ZFS-based tools in comparison can operate on a rather low block-level.
 
 .. _rsync: https://en.wikipedia.org/wiki/Rsync
 

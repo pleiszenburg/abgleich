@@ -1,0 +1,10 @@
+NAME = "abgleich"
+
+CONFIG_FN = f"{NAME:s}.yaml"
+DEFAULT_TARGET = "default"
+TEST_PREFIX = "TEST"
+TRACEBACK_SEP = " ==> "
+VAR_LOG_TO_DISK = f"{NAME.upper():s}_{TEST_PREFIX:s}_LOGTODISK"
+VAR_RELEASE =  f"{NAME.upper():s}_{TEST_PREFIX:s}_RELEASE"
+VAR_TARGET =  f"{NAME.upper():s}_{TEST_PREFIX:s}_TARGET"
+VAR_VERBOSE = f"{NAME.upper():s}_{TEST_PREFIX:s}_VERBOSE"

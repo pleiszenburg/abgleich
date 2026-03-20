@@ -3,41 +3,113 @@
 Installation
 ============
 
+Getting ``abgleich``
+--------------------
 
-Prerequisites
--------------
+``abgleich`` is written in Rust and can be statically linked against `musl`_, allowing self-contained portable binaries, trivial deployment and maximum compatibility. The primary target platforms are **Linux** and **FreeBSD** on x86_64. Both x86 (32 bit) and ARM support are theoretically trivial but currently untested territory - pull requests welcome. ``abgleich`` does not need to run on any remotely accessed target system, only the box where it actually gets invoked.
 
-There are anywhere from one to three machines with the following distinct characteristics:
+.. _musl: https://en.wikipedia.org/wiki/Musl
 
-1) Running ``abgleich``.
-2) The location of the ``source`` zpool.
-3) The location of the ``target`` zpool.
+Pre-Built Binaries
+^^^^^^^^^^^^^^^^^^
 
-On the machine that is running ``abgleich`` itself, ``python3`` (`CPython`_ 3.6 or later) and ``ssh`` is required. ``abgleich`` can be operated both from the ``source`` and the ``target`` side but also from a third, otherwise unrelated machine. In addition, both the ``source`` and the ``target`` side must provide a shell as well as ``ssh`` next to ``ZFS`` drivers and at least one zpool. ``source`` and ``target`` can be on the same machine if two local zpools are supposed to be synchronized.
+Pre-built binaries for Linux and FreeBSD can be found on the `releases page`_.
 
-.. _CPython: https://en.wikipedia.org/wiki/CPython
+.. _releases page: https://github.com/pleiszenburg/abgleich/releases
 
-.. note::
-
-    If everything happens on a single machine, no ``ssh`` is required.
-
-On Debian/Ubuntu-based systems, all potentially required prerequisites other than ZFS can be installed as follows:
+You can use the following command on Linux or FreeBSD to download the latest release. Simply replace ``DEST`` with the directory where you would like to put ``abgleich``:
 
 .. code:: bash
 
-    sudo apt install python3 python3-venv openssh
+    curl --proto '=https' --tlsv1.2 -sSf https://abgleich.pleiszenburg.de/install.sh | bash -s -- --to DEST
+
+For example, to install ``abgleich`` to ``~/bin``:
+
+.. code:: bash
+
+    # create ~/bin
+    mkdir -p ~/bin
+
+    # download and extract abgleich to ~/bin/abgleich
+    curl --proto '=https' --tlsv1.2 -sSf https://abgleich.pleiszenburg.de/install.sh | bash -s -- --to ~/bin
+
+    # add `~/bin` to the paths that your shell searches for executables
+    # this line should be added to your shells initialization file,
+    # e.g. `~/.bashrc` or `~/.zshrc`
+    export PATH="$PATH:$HOME/bin"
+
+You can check your installation by running:
+
+.. code:: bash
+
+    abgleich --help
+
+Optional: bash
+--------------
+
+All operations based on pipes require ``bash`` present on hosts operating those pipes. It's usually installed by default on many Linux distributions.
+
+Optional: pv
+------------
+
+Rate-limiting transfers while synchronizing is achieved with ``pv`` on the sending hosts.
+
+.. code:: bash
+
+    sudo apt install pv
+
+Optional: nc
+------------
+
+Fast, insecure transfers can be performed via ``nc`` (netcat).
+
+.. code:: bash
+
+    sudo apt install netcat
+
+Optional: xz
+------------
+
+If compression beyond what ZFS offers is activated, both the sending and receiving hosts during transfers while synchronizing require ``xz`` to be installed.
+
+.. code:: bash
+
+    sudo apt install pxz-utilsv
+
+Optional: SSH
+-------------
+
+``ssh`` may be required if there is the intention of accessing zpools on remote machines.
+
+On Debian/Ubuntu-based systems, the client can be installed as follows:
+
+.. code:: bash
+
+    sudo apt install openssh-client
+
+Similarly, the server can be installed as follows:
+
+.. code:: bash
+
+    sudo apt install openssh-server
+
+For details on its configuration, see `help.ubuntu.com`_ and `OpenSSH wiki book`_ as well as the `ssh man page`_ and the `ssh-keygen man page`_, among other places.
+
+.. _help.ubuntu.com: https://help.ubuntu.com/community/SSH
+.. _OpenSSH wiki book: https://en.wikibooks.org/wiki/OpenSSH
+.. _ssh man page: https://linux.die.net/man/1/ssh
+.. _ssh-keygen man page: https://linux.die.net/man/1/ssh-keygen
+
+``abgleich`` generally assumes password-less logins with public keys. ``abgleich`` can change the user on the target system before performing critical operations - therefore root-logins via SSH are not necessary. Systems accessed via an SSH server are ideally running some form of ``sh`` or ``bash``.
+
+User Accounts
+-------------
 
 .. warning::
 
     It is strongly recommended to operate ``abgleich`` with user privileges only.
 
-It is recommended to created dedicated user accounts on all involved machines and to grant them specific rights only. If operations must be triggered on remote machines, `public key authentication must be configured`_ for ``ssh`` for the relevant user accounts on all involved machines. For additional details, see man pages of `ssh-keygen`_ and `ssh`_ itself.
-
-.. _public key authentication must be configured: https://help.ubuntu.com/community/SSH/OpenSSH/Keys
-.. _ssh-keygen: https://linux.die.net/man/1/ssh-keygen
-.. _ssh: https://linux.die.net/man/1/ssh
-
-In addition, the following ZFS operations must be allowed for the user on the following sides:
+``abgleich`` relies on the assumption that the ``zfs`` command is in ``PATH`` for regular users and that operations which do not change data such as ``zfs list`` and ``zfs get`` can successfully be performed by the same regular users. For "invasive" operations such as synchronizing two zpools, it is recommended to created dedicated user accounts on all involved machines and to grant them specific rights only:
 
 +------------------+--------+--------+
 | command          | source | target |
@@ -73,54 +145,25 @@ For more details, see `man page for ZFS allow`_.
 
 .. _man page for ZFS allow: https://openzfs.github.io/openzfs-docs/man/8/zfs-allow.8.html
 
-
-Getting ``abgleich``
---------------------
-
-``abgleich`` can be installed and updated via Python's package manager `pip`_.
-
 .. warning::
 
-    Installation into a Python `virtual environment`_ is strongly recommended. The creation of virtual environments as well as the installation Python packages into them with ``pip`` is typically performed with user privileges only.
+    On Linux, ``zfs allow`` has a known fundamental limitation with regard to operations requiring ``mount`` our ``umount``. From the man page: "Delegations are supported under Linux with the exception of mount, unmount, mountpoint, canmount, rename, and share. These permissions cannot be delegated because the Linux mount(8) command restricts modifications of the global namespace to the root user." A `deeper discussion can be found on Github`_. In this case, the only real option is to perform said operations as root.
 
-.. _pip: https://pip.pypa.io/en/stable/
-.. _virtual environment: https://docs.python.org/3/library/venv.html
+Through location strings, ``abgleich`` can be directed to change user with ``sudo`` or ``sudo -u`` respectively before performing certain operations. This change is assumed to work without password. A matching entry in ``/etc/sudoers`` may look as follows:
 
-A basic installation workflow may look as follows:
+.. code::
 
-.. code:: bash
+    regular_user ALL=(privileged_user) NOPASSWD: /usr/sbin/zfs
 
-    python3 -m venv env  # create a virtual environment named "env" within CWD
-    source env/bin/activate  # activate virtual environment named "env" within CWD
-    pip install -U setuptools pip  # update Python's pip and setuptools
-    pip install abgleich  # install abgleich itself
+``privileged_user`` may also be ``root`` if mount/umount on Linux is required.
 
-An installation also including a :ref:`GUI <gui>` can be triggered by running:
-
-.. code:: bash
-
-    pip install abgleich[gui]
-
-You can check your installation by running:
-
-.. code:: bash
-
-    abgleich --help
-
-.. note::
-
-    If ``abgleich`` was installed into a virtual environment, this virtual environment must be explicitly activated for each particular shell session prior to using any of ``abgleich``'s commands.
-
+.. _deeper discussion can be found on Github: https://github.com/openzfs/zfs/discussions/10648
 
 Upgrading ``abgleich``
 ----------------------
 
-With the relevant virtual environment activated, run:
-
-.. code:: bash
-
-    pip install -U abgleich
+Simply re-install the (latest) pre-build binary as described above.
 
 .. note::
 
-	If you are relying on *abgleich*, please notice that it uses **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from ``0.0.x`` to ``0.1.y`` or going from ``0.1.x`` to ``0.2.y`` therefore indicates a breaking change. For as long as *abgleich* has development status "alpha", please expect more breaking changes to come.
+	If you are relying on *abgleich*, please notice that it uses **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from ``0.0.x`` to ``0.1.y`` or going from ``0.1.x`` to ``0.2.y`` therefore indicates a breaking change.

@@ -1,0 +1,20 @@
+pub static DEFAULT_DIFF: bool = true;
+pub static DEFAULT_FORMAT: &str = "abgleich_%Y-%m-%dT%H:%M:%S:%3f_backup";
+pub static DEFAULT_LOGLEVEL: u8 = 30; // >= WARN
+pub static DEFAULT_OVERLAP: i64 = 2;
+pub static DEFAULT_SNAP: &str = "changed";
+pub static DEFAULT_SYNC: bool = true;
+pub static DEFAULT_THRESHOLD: u64 = 12_582_912;
+pub static LOCALHOST: &str = "localhost";
+pub static NAME: &str = "abgleich";
+pub static TRACEBACK_SEP: &str = " ==> ";
+pub static USER_DELIMITER: &str = "%";
+pub static VAR_CONFIG: &str = "ABGLEICH_CONFIG";
+pub static VAR_DIFF: &str = "ABGLEICH_DIFF";
+pub static VAR_FORMAT: &str = "ABGLEICH_FORMAT";
+pub static VAR_LOGLEVEL: &str = "ABGLEICH_LOGLEVEL";
+pub static VAR_OVERLAP: &str = "ABGLEICH_OVERLAP";
+pub static VAR_SNAP: &str = "ABGLEICH_SNAP";
+pub static VAR_SYNC: &str = "ABGLEICH_SYNC";
+pub static VAR_THRESHOLD: &str = "ABGLEICH_THRESHOLD";
+pub static VERSION: &str = env!("CARGO_PKG_VERSION");
