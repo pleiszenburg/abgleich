@@ -10,7 +10,7 @@ maintainers = [{name = "Sebastian M. Ernst", email = "ernst@pleiszenburg.de"}]
 keywords = ["zfs", "ssh"]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.6"
+requires-python = ">=3.11"
 dependencies = [
     "click",
     "tabulate",
@@ -31,11 +31,10 @@ classifiers = [
     "Operating System :: POSIX :: BSD",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering",
@@ -79,7 +78,7 @@ Documentation = "https://zugbruecke.readthedocs.io/en/latest/"
 Source = "https://github.com/pleiszenburg/zugbruecke"
 
 [tool.black]
-target-version = ['py36']
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
