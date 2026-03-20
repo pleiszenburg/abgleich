@@ -4,8 +4,8 @@
 
 */ˈapɡlaɪ̯ç/ ([German, noun, male: comparison, replication, alignment](https://dict.leo.org/englisch-deutsch/abgleich))*
 
-[!NOTE]
-As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation. With release 0.1, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2 as found in branch `master`.
+> [!NOTE]
+> As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation. With release 0.1, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2 as found in branch `master`.
 
 ## SYNOPSIS
 
