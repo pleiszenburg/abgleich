@@ -7,7 +7,7 @@ VERSION=$(python -c "from tomllib import loads; f = open('abgleich-lib/Cargo.tom
 
 DIST=$(pwd)/dist
 EXECUTABLE=target/$TARGET/release/abgleich
-ARCHIVE=abgleich-$VERSION-$TARGET.tar.gz
+ARCHIVE=abgleich-v$VERSION-$TARGET.tar.gz
 SRC_FILES="$EXECUTABLE LICENSE README.md"
 TGT_FILES="abgleich LICENSE README.md"
 PLATFORM=$(echo $TARGET | cut -d "-" -f 3)
