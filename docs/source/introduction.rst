@@ -1,7 +1,6 @@
 Introduction
 ============
 
-
 Why another tool for performing ZFS-related tasks?
 --------------------------------------------------
 

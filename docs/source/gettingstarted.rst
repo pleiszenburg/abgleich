@@ -68,6 +68,4 @@ In this step, ``sourcepool/data`` and ``targetpool/sourcebackup/data`` are recur
 Cleanup
 -------
 
-
 - TODO image
-
