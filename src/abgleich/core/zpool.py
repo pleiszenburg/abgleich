@@ -8,14 +8,14 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/zpool.py: ZFS zpool
 
-    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
 Version 2.1 ("LGPL" or "License"). You may not use this file except in
 compliance with the License. You may obtain a copy of the License at
 https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
-https://github.com/pleiszenburg/abgleich/blob/master/LICENSE
+https://github.com/pleiszenburg/abgleich/blob/release_0.1/LICENSE
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -32,7 +32,6 @@ from collections import OrderedDict
 from typing import Generator, List, Tuple, Union
 
 from tabulate import tabulate
-from typeguard import typechecked
 
 from .abc import (
     ComparisonItemABC,
@@ -46,6 +45,7 @@ from .command import Command
 from .comparisondataset import ComparisonDataset
 from .comparisonzpool import ComparisonZpool
 from .dataset import Dataset
+from .debug import typechecked
 from .i18n import t
 from .io import colorize, humanize_size
 from .lib import join, root
@@ -140,7 +140,7 @@ class Zpool(ZpoolABC):
             return TransactionList()
         if dataset_item.a is None or dataset_item.b is None:
             return TransactionList()
-        if self.side == "target" and self._config["keep_backlog"].value == True:
+        if self.side == "target" and self._config["keep_backlog"].value == -1:
             return TransactionList()
 
         dataset_comparison = ComparisonDataset.from_datasets(
@@ -152,7 +152,7 @@ class Zpool(ZpoolABC):
                 : -self._config["keep_snapshots"].value
             ]
         else:  # target
-            if self._config["keep_backlog"].value in (False, 0):
+            if self._config["keep_backlog"].value == 0:
                 keep_backlog = None
             else:
                 keep_backlog = -self._config["keep_backlog"].value

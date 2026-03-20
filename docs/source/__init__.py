@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/gui/abc.py: Abstract base classes
+    docs/source/__init__.py: Docs source root
 
     Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -23,13 +23,3 @@ specific language governing rights and limitations under the License.
 </LICENSE_BLOCK>
 
 """
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# IMPORT
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-import abc
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# CLASSES
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

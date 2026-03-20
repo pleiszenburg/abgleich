@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/gui/lib.py: gui library
+    src/abgleich/cli/_main.py: CLI auto-detection
 
     Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -24,27 +24,49 @@ specific language governing rights and limitations under the License.
 
 """
 
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Type
+import importlib
+import os
 import sys
 
-from PyQt5.QtWidgets import QApplication, QDialog
+import click
 
-from ..core.abc import ConfigABC
-from ..core.debug import typechecked
+from .. import __version__
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typechecked
-def run_app(Window: Type[QDialog], config: ConfigABC):
+def _add_commands(ctx):
+    """auto-detects sub-commands"""
+    for cmd in (
+        item[:-3] if item.lower().endswith(".py") else item[:]
+        for item in os.listdir(os.path.dirname(__file__))
+        if not item.startswith("_")
+    ):
+        try:
+            ctx.add_command(
+                getattr(importlib.import_module("abgleich.cli.%s" % cmd), cmd)
+            )
+        except ModuleNotFoundError:  # likely no gui support
+            continue
 
-    app = QApplication(sys.argv)
-    window = Window(config)
-    window.show()
-    sys.exit(app.exec_())
+
+@click.group(invoke_without_command=True)
+@click.option("--version", is_flag=True)
+def cli(version):
+    """abgleich, zfs sync tool"""
+
+    if not version:
+        return
+
+    print(__version__)
+    sys.exit()
+
+
+_add_commands(cli)

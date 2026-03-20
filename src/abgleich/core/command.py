@@ -8,14 +8,14 @@ https://github.com/pleiszenburg/abgleich
 
     src/abgleich/core/command.py: Sub-process wrapper for commands
 
-    Copyright (C) 2019-2022 Sebastian M. Ernst <ernst@pleiszenburg.de>
+    Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
 Version 2.1 ("LGPL" or "License"). You may not use this file except in
 compliance with the License. You may obtain a copy of the License at
 https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
-https://github.com/pleiszenburg/abgleich/blob/master/LICENSE
+https://github.com/pleiszenburg/abgleich/blob/release_0.1/LICENSE
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -30,12 +30,11 @@ specific language governing rights and limitations under the License.
 
 import itertools
 from subprocess import Popen, PIPE
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 import shlex
 
-from typeguard import typechecked
-
 from .abc import CommandABC, ConfigABC
+from .debug import typechecked
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # CLASS
@@ -69,13 +68,24 @@ class Command(CommandABC):
         return type(self)(self.cmd + other.cmd)
 
     @staticmethod
-    def _com_to_str(com: Union[str, bytes, None]) -> str:
+    def _com_to_str(
+        com: Union[str, bytes, None], max_byte_chars: Optional[int] = None
+    ) -> str:
 
         if com is None:
             return ""
 
-        if isinstance(com, bytes):
-            return com.decode("utf-8")
+        if not isinstance(com, bytes):
+            return com
+
+        try:
+            com = com.decode("utf-8")
+        except UnicodeDecodeError:
+            com = repr(com)
+
+        if max_byte_chars is not None:
+            if len(com) > max_byte_chars:
+                return f"[{len(com)-max_byte_chars:d} characters ...]\n{com[-max_byte_chars:]:s}"
 
         return com
 
@@ -91,7 +101,10 @@ class Command(CommandABC):
         ]
 
     def run(
-        self, returncode: bool = False
+        self,
+        returncode: bool = False,
+        max_out_byte_chars: Optional[int] = None,
+        max_err_byte_chars: Optional[int] = None,
     ) -> Union[
         Tuple[List[str], List[str], List[int], Exception], Tuple[List[str], List[str]]
     ]:
@@ -114,8 +127,8 @@ class Command(CommandABC):
         for proc in procs[::-1]:  # inverse order, last process first
 
             out, err = proc.communicate()
-            output.append(self._com_to_str(out))
-            errors.append(self._com_to_str(err))
+            output.append(self._com_to_str(out, max_byte_chars=max_out_byte_chars))
+            errors.append(self._com_to_str(err, max_byte_chars=max_err_byte_chars))
             status.append(int(proc.returncode))
 
         output.reverse()

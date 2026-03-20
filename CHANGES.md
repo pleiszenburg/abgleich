@@ -1,5 +1,21 @@
 # Changes
 
+## 0.1.0 (2026-XX-XX)
+
+**CAUTION**: The configuration layout changed, effectively **BREAKING BACKWARDS COMPATIBILITY** for most use-cases!
+
+With this release, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2.
+
+The `keep_backlog` configuration parameter, which could previously be both a boolean and an integer, is now only allowed to be an integer. If no snapshots shall be kept on the target side, it must now be set to `0`. If all snapshots shall be kept on the target side (default behavior), it must now be set to `-1`. Arbitrary numbers greater than `0` remains unaffected by this change.
+
+`abgleich` will use **semantic versioning** from now on. Breaking changes will be indicated by increasing the second version number, the minor version. Going for example from `0.0.x` to `0.1.y` or going from `0.1.x` to `0.2.y` therefore indicates a breaking change.
+
+- FEATURE: `abgleich` can be initialized i.e. told to generate an initial configuration via a simple CLI wizard by running `abgleich init {filename}.yaml`.
+- FEATURE: Introduced a debug mode, activated by setting the `ABGLEICH_DEBUG` environment variable to `1`. Debug features were previously hard-coded activated, making `abgleich` now with debug features deactivated by default much faster.
+- FIX: Improved error handling by not passing snapshots failed to send completely to stdout.
+- DEV: Moved from `setuptools` for packaging to `pyproject.toml` via `flit`.
+- DEV: Added rudimentary test suite.
+
 ## 0.0.8 (2022-01-21)
 
 - FEATURE: `zfs-auto-snapshot` can be told to ignore backup datasets on the target side, see #3.

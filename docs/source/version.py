@@ -6,7 +6,7 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/gui/lib.py: gui library
+    docs/source/version.py: Package version parser
 
     Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
@@ -28,23 +28,46 @@ specific language governing rights and limitations under the License.
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Type
-import sys
+import ast
+import os
 
-from PyQt5.QtWidgets import QApplication, QDialog
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# CONFIG
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from ..core.abc import ConfigABC
-from ..core.debug import typechecked
+SRC_DIR = "src"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typechecked
-def run_app(Window: Type[QDialog], config: ConfigABC):
+def parse_version(code: str) -> str:
 
-    app = QApplication(sys.argv)
-    window = Window(config)
-    window.show()
-    sys.exit(app.exec_())
+    tree = ast.parse(code)
+
+    for item in tree.body:
+        if not isinstance(item, ast.Assign):
+            continue
+        if len(item.targets) != 1:
+            continue
+        if item.targets[0].id != "__version__":
+            continue
+        return item.value.s
+
+
+def get_version() -> str:
+
+    path = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        SRC_DIR,
+        "abgleich",
+        "__init__.py",
+    )
+
+    with open(path, "r", encoding="utf-8") as f:
+        version = parse_version(f.read())
+
+    return version

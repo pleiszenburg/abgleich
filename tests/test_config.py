@@ -6,9 +6,9 @@ ABGLEICH
 zfs sync tool
 https://github.com/pleiszenburg/abgleich
 
-    src/abgleich/gui/lib.py: gui library
+	tests/test_config.py: Configuration module tests
 
-    Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
+	Copyright (C) 2019-2026 Sebastian M. Ernst <ernst@pleiszenburg.de>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to the GNU Lesser General Public License
@@ -25,26 +25,56 @@ specific language governing rights and limitations under the License.
 """
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# CONST
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+RAW = """always_changed: false
+check_diff: false
+digits: 2
+ignore:
+- CACHE
+- CACHE_CC
+- CACHE_THUMBNAILS
+- DESKTOP/SCRATCH
+include_root: true
+keep_backlog: true
+keep_snapshots: 2
+source:
+    host: sourcehost
+    prefix: sourceprefix
+    zpool: sourcepool
+ssh:
+    cipher: aes256-gcm@openssh.com
+    compression: false
+suffix: _backup
+target:
+    host: targethost
+    prefix: targetprefix
+    user: targetuser
+    zpool: targetpool
+written_threshold: 1048576
+"""
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from typing import Type
-import sys
+from deepdiff import DeepDiff
 
-from PyQt5.QtWidgets import QApplication, QDialog
-
-from ..core.abc import ConfigABC
-from ..core.debug import typechecked
+from abgleich import Config
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ROUTINES
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-@typechecked
-def run_app(Window: Type[QDialog], config: ConfigABC):
+def test_importexport():
 
-    app = QApplication(sys.argv)
-    window = Window(config)
-    window.show()
-    sys.exit(app.exec_())
+    c = Config.from_text(RAW)
+    raw = c.to_text()
+
+    assert RAW == raw
+
+    d = Config.from_text(raw)
+
+    assert DeepDiff(c, d, ignore_order=True) == {}

@@ -1,4 +1,11 @@
+<img src="src/abgleich/share/icon.svg" alt="abgleich logo" width="256" height="256">
+
 # ABGLEICH
+
+*/ˈapɡlaɪ̯ç/ ([German, noun, male: comparison, replication, alignment](https://dict.leo.org/englisch-deutsch/abgleich))*
+
+[!NOTE]
+As of version 0.2, this software is primarily written in Rust. Check branches `release_0.1` or `release_0.0` in case you looking for the original Python implementation. With release 0.1, the Python implementation is sunset and may only receive bugfixes. For new deployments, please use the Rust-reimplementation as of version >= 0.2 as found in branch `master`.
 
 ## SYNOPSIS
 
@@ -6,13 +13,13 @@
 
 ## CLI EXAMPLE
 
-![demo](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo.png?raw=true "demo")
+![demo](docs/source/_static/demo.png "demo")
 
 ## GUI EXAMPLE
 
 | snap | backup | cleanup |
 |:----:|:------:|:-------:|
-| ![snap](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui01.png?raw=true "snap") | ![backup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui02.png?raw=true "backup") | ![cleanup](https://github.com/pleiszenburg/abgleich/blob/master/docs/demo_gui03.png?raw=true "cleanup") |
+| ![snap](docs/source/_static/gui01.png "snap") | ![backup](docs/source/_static/gui02.png "backup") | ![cleanup](docs/source/_static/gui03.png "cleanup") |
 
 ## INSTALLATION
 
@@ -28,7 +35,7 @@ An installation also including a GUI can be triggered by running:
 pip install -vU abgleich[gui]
 ```
 
-Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.6 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). GUI support requires [Qt5](https://en.wikipedia.org/wiki/Qt_(software)) in addition. Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
+Requires [CPython](https://en.wikipedia.org/wiki/CPython) 3.11 or later, a [Unix shell](https://en.wikipedia.org/wiki/Unix_shell) and [ssh](https://en.wikipedia.org/wiki/Secure_Shell). GUI support requires [Qt5](https://en.wikipedia.org/wiki/Qt_(software)) in addition. Tested with [OpenZFS](https://en.wikipedia.org/wiki/OpenZFS) 0.8.x on Linux.
 
 `abgleich`, CPython and the Unix shell must only be installed on one of the involved systems. Any remote system will be contacted via ssh and provided with direct ZFS commands.
 
@@ -42,12 +49,15 @@ Rights to run the following commands are required:
 
 | command        | source | target |
 |----------------|:------:|:------:|
-| `zfs list`     |    x   |    x   |
-| `zfs get`      |    x   |    x   |
-| `zfs snapshot` |    x   |        |
-| `zfs send`     |    x   |        |
-| `zfs receive`  |        |    x   |
+| `zfs create`   |        |    x   |
 | `zfs destroy`  |    x   |        |
+| `zfs diff`     |    x   |        |
+| `zfs mount`    |    x   |    x   |
+| `zfs receive`  |        |    x   |
+| `zfs send`     |    x   |        |
+| `zfs snapshot` |    x   |        |
+
+Permissions can be delegated via [zfs allow](https://openzfs.github.io/openzfs-docs/man/8/zfs-allow.8.html): `zfs allow -u user {operation} {zpool}`.
 
 ### `config.yaml`
 
@@ -87,7 +97,7 @@ compatibility:
 
 `zpool` defines the name of the zpools on source and target sides. The `prefix` value defines a "path" to a dataset underneath the `zpool`, so the name of the zpool itself is not part of the `prefix`. The `prefix` can be empty on either side. Prefixes can differ between source and target side. `host` specifies a value used by `ssh`. It does not have to be an actual host name. It can also be an alias from ssh's configuration. If a `host` is set to `localhost`, `ssh` wont be used and the `user` field can be left empty or omitted. Both source and target can be remote hosts or `localhost` at the same time. The `port` parameter specifies a custom `ssh` port. It can be left empty or omitted. `ssh` will then use its defaults or configuration to determine the correct port.
 
-`include_root` indicates whether `{zpool}{/{prefix}}` should be included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `keep_backlog` is either an integer or a boolean. It specifies if (or how many) snapshots are kept on the target side if the target side is cleaned. Snapshots that are part of the overlap with the source side are never considered for removal. `suffix` contains the name suffix for new snapshots.
+`include_root` indicates whether `{zpool}{/{prefix}}` should be included in all operations. `keep_snapshots` is an integer and must be greater or equal to `1`. It specifies the number of snapshots that are kept per dataset on the source side when a cleanup operation is triggered. `keep_backlog` is an integer. It specifies how many snapshots are kept on the target side beyond the overlap between source and target if the target side is cleaned. If set to `-1`, all snapshots are being kept (default behavior). Snapshots that are part of the overlap with the source side are never considered for removal. `suffix` contains the name suffix for new snapshots.
 
 Whether or not snapshots are generated is based on the following sequence of checks:
 
@@ -115,6 +125,10 @@ Custom pre- and post-processing can be applied after `send` and before `receive`
 ## USAGE
 
 All potentially changing or destructive actions are listed in detail before the user is asked to confirm them. None of the commands listed below create, change or destroy a zpool, dataset or snapshot on their own without the user's explicit consent.
+
+### `abgleich init config.yaml`
+
+Initializes `abgleich` and generates configuration via a small CLI-based wizard.
 
 ### `abgleich tree config.yaml [source|target]`
 
@@ -145,3 +159,9 @@ Runs a sequence of `snap`, `backup` and `cleanup` in a wizard GUI. This command 
 `abgleich` uses Python's [type hints](https://docs.python.org/3/library/typing.html) and enforces them with [typeguard](https://github.com/agronholm/typeguard) at runtime. It furthermore makes countless assertions.
 
 The enforcement of types and assertions can be controlled through the `PYTHONOPTIMIZE` environment variable. If set to `0` (the implicit default value), all checks are activated. `abgleich` will run slow. For safety, this mode is highly recommended. For significantly higher speed, all type checks and most assertions can be deactivated by setting `PYTHONOPTIMIZE` to `1` or `2`, e.g. `PYTHONOPTIMIZE=1 abgleich tree config.yaml`. This is not recommended. You may want to check if another tool or configuration has altered this environment variable by running `echo $PYTHONOPTIMIZE`.
+
+## FOR PRODUCTION ENVIRONMENTS
+
+`abgleich` is using **semantic versioning**. Breaking changes are indicated by increasing the second version number, the minor version. Going for example from `0.0.x` to `0.1.y` or going from `0.1.x` to `0.2.y` therefore indicates a breaking change.
+
+If you are relying on `abgleich` in one way or another, please consider monitoring the project: [its repository on Github](https://github.com/pleiszenburg/abgleich) and [its chatroom](https://matrix.to/#/#abgleich:matrix.org).

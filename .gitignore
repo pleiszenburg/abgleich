@@ -6,6 +6,9 @@ pip-wheel-metadata/
 .ipynb_checkpoints/
 *.ipynb
 notes.md
-config.yaml
+config*.yaml
 dist/
 build/
+.coverage
+htmlcov
+todo.md
