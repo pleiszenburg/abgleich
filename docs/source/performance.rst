@@ -12,10 +12,6 @@ If the network is the bottleneck, the common solution is to compress the transfe
 
 In fast networks, SSH almost always becomes the primary bottleneck. Depending on CPU and fine-tuning, it usually tops out at around 200 to 300 MByte/s or 20 to 30% bandwidth of a 10GBit/s link. If the network can be trusted, it is common to drop SSH for ``zfs send`` and ``zfs receive`` entirely in favour of transferring data with ``netcat``. This approach is known to saturate a 10GBit/s link assuming sufficient read speeds in the sending zpool itself.
 
-.. note::
-
-    Both ``netcat`` and custom stream compression is supported in ``abgleich`` version 0.1 but currently missing from 0.2. It will be re-implemented at a later point in time.
-
 Tuning SSH-based transfers
 --------------------------
 
