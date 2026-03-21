@@ -64,6 +64,8 @@ impl TransactionList {
             if !confirmation {
                 return Ok(());
             }
+        } else {
+            println!("{}", json!({"run": true}));
         }
         self.run(force)
     }

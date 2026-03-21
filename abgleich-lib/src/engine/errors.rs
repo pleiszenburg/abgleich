@@ -26,8 +26,8 @@ pub enum EngineError {
     DatasetSnapshotNoCommonError,
     #[error("failed to validate sequence of snapshots between two datasets")]
     DatasetSnapshotSequenceValidationError,
-    #[error("dataset does not have snapshots and can not be transferred")]
-    DatasetWithoutSnapshotError,
+    #[error("dataset {dataset} does not have snapshots and can not be transferred")]
+    DatasetWithoutSnapshotError { dataset: String },
     #[error("the configured overlap is set to zero")]
     OverlapZeroError,
     #[error("property is not mutable")]

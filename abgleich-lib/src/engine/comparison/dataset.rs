@@ -23,6 +23,9 @@ impl<'a> DatasetComparison<'a> {
             (Some(source_dataset), Some(target_dataset)) => (source_dataset, target_dataset),
         };
         let mut transactions = TransactionList::new();
+        if !source_dataset.get_sync_option()? {
+            return Ok(transactions);
+        }
         for snapshot in SequenceComparison::from_datasets(source_dataset, target_dataset)?
             .free_iter(source_dataset.get_snapshot_option_overlap()?)?
         {
@@ -68,12 +71,12 @@ impl<'a> DatasetComparison<'a> {
         direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
-        if source_dataset.len() == 0 {
-            return Err(EngineError::DatasetWithoutSnapshotError);
-        }
         let mut transactions = TransactionList::new();
         if !source_dataset.get_sync_option()? {
             return Ok(transactions);
+        }
+        if source_dataset.len() == 0 {
+            return Err(EngineError::DatasetWithoutSnapshotError{ dataset: source_dataset.get_meta_ref().name.clone() });
         }
         if source_dataset.len() > 0 {
             transactions.push(

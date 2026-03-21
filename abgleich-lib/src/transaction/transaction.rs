@@ -1,3 +1,4 @@
+use serde_json::json;
 use tracing::info;
 
 use crate::config::{Location, Route};
@@ -34,6 +35,7 @@ pub struct TransactionTableRow {
 pub struct Transaction {
     meta: TransactionMeta,
     chain: CommandChain,
+    mutation: bool,
 }
 
 impl Transaction {
@@ -52,19 +54,36 @@ impl Transaction {
     }
 
     pub fn run(&self) -> Result<TransactionOutcome, TransactionError> {
-        info!(
-            message = format!("[RUN] {}", self.meta.to_description(false, false)),
-            command = self.chain.to_string(),
-        );
+        if self.mutation {
+            println!("{}",
+                json!({
+                    "message": format!("[RUN] {}", self.meta.to_description(false, false)),
+                    "command": self.chain.to_string(),
+                })
+            );
+        } else {
+            info!(
+                message = format!("[RUN] {}", self.meta.to_description(false, false)),
+                command = self.chain.to_string(),
+            );
+        }
         let outcome = self
             .chain
             .run()
             .map_err(TransactionError::SubprocessError)?;
         let success = outcome.success();
         if success {
-            info!("[OK] {}", self.meta.to_description(false, false));
+            if self.mutation {
+                println!("{}", json!({"message": format!("[OK] {}", self.meta.to_description(false, false))}));
+            } else {
+                info!(message = format!("[OK] {}", self.meta.to_description(false, false)));
+            }
         } else {
-            info!("[FAILED] {}", self.meta.to_description(false, false));
+            if self.mutation {
+                println!("{}", json!({"message": format!("[FAILED] {}", self.meta.to_description(false, false))}));
+            } else {
+                info!(message = format!("[FAILED] {}", self.meta.to_description(false, false)));
+            }
         }
         let data = outcome
             .stdout_as_str_ref()
@@ -89,6 +108,7 @@ impl Transaction {
     ) -> Result<Self, TransactionError> {
         let dataset_name = if dataset == "/" { "" } else { &dataset };
         Ok(Self {
+            mutation: true,
             chain: CommandChain::begin(
                 Command::new(
                     "zfs".to_string(),
@@ -122,6 +142,7 @@ impl Transaction {
     ) -> Result<Self, TransactionError> {
         let dataset_name = if dataset == "/" { "" } else { &dataset };
         Ok(Self {
+            mutation: true,
             chain: CommandChain::begin(
                 Command::new(
                     "zfs".to_string(),
@@ -154,6 +175,7 @@ impl Transaction {
     ) -> Result<Self, TransactionError> {
         let dataset_name = if dataset == "/" { "" } else { &dataset };
         Ok(Self {
+            mutation: false,
             chain: CommandChain::begin(
                 Command::new(
                     "zfs".to_string(),
@@ -181,6 +203,7 @@ impl Transaction {
 
     pub fn new_inventory(location: &Location) -> Result<Self, TransactionError> {
         Ok(Self {
+            mutation: false,
             chain: CommandChain::begin(
                 Command::new(
                     "zfs".to_string(),
@@ -268,6 +291,7 @@ impl Transaction {
             );
 
             return Ok(Self {
+                mutation: true,
                 chain: CommandChain::begin_group(source, send_cmds)
                     .with_background_group(target, recv_cmds),
                 meta: TransactionMeta::TransferIncremental(TransferIncrementalMeta {
@@ -339,6 +363,7 @@ impl Transaction {
         );
 
         Ok(Self {
+            mutation: true,
             chain: CommandChain::begin_group(&source_relative, src_cmds)
                 .pipe_group(&target_relative, tgt_cmds)
                 .with_entry_route(entry_route),
@@ -418,6 +443,7 @@ impl Transaction {
             );
 
             return Ok(Self {
+                mutation: true,
                 chain: CommandChain::begin_group(source, send_cmds)
                     .with_background_group(target, recv_cmds),
                 meta: TransactionMeta::TransferInitial(TransferInitialMeta {
@@ -487,6 +513,7 @@ impl Transaction {
         );
 
         Ok(Self {
+            mutation: true,
             chain: CommandChain::begin_group(&source_relative, src_cmds)
                 .pipe_group(&target_relative, tgt_cmds)
                 .with_entry_route(entry_route),
@@ -501,6 +528,7 @@ impl Transaction {
 
     pub fn new_which(route: &Route, command: String) -> Result<Self, TransactionError> {
         Ok(Self {
+            mutation: false,
             chain: CommandChain::begin(
                 Command::new("which".to_string(), vec![command.clone()])
                     .map_err(TransactionError::SubprocessError)?
@@ -516,6 +544,7 @@ impl Transaction {
 
     pub fn new_zpool_list(route: &Route) -> Result<Self, TransactionError> {
         Ok(Self {
+            mutation: false,
             chain: CommandChain::begin(
                 Command::new(
                     "zpool".to_string(),

@@ -245,6 +245,9 @@ class Context:
         parse output of `abgleich` for list of transactions
         """
 
+        # transactions are always followed by a json-block indicating automatic yes
+        raw = raw.split(b'{"run":true}\n')[0]
+
         data = cls.parse_raw_json(raw) if json else cls.parse_raw_table(raw)
         return [Transaction.from_fields(**entry) for entry in data]
 

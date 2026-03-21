@@ -147,6 +147,10 @@ For more details, see `man page for ZFS allow`_.
 
 .. warning::
 
+    ``zfs diff`` comes with a caveat: ``zfs allow username diff`` is not enough. The user performing ``zfs diff`` on a dataset needs to have execute-permission (``x``) set on the filesystem at the root of the dataset or else the diff will fail. This can be worked around with group-level permissions. Alternatively, the use of ``zfs diff`` can be prohibited by setting the ``abgleich:diff`` property to ``off``.
+
+.. warning::
+
     On Linux, ``zfs allow`` has a known fundamental limitation with regard to operations requiring ``mount`` our ``umount``. From the man page: "Delegations are supported under Linux with the exception of mount, unmount, mountpoint, canmount, rename, and share. These permissions cannot be delegated because the Linux mount(8) command restricts modifications of the global namespace to the root user." A `deeper discussion can be found on Github`_. In this case, the only real option is to perform said operations as root.
 
 Through location strings, ``abgleich`` can be directed to change user with ``sudo`` or ``sudo -u`` respectively before performing certain operations. This change is assumed to work without password. A matching entry in ``/etc/sudoers`` may look as follows:

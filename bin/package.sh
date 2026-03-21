@@ -35,5 +35,6 @@ if [ -f $ARCHIVE ]; then
 fi
 tar czf $ARCHIVE $TGT_FILES
 rm $TGT_FILES
+gpg --detach-sign -a $ARCHIVE
 
 cd ..
