@@ -35,6 +35,16 @@ __version__ = "0.1.0"
 # EXPORT
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from .core.command import Command
 from .core.config import Config
 from .core.configfield import ConfigField
 from .core.configspec import CONFIGSPEC
+from .core.dataset import Dataset
+from .core.debug import DEBUG
+from .core.i18n import t
+from .core.property import Property
+from .core.snapshot import Snapshot
+from .core.transaction import Transaction
+from .core.transactionlist import TransactionList
+from .core.transactionmeta import TransactionMeta
+from .core.zpool import Zpool
