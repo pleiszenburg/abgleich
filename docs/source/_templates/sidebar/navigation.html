@@ -1,8 +1,6 @@
-{% extends "!layout.html" %}
+<div class="sidebar-tree">
 
-{% block menu %}
-
-    {{ super() }}
+    {{ furo_navigation_tree }}
 
     {% if sidebar_external_links %}
 
@@ -19,13 +17,13 @@
         <ul>
             {% for text, link in sidebar_external_links %}
                 {% if hasdoc(link) %}
-                    <li class="toctree-l1"><a href="{{ pathto(link) }}">{{ text }}</a></li>
+                    <li class="toctree-l1"><a class="reference external" href="{{ pathto(link) }}">{{ text }}</a></li>
                 {% else %}
-                    <li class="toctree-l1"><a href="{{ link }}">{{ text }}</a></li>
+                    <li class="toctree-l1"><a class="reference external" href="{{ link }}">{{ text }}</a></li>
                 {% endif %}
             {% endfor %}
         </ul>
 
     {% endif %}
 
-{% endblock %}
+</div>
