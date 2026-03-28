@@ -1,6 +1,6 @@
 [package]
 name = "abgleich-cli"
-version = "0.2.0-alpha3"
+version = "0.2.0-alpha4"
 edition = "2024"
 authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
 description = "zfs sync tool, cli"
