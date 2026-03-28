@@ -22,6 +22,9 @@ dist:
        ./bin/package.sh $target
     done
 
+publish: clean-build
+    cross publish
+
 build target=("x86_64-unknown-linux-gnu" / "x86_64-unknown-linux-musl" / "x86_64-unknown-freebsd"):
     cross build --target {{target}}
 
