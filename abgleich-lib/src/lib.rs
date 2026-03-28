@@ -8,3 +8,5 @@ pub mod subprocess;
 pub mod sys;
 pub mod traits;
 pub mod transaction;
+
+pub use consts::VERSION;

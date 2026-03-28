@@ -5,8 +5,10 @@ edition = "2024"
 authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
 description = "zfs sync tool, cli"
 license = "MIT OR Apache-2.0"
-publish = false  # "private"!
+publish = true
 repository = "https://github.com/pleiszenburg/abgleich"
+homepage = "https://github.com/pleiszenburg/abgleich"
+readme = "README.md"
 
 [[bin]]
 name = "abgleich"

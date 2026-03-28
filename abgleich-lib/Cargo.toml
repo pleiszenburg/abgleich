@@ -3,10 +3,12 @@ name = "abgleich-lib"
 version = "0.2.0-alpha3"
 edition = "2024"
 authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
-description = "zfs sync tool, cli"
+description = "zfs sync tool, core library"
 license = "MIT OR Apache-2.0"
-publish = false  # "private"!
+publish = true
 repository = "https://github.com/pleiszenburg/abgleich"
+homepage = "https://github.com/pleiszenburg/abgleich"
+readme = "README.md"
 
 [dependencies]
 chrono = "0.4.38"
