@@ -1,6 +1,6 @@
 # Changes
 
-## 0.1.1 (2026-XX-XX)
+## 0.1.1 (2026-03-28)
 
 - FIX: Read The Docs build
 
