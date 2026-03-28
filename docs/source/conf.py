@@ -50,10 +50,10 @@ release = get_version()
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints",
     "sphinx_click",
     "sphinx_rtd_theme",
     "myst_parser",
+    "sphinx_autodoc_typehints",
 ]
 
 templates_path = ["_templates"]
