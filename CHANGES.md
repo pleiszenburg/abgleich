@@ -1,5 +1,9 @@
 # Changes
 
+## 0.1.1 (2026-XX-XX)
+
+- FIX: Read The Docs build
+
 ## 0.1.0 (2026-03-28)
 
 **CAUTION**: The configuration layout changed, effectively **BREAKING BACKWARDS COMPATIBILITY** for most use-cases!
