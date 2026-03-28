@@ -8,8 +8,8 @@ VERSION=$(python -c "from tomllib import loads; f = open('abgleich-lib/Cargo.tom
 DIST=$(pwd)/dist
 EXECUTABLE=target/$TARGET/release/abgleich
 ARCHIVE=abgleich-v$VERSION-$TARGET.tar.gz
-SRC_FILES="$EXECUTABLE LICENSE README.md"
-TGT_FILES="abgleich LICENSE README.md"
+SRC_FILES="$EXECUTABLE LICENSE-APACHE LICENSE-MIT README.md"
+TGT_FILES="abgleich LICENSE-APACHE LICENSE-MIT README.md"
 PLATFORM=$(echo $TARGET | cut -d "-" -f 3)
 
 echo "Packaging abgleich $VERSION for $TARGET..."

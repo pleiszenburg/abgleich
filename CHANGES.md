@@ -48,6 +48,8 @@ Other:
 - FEATURE: Optional insecure but fast transfers via `nc`
 - DEV: Test suite running on dedicated VMs, both Linux and FreeBSD
 
+As of this version, this re-implemented project is re-licensed from the GNU Lesser General Public License to a dual-model of MIT and Apache 2.0 licences.
+
 ## 0.1.1 (2026-03-28)
 
 - FIX: Read The Docs build

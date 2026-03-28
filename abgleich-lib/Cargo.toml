@@ -4,7 +4,7 @@ version = "0.2.0-alpha3"
 edition = "2024"
 authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
 description = "zfs sync tool, cli"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 publish = false  # "private"!
 repository = "https://github.com/pleiszenburg/abgleich"
 
