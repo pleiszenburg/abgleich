@@ -56,7 +56,9 @@ impl TransactionList {
         } else {
             self.print_table()?;
         }
-        if !yes {
+        if yes {
+            println!("{}", json!({"run": true}));
+        } else {
             let confirmation = Confirm::new("Run?")
                 .with_default(false)
                 .prompt()
@@ -64,8 +66,6 @@ impl TransactionList {
             if !confirmation {
                 return Ok(());
             }
-        } else {
-            println!("{}", json!({"run": true}));
         }
         self.run(force)
     }

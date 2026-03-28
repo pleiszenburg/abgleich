@@ -303,8 +303,8 @@ impl Engine {
                 return Err(err);
             }
         }
-        if rate_limit.is_some() {
-            if !Transaction::new_which(source_loc.get_route_ref(), "pv".to_string())
+        if rate_limit.is_some()
+            && !Transaction::new_which(source_loc.get_route_ref(), "pv".to_string())
                 .map_err(EngineError::TransactionError)?
                 .run()
                 .map_err(EngineError::TransactionError)?
@@ -314,7 +314,6 @@ impl Engine {
                     host: source_loc.get_route_ref().get_host_ref().to_string(),
                 });
             }
-        }
         if compress.is_some() {
             for (loc, err) in [
                 (&source_loc, EngineError::XzCommandNotFound {

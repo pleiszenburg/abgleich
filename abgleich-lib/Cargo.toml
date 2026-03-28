@@ -1,6 +1,6 @@
 [package]
 name = "abgleich-lib"
-version = "0.2.0-alpha2"
+version = "0.2.0-alpha3"
 edition = "2024"
 authors = ["Sebastian M. Ernst <ernst@pleiszenburg.de>"]
 description = "zfs sync tool, cli"

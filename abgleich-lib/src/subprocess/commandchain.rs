@@ -26,8 +26,8 @@ enum Stage {
 impl Stage {
     fn render(&self) -> Result<String, SubprocessError> {
         match self {
-            Stage::Single(cmd) => Ok(cmd.to_string()),
-            Stage::Group { route, user, commands } => {
+            Self::Single(cmd) => Ok(cmd.to_string()),
+            Self::Group { route, user, commands } => {
                 debug_assert!(!commands.is_empty(), "Group stage must have at least one command");
                 let inner_cmd = if commands.len() == 1 {
                     commands[0].clone()
@@ -151,11 +151,10 @@ impl CommandChain {
     // produced by Group stages for rate limiting and compression.
     fn to_command(&self) -> Result<Command, SubprocessError> {
         // Fast path: single local Single stage with no background.
-        if self.background.is_none() && self.stages.len() == 1 && self.entry_route.is_empty() {
-            if let Stage::Single(cmd) = &self.stages[0] {
+        if self.background.is_none() && self.stages.len() == 1 && self.entry_route.is_empty()
+            && let Stage::Single(cmd) = &self.stages[0] {
                 return Ok(cmd.clone());
             }
-        }
         let fg_str = self.to_pipe_string()?;
         let shell_cmd = if let Some(bg) = &self.background {
             let bg_str = bg.render()?;
