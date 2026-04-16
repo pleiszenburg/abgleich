@@ -10,41 +10,44 @@ use crate::consts::{
     DEFAULT_DIFF, DEFAULT_FORMAT, DEFAULT_OVERLAP, DEFAULT_SNAP, DEFAULT_SYNC, DEFAULT_THRESHOLD,
     VAR_DIFF, VAR_FORMAT, VAR_OVERLAP, VAR_SNAP, VAR_SYNC, VAR_THRESHOLD,
 };
+use crate::property::{BaseProperty, Description, SnapValue, TypeValue};
 use crate::sys::{envvar2bool, envvar2string, envvar2type};
-use crate::transaction::Transaction;
+use crate::transaction::{BaseBuilder, CreateSnapshotBuilder, DiffBuilder, Transaction};
 
 use super::common::Common;
 use super::errors::EngineError;
-use super::meta::Meta;
-use super::property::{Snap, Type};
 use super::snapshot::Snapshot;
 
 pub struct Dataset {
-    meta: Meta,
+    description: Description,
     snapshots: IndexMap<String, Snapshot>,
 }
 
 impl Dataset {
-    pub fn from_meta(meta: Meta) -> Self {
+    pub fn from_description(description: Description) -> Self {
         Self {
-            meta,
+            description,
             snapshots: IndexMap::new(),
         }
     }
 
     fn contains_changes(&self, location: &Location) -> Result<bool, EngineError> {
-        let written = self.meta.written.get_uint()?.unwrap();
+        let written = self.description.written.as_ref().ok_or(
+            EngineError::UnknownWritten { root: location.get_root_ref().to_string(), name: self.description.name.clone() }
+        )?.get_value_ref().unpack();
         debug!(contains_changes = "start", written = written);
-        if written == 0 {
+        if *written == 0 {
             debug!(contains_changes = "exit", written = 0);
             return Ok(false);
         }
-        if self.meta.type_.get_type()?.unwrap() == Type::Volume {
+        if self.description.type_.as_ref().ok_or(
+            EngineError::DatasetTypeUnknown { root: location.get_root_ref().to_string(), name: self.description.name.clone() }
+        )?.get_value_ref() == &TypeValue::Volume {
             debug!(contains_changes = "exit", type_ = "volume");
             return Ok(true);
         }
         let threshold = self.get_snapshot_option_threshold()?;
-        if threshold < written {
+        if threshold < *written {
             debug!(contains_changes = "exit", threshold = threshold);
             return Ok(true);
         }
@@ -53,9 +56,9 @@ impl Dataset {
             return Ok(true);
         }
         debug!(contains_changes = "diff");
-        let outcome = Transaction::new_diff(
+        let outcome = DiffBuilder::new(
             location,
-            self.meta.name.clone(),
+            self.description.name.clone(),
             self.snapshots
                 .values()
                 .last()
@@ -63,12 +66,13 @@ impl Dataset {
                 .get_name_ref()
                 .to_string(),
         )
-        .map_err(EngineError::TransactionError)?
+        .build()
+        .map_err(EngineError::TransactionBuild)?
         .run()
-        .map_err(EngineError::TransactionError)?;
+        .map_err(EngineError::TransactionRun)?;
         outcome
             .assert_success()
-            .map_err(EngineError::TransactionError)?;
+            .map_err(EngineError::TransactionRun)?;
         Ok(!outcome
             .get_data_ref()
             .unwrap() // safe operation
@@ -88,16 +92,22 @@ impl Dataset {
         location: &Location,
         snapshot: String,
     ) -> Result<Transaction, EngineError> {
-        Transaction::new_create_snapshot(
+        CreateSnapshotBuilder::new(
             location,
-            self.meta.name.clone(),
+            self.description.name.clone(),
             snapshot,
-            self.meta
+            *self.description
                 .written
-                .get_uint()?
-                .ok_or(EngineError::PropertyUnknownError)?,
+                .as_ref()
+                .ok_or(EngineError::UnknownWritten{
+                    name: self.get_name_ref().to_string(),
+                    root: location.get_root_ref().to_string(),
+                })?
+                .get_value_ref()
+                .unpack(),
         )
-        .map_err(EngineError::TransactionError)
+        .build()
+        .map_err(EngineError::TransactionBuild)
     }
 
     pub fn get_last_snapshot_ref(&self) -> Option<&Snapshot> {
@@ -111,58 +121,61 @@ impl Dataset {
 
     fn get_snapshot_option_diff(&self) -> Result<bool, EngineError> {
         Ok(envvar2bool(VAR_DIFF)
-            .map_err(EngineError::SysError)?
+            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_DIFF.to_string(), source: e })?
             .unwrap_or_else(|| {
-                self.meta
-                    .abgleich_diff
-                    .get_bool()
-                    .unwrap()
-                    .map_or(DEFAULT_DIFF, |prop_value| prop_value)
-            }))
+                self.description.abgleich_diff.as_ref().map_or(
+                    DEFAULT_DIFF,
+                    |value| bool::from(value.get_value_ref())
+                )
+            })
+        )
     }
 
     fn get_snapshot_option_format(&self) -> String {
         envvar2string(VAR_FORMAT).unwrap_or_else(|| {
-            self.meta
-                .abgleich_format
-                .get_string_ref()
-                .unwrap()
-                .map_or_else(|| DEFAULT_FORMAT.to_owned(), std::borrow::ToOwned::to_owned)
+            self.description.abgleich_format.as_ref().map_or_else(
+                || DEFAULT_FORMAT.to_owned(),
+                |value| value.get_value_ref().to_string()
+            )
         })
     }
 
     pub fn get_snapshot_option_overlap(&self) -> Result<i64, EngineError> {
         Ok(envvar2type::<i64>(VAR_OVERLAP)
-            .map_err(EngineError::SysError)?
+            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_OVERLAP.to_string(), source: e })?
             .unwrap_or_else(|| {
-                self.meta
-                    .abgleich_overlap
-                    .get_int()
-                    .unwrap()
-                    .map_or(DEFAULT_OVERLAP, |prop_value| prop_value)
-            }))
+                self.description.abgleich_overlap.as_ref().map_or(
+                    DEFAULT_OVERLAP,
+                    |value| *value.get_value_ref().unpack()
+                )
+            })
+        )
     }
 
-    pub fn get_snapshot_option_snap(&self) -> Result<Snap, EngineError> {
+    pub fn get_snapshot_option_snap(&self) -> Result<SnapValue, EngineError> {
         Ok(match envvar2string(VAR_SNAP) {
-            Some(env_value) => Snap::from_str(&env_value)?,
-            _ => match self.meta.abgleich_snap.get_snap().unwrap() {
-                Some(prop_value) => prop_value,
-                _ => Snap::from_str(DEFAULT_SNAP)?,
+            Some(env_value) => SnapValue::from_str(&env_value).map_err(
+                |e| EngineError::Value { name: "env(abgleich:snap)".to_string(), source: e }
+            )?,
+            None => match &self.description.abgleich_snap {
+                Some(value) => value.get_value_ref().clone(),
+                _ => SnapValue::from_str(DEFAULT_SNAP).map_err(
+                    |e| EngineError::Value { name: "default(abgleich:snap)".to_string(), source: e }
+                )?,
             },
         })
     }
 
     fn get_snapshot_option_threshold(&self) -> Result<u64, EngineError> {
         Ok(envvar2type::<u64>(VAR_THRESHOLD)
-            .map_err(EngineError::SysError)?
+            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_THRESHOLD.to_string(), source: e })?
             .unwrap_or_else(|| {
-                self.meta
-                    .abgleich_threshold
-                    .get_uint()
-                    .unwrap()
-                    .map_or(DEFAULT_THRESHOLD, |prop_value| prop_value)
-            }))
+                self.description.abgleich_threshold.as_ref().map_or(
+                    DEFAULT_THRESHOLD,
+                    |value| *value.get_value_ref().unpack()
+                )
+            })
+        )
     }
 
     pub fn get_snapshot_position(&self, name: &str) -> Option<usize> {
@@ -241,14 +254,14 @@ impl Dataset {
 
     pub fn get_sync_option(&self) -> Result<bool, EngineError> {
         Ok(envvar2bool(VAR_SYNC)
-            .map_err(EngineError::SysError)?
+            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_SYNC.to_string(), source: e })?
             .unwrap_or_else(|| {
-                self.meta
-                    .abgleich_sync
-                    .get_bool()
-                    .unwrap()
-                    .map_or(DEFAULT_SYNC, |prop_value| prop_value)
-            }))
+                self.description.abgleich_sync.as_ref().map_or(
+                    DEFAULT_SYNC,
+                    |value| bool::from(value.get_value_ref())
+                )
+            })
+        )
     }
 
     pub fn is_snapshot_creation_monotonic(&self) -> bool {
@@ -260,8 +273,8 @@ impl Dataset {
 
     pub fn is_snapshot_intended(&self, location: &Location) -> Result<bool, EngineError> {
         match self.get_snapshot_option_snap()? {
-            Snap::Always => Ok(true),
-            Snap::Changed => {
+            SnapValue::Always => Ok(true),
+            SnapValue::Changed => {
                 if self.snapshots.is_empty() {
                     return Ok(true);
                 }
@@ -270,7 +283,7 @@ impl Dataset {
                 }
                 Ok(false)
             }
-            Snap::Never => Ok(false),
+            SnapValue::Never => Ok(false),
         }
     }
 
@@ -285,7 +298,7 @@ impl Dataset {
 }
 
 impl Common for Dataset {
-    fn get_meta_ref(&self) -> &Meta {
-        &self.meta
+    fn get_description_ref(&self) -> &Description {
+        &self.description
     }
 }

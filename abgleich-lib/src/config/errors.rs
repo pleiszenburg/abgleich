@@ -7,21 +7,27 @@ use thiserror::Error as ThisError;
 #[derive(ThisError, Debug)]
 pub enum ConfigError {
     #[error("no configuration file found")]
-    ConfigNotFoundError,
-    #[error("i/o error")]
-    IoError(#[source] IoError),
-    #[error("location description does not have exactly one (root) or two fragments (route:root)")]
-    LocationFragmentsError,
-    #[error("localhost in unexpected position in location route fragment")]
-    LocationLocalhostPositionError,
-    #[error("location root fragment is empty")]
-    LocationRootEmptyError,
-    #[error("location root fragment must not begin with a slash")]
-    LocationRootLeadingSlashError,
-    #[error("optional location user fragment provided but empty")]
-    LocationUserEmptyError,
-    #[error("utf8 decoding error")]
-    Utf8DecodingError(#[source] FromUtf8Error),
-    #[error("deserializing yaml failed")]
-    YamlDeserializingError(#[source] YamlDeserializingError),
+    ConfigNotFound,
+    #[error("--direct and --insecure cannot be used together")]
+    DirectAndInsecureConflict,
+    #[error("i/o error, while {action}: {path}")]
+    Io{
+        action: String,
+        path: String,
+        source: IoError,
+    },
+    #[error("{msg}")]
+    RouteParser {msg: String},
+    #[error("{msg}")]
+    RootParser {msg: String},
+    #[error("utf8 decoding error: {path}")]
+    Utf8Decoding{
+        path: String,
+        source: FromUtf8Error,
+    },
+    #[error("deserializing yaml failed: {path}")]
+    YamlDeserializing{
+        path: String,
+        source: YamlDeserializingError,
+    },
 }

@@ -1,6 +1,7 @@
 use clap::Parser;
 use tracing::debug;
 
+use crate::config::{Confirmation, OutputFmt, TransferOptions};
 use crate::consts::VERSION;
 use crate::engine::Engine;
 
@@ -22,16 +23,16 @@ pub fn dispatch() -> Result<(), CliError> {
             target,
         } => {
             Engine::from_detect()
-                .map_err(CliError::EngineError)?
-                .free_cli(json, yes, force, &source, &target)
-                .map_err(CliError::EngineError)?;
+                .map_err(CliError::Engine)?
+                .free_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), force, &source, &target)
+                .map_err(CliError::Engine)?;
         }
 
         Commands::Ls { json, location } => {
             Engine::from_detect()
-                .map_err(CliError::EngineError)?
+                .map_err(CliError::Engine)?
                 .ls_cli(json, location.as_deref())
-                .map_err(CliError::EngineError)?;
+                .map_err(CliError::Engine)?;
         }
 
         Commands::Snap {
@@ -41,9 +42,9 @@ pub fn dispatch() -> Result<(), CliError> {
             location,
         } => {
             Engine::from_detect()
-                .map_err(CliError::EngineError)?
-                .snap_cli(json, yes, force, &location)
-                .map_err(CliError::EngineError)?;
+                .map_err(CliError::Engine)?
+                .snap_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), force, &location)
+                .map_err(CliError::Engine)?;
         }
 
         Commands::Sync {
@@ -57,10 +58,15 @@ pub fn dispatch() -> Result<(), CliError> {
             source,
             target,
         } => {
+            let options = TransferOptions::new()
+                .with_compress(compress)
+                .with_rate_limit(rate_limit)
+                .with_insecure(insecure).map_err(CliError::Config)?
+                .with_direct(direct).map_err(CliError::Config)?;
             Engine::from_detect()
-                .map_err(CliError::EngineError)?
-                .sync_cli(json, yes, direct, force, rate_limit, compress, insecure, &source, &target)
-                .map_err(CliError::EngineError)?;
+                .map_err(CliError::Engine)?
+                .sync_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), &options, force, &source, &target)
+                .map_err(CliError::Engine)?;
         }
 
         Commands::Version {} => {

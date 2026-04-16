@@ -21,7 +21,7 @@ impl<'a> SequenceBuilder<'a> {
         if !self.source.is_snapshot_creation_monotonic()
             || !self.target.is_snapshot_creation_monotonic()
         {
-            return Err(EngineError::DatasetSnapshotCreationNotMonotonicError);
+            return Err(self.err("creation time of snapshots does not monotonically increase"));
         }
         let common = Self::sort_snapshot_names(self.get_common_snapshot_names(), self.source);
         if common.is_empty() {
@@ -61,7 +61,7 @@ impl<'a> SequenceBuilder<'a> {
         let target_names = Self::sort_snapshot_names(target_names, self.target);
         for (source_name, target_name) in source_names.iter().zip(target_names.iter()) {
             if **source_name != **target_name {
-                return Err(EngineError::DatasetSnapshotSequenceValidationError);
+                return Err(self.err("order of snapshots does not match"));
             }
         }
         Ok(())
@@ -71,7 +71,7 @@ impl<'a> SequenceBuilder<'a> {
         let source_snapshot = self.source.get_snapshot_ref_by_name(name).unwrap();
         let target_snapshot = self.target.get_snapshot_ref_by_name(name).unwrap();
         if source_snapshot.get_creation() != target_snapshot.get_creation() {
-            return Err(EngineError::DatasetSnapshotCreationMismatchError);
+            return Err(self.err("creation times of identical snapshot do not match"));
         }
         Ok(
             SnapshotComparison::new(name.to_string(), source_snapshot.get_creation())
@@ -145,14 +145,18 @@ impl<'a> SequenceBuilder<'a> {
     }
 }
 
-pub struct SequenceComparison {
+pub struct SequenceComparison<'a> {
     sequence: Vec<SnapshotComparison>,
+    source: &'a Dataset,
+    target: &'a Dataset,
 }
 
-impl SequenceComparison {
-    pub fn from_datasets(source: &Dataset, target: &Dataset) -> Result<Self, EngineError> {
+impl<'a> SequenceComparison<'a> {
+    pub fn from_datasets(source: &'a Dataset, target: &'a Dataset) -> Result<Self, EngineError> {
         Ok(Self {
             sequence: SequenceBuilder::from_datasets(source, target).build()?,
+            source,
+            target,
         })
     }
 
@@ -172,11 +176,13 @@ impl SequenceComparison {
 
     pub fn free_iter(&self, overlap: i64) -> Result<impl Iterator<Item = &str>, EngineError> {
         if overlap == 0 {
-            return Err(EngineError::OverlapZeroError);
+            return Err(self.err("the configured overlap is set to zero"));
         }
         let position = if overlap > 0 {
             self.common_positions_reversed_iter()
-                .nth(usize::try_from(overlap - 1).map_err(EngineError::ArchUsizeError)?)
+                .nth(usize::try_from(overlap - 1).map_err(
+                    |e| EngineError::ArchUsize{value: overlap, source: e}
+                )?)
                 .unwrap_or(0)
         } else {
             0 // negative values cause all snapshots to be kept
@@ -193,12 +199,12 @@ impl SequenceComparison {
     pub fn sync_iter(&self) -> Result<impl Iterator<Item = (&str, &str)>, EngineError> {
         let start = if let Some(last_common) = self.get_last_common_position() {
             if !self.is_position_last_on_target(last_common) {
-                return Err(EngineError::DatasetSnapshotAfterLastCommonError);
+                return Err(self.err("target contains snapshot after last common snapshot"));
             }
             last_common
         } else {
             if !self.sequence.is_empty() {
-                return Err(EngineError::DatasetSnapshotNoCommonError);
+                return Err(self.err("datasets do not contain common snapshot"));
             }
             0 // HACK return empty iterator
         };
@@ -226,5 +232,39 @@ impl SequenceComparison {
         self.sequence[position + 1..]
             .iter()
             .all(|entry| !entry.is_on_target())
+    }
+}
+
+trait SequenceCommon {
+    fn get_source_ref(&self) -> &Dataset;
+
+    fn get_target_ref(&self) -> &Dataset;
+
+    fn err(&self, msg: &str) -> EngineError {
+        EngineError::Sequence {
+            msg: msg.to_string(),
+            src: self.get_source_ref().get_name_ref().to_uppercase(),
+            tgt: self.get_target_ref().get_name_ref().to_uppercase(),
+        }
+    }
+}
+
+impl SequenceCommon for SequenceBuilder<'_> {
+    fn get_source_ref(&self) -> &Dataset {
+        self.source
+    }
+
+    fn get_target_ref(&self) -> &Dataset {
+        self.target
+    }
+}
+
+impl SequenceCommon for SequenceComparison<'_> {
+    fn get_source_ref(&self) -> &Dataset {
+        self.source
+    }
+
+    fn get_target_ref(&self) -> &Dataset {
+        self.target
     }
 }

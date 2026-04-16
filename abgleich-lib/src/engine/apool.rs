@@ -5,13 +5,12 @@ use serde_json::json;
 
 use crate::config::Location;
 use crate::output::{Alignment, Table, TableColumn, colorized_storage_si_suffix};
-use crate::transaction::{Transaction, TransactionList};
+use crate::property::{BaseProperty, Description, TypeValue};
+use crate::transaction::{BaseBuilder, InventoryBuilder, TransactionList};
 
 use super::common::Common;
 use super::dataset::Dataset;
 use super::errors::EngineError;
-use super::meta::Meta;
-use super::property::Type;
 use super::snapshot::Snapshot;
 
 pub struct Apool {
@@ -21,13 +20,14 @@ pub struct Apool {
 
 impl Apool {
     pub fn from_location(location: Location) -> Result<Self, EngineError> {
-        let outcome = Transaction::new_inventory(&location)
-            .map_err(EngineError::TransactionError)?
+        let outcome = InventoryBuilder::new(&location)
+            .build()
+            .map_err(EngineError::TransactionBuild)?
             .run()
-            .map_err(EngineError::TransactionError)?;
+            .map_err(EngineError::TransactionRun)?;
         outcome
             .assert_success()
-            .map_err(EngineError::TransactionError)?;
+            .map_err(EngineError::TransactionRun)?;
         Self::from_raw(
             location,
             #[expect(clippy::missing_panics_doc, reason = "infallible")]
@@ -36,39 +36,46 @@ impl Apool {
     }
 
     pub fn from_raw(location: Location, raw: &str) -> Result<Self, EngineError> {
-        let mut metas = Meta::from_raws(raw)?;
+        let mut descriptions = Description::from_raws(raw).map_err(EngineError::Property)?;
         let mut dataset_names: Vec<String> = Vec::new();
         let mut snapshot_names: Vec<String> = Vec::new();
-        for (name, meta) in &metas {
-            match meta
+        for (name, description) in &descriptions {
+            match description
                 .type_
-                .get_type()?
-                .ok_or(EngineError::DatasetTypeUnknownError)?
+                .as_ref()
+                .ok_or(EngineError::DatasetTypeUnknown{
+                    name: name.clone(),
+                    root: location.get_root_ref().to_string(),
+                })?
+                .get_value_ref()
             {
-                Type::Snapshot => snapshot_names.push(name.clone()),
+                TypeValue::Snapshot => snapshot_names.push(name.clone()),
                 _ => dataset_names.push(name.clone()),
             }
         }
-        metas.reverse(); // a bit of performance later on, i.e. less shifting?
+        descriptions.reverse(); // a bit of performance later on, i.e. less shifting?
         let mut datasets = IndexMap::new();
         for name in dataset_names {
-            let mut meta = {
+            let mut description = {
                 #[expect(clippy::missing_panics_doc, reason = "infallible")]
-                metas.shift_remove(&name).unwrap()
+                descriptions.shift_remove(&name).unwrap()
             };
-            meta.fix_dataset_relative(location.get_root_ref().as_str());
-            datasets.insert(meta.name.clone(), Dataset::from_meta(meta));
+            description.fix_dataset_relative(location.get_root_ref().as_str());
+            datasets.insert(description.name.clone(), Dataset::from_description(description));
         }
         for name in snapshot_names {
-            let mut meta = {
+            let mut description = {
                 #[expect(clippy::missing_panics_doc, reason = "infallible")]
-                metas.shift_remove(&name).unwrap()
+                descriptions.shift_remove(&name).unwrap()
             };
-            let parent = meta.fix_snapshot_relative(location.get_root_ref().as_str());
+            let parent = description.fix_snapshot_relative(location.get_root_ref().as_str()).map_err(EngineError::Property)?;
             datasets
                 .get_mut(&parent)
-                .ok_or(EngineError::DatasetUnknownError)?
-                .push_snapshot(Snapshot::new(meta));
+                .ok_or(EngineError::DatasetUnknown{
+                    name: parent.clone(),
+                    root: location.get_root_ref().to_string(),
+                })?
+                .push_snapshot(Snapshot::from_description(description));
         }
         Ok(Self { location, datasets })
     }

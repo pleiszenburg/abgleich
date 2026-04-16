@@ -40,7 +40,7 @@ impl Config {
     pub fn from_detect() -> Result<Self, ConfigError> {
         match Self::detect() {
             Ok(path) => Self::from_path(&path),
-            Err(ConfigError::ConfigNotFoundError) => {
+            Err(ConfigError::ConfigNotFound) => {
                 info!("no configuration found, starting empty");
                 Ok(Self::new())
             }
@@ -52,13 +52,31 @@ impl Config {
         let mut f = OpenOptions::new()
             .read(true)
             .open(path)
-            .map_err(ConfigError::IoError)?;
+            .map_err(|e| ConfigError::Io{
+                action: "opening".to_string(),
+                path: path.to_string_lossy().to_string(),
+                source: e,
+            })?;
         let mut buf = Vec::new();
-        f.read_to_end(&mut buf).map_err(ConfigError::IoError)?;
+        f.read_to_end(&mut buf).map_err(|e| ConfigError::Io{
+            action: "reading".to_string(),
+            path: path.to_string_lossy().to_string(),
+            source: e,
+        })?;
         drop(f);
-        let raw = String::from_utf8(buf).map_err(ConfigError::Utf8DecodingError)?;
+        let raw = String::from_utf8(buf).map_err(
+            |e| ConfigError::Utf8Decoding{
+                path: path.to_string_lossy().to_string(),
+                source: e,
+            }
+        )?;
         let config: ConfigSerializable =
-            serde_yaml::from_str(&raw).map_err(ConfigError::YamlDeserializingError)?;
+            serde_yaml::from_str(&raw).map_err(
+                |e| ConfigError::YamlDeserializing{
+                    path: path.to_string_lossy().to_string(),
+                    source: e,
+                }
+            )?;
         Self::from_serializable(config)
     }
 
@@ -85,7 +103,7 @@ impl Config {
         if let Some(path) = Self::detect_etc() {
             return Ok(path);
         }
-        Err(ConfigError::ConfigNotFoundError)
+        Err(ConfigError::ConfigNotFound)
     }
 
     fn detect_env() -> Option<PathBuf> {

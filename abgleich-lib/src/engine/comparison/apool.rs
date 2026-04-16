@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use crate::transaction::{TransactionList, TransferOptions};
+use crate::config::TransferOptions;
+use crate::transaction::TransactionList;
 
 use super::super::apool::Apool;
 use super::super::common::Common;
@@ -53,7 +54,6 @@ impl ApoolComparison<'_> {
 
     pub fn get_sync_transactions(
         &self,
-        direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
         let mut transactions: TransactionList = TransactionList::new();
@@ -61,7 +61,6 @@ impl ApoolComparison<'_> {
             let mut sub = dataset_comparison.get_sync_transactions(
                 self.source.get_location_ref(),
                 self.target.get_location_ref(),
-                direct,
                 options,
             )?;
             transactions.append(&mut sub);

@@ -4,6 +4,7 @@ pub mod config;
 mod consts;
 pub mod engine;
 mod output;
+pub mod property;
 pub mod subprocess;
 pub mod sys;
 pub mod traits;

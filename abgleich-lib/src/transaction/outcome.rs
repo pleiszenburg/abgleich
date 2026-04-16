@@ -1,15 +1,16 @@
-use crate::transaction::TransactionError;
+use crate::subprocess::OutcomeSuccess;
+use crate::transaction::TransactionRunError;
 
 use super::meta::TransactionMeta;
 
 pub struct TransactionOutcome {
-    success: bool,
+    success: OutcomeSuccess,
     data: Option<String>,
     meta: TransactionMeta,
 }
 
 impl TransactionOutcome {
-    pub const fn new(success: bool, data: Option<String>, meta: TransactionMeta) -> Self {
+    pub const fn new(success: OutcomeSuccess, data: Option<String>, meta: TransactionMeta) -> Self {
         Self {
             success,
             data,
@@ -17,11 +18,14 @@ impl TransactionOutcome {
         }
     }
 
-    pub const fn assert_success(&self) -> Result<(), TransactionError> {
-        if self.success {
-            return Ok(());
+    pub fn assert_success(&self) -> Result<(), TransactionRunError> {
+        match &self.success {
+            OutcomeSuccess::Yes => Ok(()),
+            OutcomeSuccess::No(reason) => Err(TransactionRunError::Failed{
+                reason: reason.clone(),
+                description: self.meta.to_description(false, false)
+            }),
         }
-        Err(TransactionError::FailedError)
     }
 
     pub fn get_data_ref(&self) -> Option<&str> {
@@ -33,6 +37,9 @@ impl TransactionOutcome {
     }
 
     pub const fn is_successful(&self) -> bool {
-        self.success
+        match &self.success {
+            OutcomeSuccess::Yes => true,
+            OutcomeSuccess::No(_) => false,
+        }
     }
 }

@@ -1,5 +1,5 @@
-use crate::config::Location;
-use crate::transaction::{Transaction, TransactionList, TransferOptions};
+use crate::config::{Location, TransferOptions};
+use crate::transaction::{BaseBuilder, DestroySnapshotBuilder, TransactionList, TransferIncrementalBuilder, TransferInitialBuilder};
 
 use super::super::common::Common;
 use super::super::dataset::Dataset;
@@ -30,12 +30,13 @@ impl<'a> DatasetComparison<'a> {
             .free_iter(source_dataset.get_snapshot_option_overlap()?)?
         {
             transactions.push(
-                Transaction::new_destroy_snapshot(
+                DestroySnapshotBuilder::new(
                     source,
                     source_dataset.get_name_ref().to_string(),
                     snapshot.to_string(),
                 )
-                .map_err(EngineError::TransactionError)?,
+                .build()
+                .map_err(EngineError::TransactionBuild)?,
             );
         }
         Ok(transactions)
@@ -45,20 +46,18 @@ impl<'a> DatasetComparison<'a> {
         &self,
         source: &Location,
         target: &Location,
-        direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
         match (self.source, self.target) {
             (None, None | Some(_)) => Ok(TransactionList::new()),
             (Some(source_dataset), None) => {
-                Self::get_sync_transactions_new(source, target, source_dataset, direct, options)
+                Self::get_sync_transactions_new(source, target, source_dataset, options)
             }
             (Some(source_dataset), Some(target_dataset)) => Self::get_sync_transactions_followup(
                 source,
                 target,
                 source_dataset,
                 target_dataset,
-                direct,
                 options,
             ),
         }
@@ -68,7 +67,6 @@ impl<'a> DatasetComparison<'a> {
         source: &Location,
         target: &Location,
         source_dataset: &Dataset,
-        direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
         let mut transactions = TransactionList::new();
@@ -76,11 +74,11 @@ impl<'a> DatasetComparison<'a> {
             return Ok(transactions);
         }
         if source_dataset.len() == 0 {
-            return Err(EngineError::DatasetWithoutSnapshotError{ dataset: source_dataset.get_meta_ref().name.clone() });
+            return Err(EngineError::DatasetWithoutSnapshot{ dataset: source_dataset.get_name_ref().to_string() });
         }
         if source_dataset.len() > 0 {
             transactions.push(
-                Transaction::new_transfer_initial(
+                TransferInitialBuilder::new(
                     source,
                     target,
                     source_dataset.get_name_ref().to_string(),
@@ -89,15 +87,15 @@ impl<'a> DatasetComparison<'a> {
                         .unwrap()
                         .get_name_ref()
                         .to_string(),
-                    direct,
                     options,
                 )
-                .map_err(EngineError::TransactionError)?,
+                .build()
+                .map_err(EngineError::TransactionBuild)?,
             );
         }
         for idx in 0..source_dataset.len() - 1 {
             transactions.push(
-                Transaction::new_transfer_incremental(
+                TransferIncrementalBuilder::new(
                     source,
                     target,
                     source_dataset.get_name_ref().to_string(),
@@ -111,10 +109,10 @@ impl<'a> DatasetComparison<'a> {
                         .unwrap()
                         .get_name_ref()
                         .to_string(),
-                    direct,
                     options,
                 )
-                .map_err(EngineError::TransactionError)?,
+                .build()
+                .map_err(EngineError::TransactionBuild)?,
             );
         }
         Ok(transactions)
@@ -125,7 +123,6 @@ impl<'a> DatasetComparison<'a> {
         target: &Location,
         source_dataset: &Dataset,
         target_dataset: &Dataset,
-        direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
         let mut transactions = TransactionList::new();
@@ -136,16 +133,16 @@ impl<'a> DatasetComparison<'a> {
             SequenceComparison::from_datasets(source_dataset, target_dataset)?.sync_iter()?
         {
             transactions.push(
-                Transaction::new_transfer_incremental(
+                TransferIncrementalBuilder::new(
                     source,
                     target,
                     source_dataset.get_name_ref().to_string(),
                     from_snapshot.to_string(),
                     to_snapshot.to_string(),
-                    direct,
                     options,
                 )
-                .map_err(EngineError::TransactionError)?,
+                .build()
+                .map_err(EngineError::TransactionBuild)?,
             );
         }
         Ok(transactions)

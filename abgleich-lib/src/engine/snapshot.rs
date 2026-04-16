@@ -1,18 +1,19 @@
+use crate::property::Description;
+
 use super::common::Common;
-use super::meta::Meta;
 
 pub struct Snapshot {
-    meta: Meta,
+    description: Description,
 }
 
 impl Snapshot {
-    pub const fn new(meta: Meta) -> Self {
-        Self { meta }
+    pub const fn from_description(description: Description) -> Self {
+        Self { description }
     }
 }
 
 impl Common for Snapshot {
-    fn get_meta_ref(&self) -> &Meta {
-        &self.meta
+    fn get_description_ref(&self) -> &Description {
+        &self.description
     }
 }

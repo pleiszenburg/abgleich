@@ -13,7 +13,7 @@ use super::errors::CliError;
 pub fn tracing_init() -> Result<(), CliError> {
     let mut layers = Vec::new();
     {
-        let level = get_loglevel().map_err(CliError::SysError)?;
+        let level = get_loglevel().map_err(CliError::Sys)?;
         let filter = LevelFilter::from_level(level); // implicit "max level"
         let layer = layer()
             .json()

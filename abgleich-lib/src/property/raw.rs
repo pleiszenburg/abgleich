@@ -1,37 +1,37 @@
-use super::super::errors::EngineError;
+use super::error::PropertyError;
 
 pub struct RawProperty {
     pub dataset: String,
     pub name: String,
     pub value: String,
-    pub meta: String,
+    pub origin: String,
 }
 
 impl RawProperty {
-    pub fn from_line(line: &str) -> Result<Self, EngineError> {
+    pub fn from_line(line: &str) -> Result<Self, PropertyError> {
         let mut fragments = line.split('\t');
         let raw_property = Self {
             dataset: fragments
                 .next()
-                .ok_or(EngineError::PropertyParseFragmentsError)?
+                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
                 .to_string(),
             name: fragments
                 .next()
-                .ok_or(EngineError::PropertyParseFragmentsError)?
+                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
                 .to_string(),
             value: fragments
                 .next()
-                .ok_or(EngineError::PropertyParseFragmentsError)?
+                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
                 .to_string(),
-            meta: fragments
+            origin: fragments
                 .next()
-                .ok_or(EngineError::PropertyParseFragmentsError)?
+                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
                 .to_string(),
         };
         Ok(raw_property)
     }
 
-    pub fn from_raws(raw: &str) -> Result<Vec<Self>, EngineError> {
+    pub fn from_raws(raw: &str) -> Result<Vec<Self>, PropertyError> {
         let lines = raw.split('\n');
         let chars: &[_] = &[' ', '\t'];
         let mut raw_properties: Vec<Self> = Vec::new();

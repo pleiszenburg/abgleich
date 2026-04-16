@@ -1,8 +1,11 @@
 use std::str::FromStr;
 use std::string::ToString;
 
+use crate::consts::ROOT_DELIMITER;
+
 use super::errors::ConfigError;
 
+#[derive(Clone, PartialEq, Eq)]
 pub struct Root {
     value: String,
 }
@@ -15,7 +18,7 @@ impl Root {
 
     #[must_use]
     pub fn as_clean_str(&self) -> &str {
-        if self.value.ends_with('/') {
+        if self.value.ends_with(ROOT_DELIMITER) {
             &self.value[..self.value.len() - 1]
         } else {
             &self.value
@@ -29,10 +32,10 @@ impl Root {
 
     fn assert_valid(value: &str) -> Result<(), ConfigError> {
         if value.is_empty() {
-            return Err(ConfigError::LocationRootEmptyError);
+            return Err(ConfigError::RootParser { msg: "location root fragment is empty".to_string() });
         }
-        if value.chars().nth(0).unwrap() == '/' {
-            return Err(ConfigError::LocationRootLeadingSlashError);
+        if value.chars().nth(0).unwrap() == ROOT_DELIMITER {
+            return Err(ConfigError::RootParser { msg: "location root fragment begins with a slash".to_string() });
         }
         Ok(())
     }
@@ -55,19 +58,5 @@ impl FromStr for Root {
 impl ToString for Root {
     fn to_string(&self) -> String {
         self.value.clone()
-    }
-}
-
-impl Clone for Root {
-    fn clone(&self) -> Self {
-        Self {
-            value: self.value.clone(),
-        }
-    }
-}
-
-impl PartialEq for Root {
-    fn eq(&self, other: &Self) -> bool {
-        self.value == *other.as_str()
     }
 }

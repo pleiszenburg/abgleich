@@ -1,10 +1,17 @@
 #[cfg(feature = "cli")]
 use inquire::Confirm;
 use serde_json::json;
+use tracing::error;
 
+#[cfg(feature = "cli")]
+use crate::config::{Confirmation, OutputFmt};
 use crate::output::{Alignment, Table, TableColumn};
+use crate::traits::Traverse;
 
-use super::errors::TransactionError;
+#[cfg(feature = "cli")]
+use super::errors::TransactionCliError;
+use super::errors::TransactionRunError;
+use super::force::Force;
 use super::transaction::Transaction;
 
 pub struct TransactionList {
@@ -33,67 +40,79 @@ impl TransactionList {
         self.transactions.push(transaction);
     }
 
-    pub fn run(&self, force: bool) -> Result<(), TransactionError> {
+    // "assert_success", based on non-zero exit-code or signal termination,
+    // raises "transaction fail", optionally ignored with normal force.
+    // In "transaction.run", before and after, lower-level sub-process errors
+    // can occur, handled with full force if required.
+    pub fn run(&self, force: &Force) -> Result<(), TransactionRunError> {
         let mut failures = 0usize;
         for transaction in &self.transactions {
-            let result = transaction.run().and_then(|outcome| outcome.assert_success());
-            match result {
+            let outcome = match transaction.run() {
+                Ok(outcome) => outcome,
+                Err(err) => {
+                    if *force == Force::Full {
+                        error!(msg = "ignoring error with full force", traceback = err.traverse());
+                        failures += 1;
+                        continue;
+                    }
+                    return Err(err);
+                }
+            };
+            match outcome.assert_success() {
                 Ok(()) => {}
-                Err(_) if force => failures += 1,
-                Err(e) => return Err(e),
+                Err(TransactionRunError::Failed{reason: _, description: _}) if *force != Force::No => failures += 1, // logged by transaction already
+                Err(err) => return Err(err),
             }
         }
         if failures > 0 {
-            return Err(TransactionError::SomeTransactionsFailed(failures));
+            return Err(TransactionRunError::SomeFailed(failures));
         }
         Ok(())
     }
 
     #[cfg(feature = "cli")]
-    pub fn run_cli(&self, json: bool, yes: bool, force: bool) -> Result<(), TransactionError> {
-        if json {
-            self.print_json()?;
-        } else {
-            self.print_table()?;
+    pub fn run_cli(&self, outputfmt: &OutputFmt, confirmation: &Confirmation, force: &Force) -> Result<(), TransactionCliError> {
+        match outputfmt {
+            OutputFmt::Human => self.print_table(),
+            OutputFmt::Json => self.print_json(),
         }
-        if yes {
-            println!("{}", json!({"run": true}));
-        } else {
-            let confirmation = Confirm::new("Run?")
-                .with_default(false)
-                .prompt()
-                .map_err(TransactionError::InquireError)?;
-            if !confirmation {
-                return Ok(());
-            }
+        match confirmation {
+            Confirmation::Manual => {
+                let confirmation = Confirm::new("Run?")
+                    .with_default(false)
+                    .prompt()
+                    .map_err(TransactionCliError::Inquire)?;
+                if !confirmation {
+                    return Ok(());
+                }
+            },
+            Confirmation::Yes => println!("{}", json!({"run": true})),
         }
-        self.run(force)
+        self.run(force).map_err(TransactionCliError::Run)
     }
 
-    pub fn print_json(&self) -> Result<(), TransactionError> {
+    pub fn print_json(&self) {
         for transaction in &self.transactions {
-            let row = transaction.to_json_row()?;
+            let row = transaction.to_json_row();
             println!(
                 "{}",
                 json!({
                     "description": row.description,
-                    "command": row.chain,
+                    "command": row.command,
                 })
             );
         }
-        Ok(())
     }
 
-    pub fn print_table(&self) -> Result<(), TransactionError> {
+    pub fn print_table(&self) {
         let mut table = Table::new(vec![
             TableColumn::new("description".to_string(), Alignment::Left),
             TableColumn::new("command".to_string(), Alignment::Left),
         ]);
         for transaction in &self.transactions {
-            let row = transaction.to_table_row()?;
-            table.push_row(vec![row.description, row.chain]);
+            let row = transaction.to_table_row();
+            table.push_row(vec![row.description, row.command]);
         }
         table.print();
-        Ok(())
     }
 }

@@ -1,71 +1,69 @@
-use std::num::{ParseFloatError, ParseIntError, TryFromIntError};
+use std::num::TryFromIntError;
 
 use thiserror::Error as ThisError;
 
 use crate::config::ConfigError;
+use crate::property::{PropertyError, ValueError};
 use crate::sys::SysError;
-use crate::transaction::TransactionError;
+#[cfg(feature = "cli")]
+use crate::transaction::TransactionCliError;
+use crate::transaction::{TransactionBuildError, TransactionRunError};
 
 #[derive(ThisError, Debug)]
 pub enum EngineError {
-    #[error("usize exceeds value than can be handled on 32 bit arch")]
-    ArchUsizeError(#[source] TryFromIntError),
+    #[error("usize exceeds value than can be handled on less than 64 bit arch: {value}")]
+    ArchUsize{
+        value: i64,
+        source: TryFromIntError,
+    },
+    #[error("command {command} not found on {host} for user {user}")]
+    CommandNotFound {
+        host: String,
+        user: String,
+        command: String,
+    },
     #[error("config subsystem error")]
-    ConfigError(#[source] ConfigError),
-    #[error("type of dataset is unknown")]
-    DatasetTypeUnknownError,
-    #[error("dataset is unknown")]
-    DatasetUnknownError,
-    #[error("target contains snapshot after last common snapshot")]
-    DatasetSnapshotAfterLastCommonError,
-    #[error("creation times of identical snapshot do not match")]
-    DatasetSnapshotCreationMismatchError,
-    #[error("creation time of sequence of snapshots does not monotonically increase")]
-    DatasetSnapshotCreationNotMonotonicError,
-    #[error("datasets do not contain common snapshot")]
-    DatasetSnapshotNoCommonError,
-    #[error("failed to validate sequence of snapshots between two datasets")]
-    DatasetSnapshotSequenceValidationError,
+    Config(#[source] ConfigError),
+    #[error("type of dataset '{name}' in '{root}' is unknown")]
+    DatasetTypeUnknown{
+        root: String,
+        name: String,
+    },
+    #[error("dataset '{name}' in '{root}' is unknown")]
+    DatasetUnknown{
+        root: String,
+        name: String,
+    },
     #[error("dataset {dataset} does not have snapshots and can not be transferred")]
-    DatasetWithoutSnapshotError { dataset: String },
-    #[error("the configured overlap is set to zero")]
-    OverlapZeroError,
-    #[error("property is not mutable")]
-    PropertyNotMutableError,
-    #[error("failed to parse origin of property")]
-    PropertyParseOriginError,
-    #[error("failed to parse bool property")]
-    PropertyParseBoolError,
-    #[error("failed to parse float property")]
-    PropertyParseFloatError(#[source] ParseFloatError),
-    #[error("insufficient number of fragments for a property")]
-    PropertyParseFragmentsError,
-    #[error("failed to parse int property")]
-    PropertyParseIntError(#[source] ParseIntError),
-    #[error("failed to access property value due to wrong type")]
-    PropertyTypeError,
-    #[error("failed to parse unsigned int property: {name}")]
-    PropertyParseUIntError { name: String },
-    #[error("property name is unknown")]
-    PropertyUnknownError,
-    #[error("snap property set to unknown value")]
-    SnapPropertyUnknownError,
-    #[error("sys subsystem error")]
-    SysError(#[source] SysError),
-    #[error("transaction subsystem error")]
-    TransactionError(#[source] TransactionError),
-    #[error("the type of dataset can not be identified")]
-    TypeUnknownError,
-    #[error("zfs command not found on {host}")]
-    ZfsCommandNotFound { host: String },
-    #[error("zpool command not found")]
-    ZpoolCommandNotFound,
-    #[error("nc command not found on {host}")]
-    NcCommandNotFound { host: String },
-    #[error("pv command not found on {host}")]
-    PvCommandNotFound { host: String },
-    #[error("xz command not found on {host}")]
-    XzCommandNotFound { host: String },
-    #[error("--direct and --insecure cannot be used together")]
-    DirectAndInsecureConflict,
+    DatasetWithoutSnapshot { dataset: String },
+    #[error("failed to load value from environment variable '{name}'")]
+    EnvironmentVariable{
+        name: String,
+        source: SysError,
+    },
+    #[error("property subsystem error")]
+    Property(#[source] PropertyError),
+    #[error("unknown number of written bytes for dataset '{name}' in '{root}'")]
+    UnknownWritten{
+        root: String,
+        name: String,
+    },
+    #[error("snapshot sequence comparison failed for source '{src}' and target '{tgt}' datasets: {msg}")]
+    Sequence {
+        msg: String,
+        src: String,
+        tgt: String,
+    },
+    #[error("transaction build subsystem error")]
+    TransactionBuild(#[source] TransactionBuildError),
+    #[cfg(feature = "cli")]
+    #[error("transaction cli subsystem error")]
+    TransactionCli(#[source] TransactionCliError),
+    #[error("transaction run subsystem error")]
+    TransactionRun(#[source] TransactionRunError),
+    #[error("failed to parse property '{name}'")]
+    Value {
+        name: String,
+        source: ValueError,
+    },
 }

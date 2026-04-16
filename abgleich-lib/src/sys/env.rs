@@ -1,4 +1,4 @@
-use tracing::debug;
+use tracing::{debug, Value};
 
 use std::env;
 use std::str::FromStr;
@@ -32,14 +32,26 @@ pub fn envvar2bool(name: &str) -> Result<Option<bool>, SysError> {
                 value = value,
                 dtype = "env-var"
             );
-            let name = name.to_lowercase();
-            if name == "1" || name == "true" || name == "yes" {
+            let value = value.to_lowercase();
+            if value == "1" || value == "true" || value == "yes" {
+                debug!(
+                    msg = "environment variable parsed",
+                    name = name,
+                    value = true,
+                    dtype = "env-var"
+                );
                 return Ok(Some(true));
             }
-            if name == "0" || name == "false" || name == "no" {
+            if value == "0" || value == "false" || value == "no" {
+                debug!(
+                    msg = "environment variable parsed",
+                    name = name,
+                    value = false,
+                    dtype = "env-var"
+                );
                 return Ok(Some(false));
             }
-            Err(SysError::BoolParserError)
+            Err(SysError::BoolParser(value))
         }
         Err(_) => Ok(None),
     }
@@ -49,7 +61,7 @@ pub fn envvar2bool_or(name: &str, default: bool) -> Result<bool, SysError> {
     Ok(envvar2bool(name)?.map_or(default, |result| result))
 }
 
-pub fn envvar2type<T: FromStr>(name: &str) -> Result<Option<T>, SysError> {
+pub fn envvar2type<T: FromStr + Value>(name: &str) -> Result<Option<T>, SysError> {
     match env::var(name) {
         Ok(value) => {
             debug!(
@@ -58,16 +70,21 @@ pub fn envvar2type<T: FromStr>(name: &str) -> Result<Option<T>, SysError> {
                 value = value,
                 dtype = "env-var"
             );
-            Ok(Some(
-                value
-                    .parse::<T>()
-                    .map_err(|_| SysError::ParseGenericError)?,
-            ))
+            let value: T = value
+                .parse::<T>()
+                .map_err(|_| SysError::GenericParser(value))?;
+            debug!(
+                msg = "environment variable parsed",
+                name = name,
+                value = value,
+                dtype = "env-var"
+            );
+            Ok(Some(value))
         }
         Err(_) => Ok(None),
     }
 }
 
-pub fn envvar2type_or<T: FromStr + Clone>(name: &str, default: &T) -> Result<T, SysError> {
+pub fn envvar2type_or<T: FromStr + Value + Clone>(name: &str, default: &T) -> Result<T, SysError> {
     envvar2type(name)?.map_or_else(|| Ok(default.clone()), |result| Ok(result))
 }

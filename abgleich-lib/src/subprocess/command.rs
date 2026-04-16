@@ -3,7 +3,7 @@ use std::string::ToString;
 
 use shlex::try_join;
 
-use crate::config::{Location, Route};
+use crate::config::Route;
 
 use super::errors::SubprocessError;
 use super::proc::Proc;
@@ -15,9 +15,12 @@ pub struct Command {
 
 impl Command {
     pub fn new(program: String, arguments: Vec<String>) -> Result<Self, SubprocessError> {
+        if program.contains('\0') {
+            return Err(SubprocessError::ProcNullByte);
+        }
         for argument in &arguments {
             if argument.contains('\0') {
-                return Err(SubprocessError::ProcNullByteError);
+                return Err(SubprocessError::ProcNullByte);
             }
         }
         Ok(Self { program, arguments })
@@ -71,20 +74,16 @@ impl Command {
         }
     }
 
-    pub fn on_location(&self, location: &Location) -> Result<Self, SubprocessError> {
-        let command = match location.get_user_ref() {
-            Some(user) => self.with_user(user)?,
-            _ => self.clone(),
-        };
-        command.on_route(location.get_route_ref())
-    }
-
     pub fn on_route(&self, route: &Route) -> Result<Self, SubprocessError> {
+        let cmd = match route.get_user_ref() {
+            Some(user) => &self.with_user(user)?,
+            None => self,
+        };
         let hosts: Vec<&str> = route
             .get_hosts_iter()
             .map(std::string::String::as_str)
             .collect();
-        self.on_hosts(&hosts)
+        cmd.on_hosts(&hosts)
     }
 }
 

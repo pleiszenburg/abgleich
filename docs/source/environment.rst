@@ -7,6 +7,7 @@ Basic behaviour:
 
 - ``ABGLEICH_CONFIG``: Overrides configuration file detection, allowing to provide a specific path instead.
 - ``ABGLEICH_LOGLEVEL``: Allows to set log-level as integer, matching those of the `Python standard library`_. Defaults to ``30`` (``WARN``).
+- ``ABGLEICH_FULLFORCE``: Danger territory. If the ``-f`` / ``--force`` option is used on any subcommand, by default, only subprocesses exiting with a non-zero exit code or those terminated by signals are ignored, i.e. force is applied where it is more or less safe(-ish) to do. However, should a more fundamental error occur such as failing to spawn a subprocess in the first place, decoding issues in its output or anything related to attaching to standard streams, ``abgleich`` will still stop running transactions. If those errors are also supposed to be ignored, **in addition** to using the ``-f`` option, this environment variable can be set to ``1``. Defaults to ``0`` (not active).
 
 Overrides for custom ZFS properties:
 

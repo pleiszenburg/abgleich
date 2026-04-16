@@ -1,3 +1,5 @@
+use crate::config::InsecureHost;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)] // requires `derive` feature
@@ -36,12 +38,12 @@ pub fn parse_rate_limit(s: &str) -> Result<u64, String> {
         .ok_or_else(|| "rate limit value overflows u64".to_string())
 }
 
-/// Parse a `host:port` string into `(String, u16)`.
+/// Parse a `host:port` string into `InsecureHost`.
 ///
 /// The host part may be any hostname or IP address.  The port must be a valid
 /// `u16`.  The split is on the *last* colon so that IPv6 addresses of the form
 /// `::1:18432` are handled correctly (though bare IPv6 should be bracketed).
-pub fn parse_insecure(s: &str) -> Result<(String, u16), String> {
+pub fn parse_insecure(s: &str) -> Result<InsecureHost, String> {
     let colon = s
         .rfind(':')
         .ok_or_else(|| format!("expected host:port, got '{s}'"))?;
@@ -53,7 +55,7 @@ pub fn parse_insecure(s: &str) -> Result<(String, u16), String> {
     let port: u16 = port_str
         .parse()
         .map_err(|_| format!("invalid port '{port_str}' in '{s}'"))?;
-    Ok((host.to_string(), port))
+    Ok(InsecureHost{hostname: host.to_string(), port})
 }
 
 /// Parse an xz compression level string into a `u8`.
@@ -83,7 +85,8 @@ pub enum Commands {
         #[arg(short, long, required = false)]
         yes: bool,
 
-        /// attempt all transactions even if some fail; exit non-zero if any failed
+        /// attempt all transactions even if some fail; exit non-zero if any failed;
+        /// force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
         #[arg(short, long, required = false)]
         force: bool,
 
@@ -118,7 +121,8 @@ pub enum Commands {
         #[arg(short, long, required = false)]
         yes: bool,
 
-        /// attempt all transactions even if some fail; exit non-zero if any failed
+        /// attempt all transactions even if some fail; exit non-zero if any failed;
+        /// force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
         #[arg(short, long, required = false)]
         force: bool,
 
@@ -142,7 +146,8 @@ pub enum Commands {
         #[arg(short = 'd', long, required = false)]
         direct: bool,
 
-        /// attempt all transactions even if some fail; exit non-zero if any failed
+        /// attempt all transactions even if some fail; exit non-zero if any failed;
+        /// force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
         #[arg(short = 'f', long, required = false)]
         force: bool,
 
@@ -163,7 +168,7 @@ pub enum Commands {
         /// sender uses `zfs send | nc HOST PORT`; format: host:port
         /// (mutually exclusive with --direct)
         #[arg(long, required = false, value_parser = parse_insecure)]
-        insecure: Option<(String, u16)>,
+        insecure: Option<InsecureHost>,
 
         /// alias or [route:][user%]root
         #[arg(required = true)]
@@ -180,6 +185,8 @@ pub enum Commands {
 
 #[cfg(test)]
 mod tests {
+    use crate::config::InsecureHost;
+
     use super::{parse_compress_level, parse_insecure, parse_rate_limit};
 
     #[test]
@@ -255,7 +262,7 @@ mod tests {
     fn insecure_hostname_port() {
         assert_eq!(
             parse_insecure("linux-b:18432"),
-            Ok(("linux-b".to_string(), 18432))
+            Ok(InsecureHost{hostname: "linux-b".to_string(), port: 18432})
         );
     }
 
@@ -263,7 +270,7 @@ mod tests {
     fn insecure_ip_port() {
         assert_eq!(
             parse_insecure("192.168.56.21:18432"),
-            Ok(("192.168.56.21".to_string(), 18432))
+            Ok(InsecureHost{hostname: "192.168.56.21".to_string(), port: 18432})
         );
     }
 
@@ -271,7 +278,7 @@ mod tests {
     fn insecure_ipv6_last_colon_used_for_split() {
         // Bare IPv6: last colon separates port.
         let result = parse_insecure("::1:18432");
-        assert_eq!(result, Ok(("::1".to_string(), 18432)));
+        assert_eq!(result, Ok(InsecureHost{hostname: "::1".to_string(), port: 18432}));
     }
 
     #[test]

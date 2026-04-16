@@ -44,7 +44,7 @@ The command line interface (CLI).
     Options:
       -j, --json   output as json
       -y, --yes    answer all questions with yes
-      -f, --force  attempt all transactions even if some fail; exit non-zero if any failed
+      -f, --force  attempt all transactions even if some fail; exit non-zero if any failed; force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
       -h, --help   Print help
 
 ``abgleich ls``
@@ -78,7 +78,7 @@ The command line interface (CLI).
     Options:
       -j, --json   output as json
       -y, --yes    answer all questions with yes
-      -f, --force  attempt all transactions even if some fail; exit non-zero if any failed
+      -f, --force  attempt all transactions even if some fail; exit non-zero if any failed; force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
       -h, --help   Print help
 
 ``abgleich sync``
@@ -98,7 +98,7 @@ The command line interface (CLI).
       -j, --json                     output as json
       -y, --yes                      answer all questions with yes
       -d, --direct                   run transfer pipe on common entry host, where bash is required
-      -f, --force                    attempt all transactions even if some fail; exit non-zero if any failed
+      -f, --force                    attempt all transactions even if some fail; exit non-zero if any failed; force can be further increased by setting the environment variable ABGLEICH_FULLFORCE=1
       -r, --rate-limit <RATE_LIMIT>  limit transfer bandwidth on the sending host via pv (e.g. 10m, 500k, 1g)
       -x, --compress [<COMPRESS>]    xz compression level (0–9); suppresses `zfs send -c` because sending pre-compressed blocks would reduce xz efficiency.  Omit the flag entirely to disable xz (uses `zfs send -c` instead).  Pass `-x` without a value for the default level 5.  Pass `-x N` or `-x=N` for a specific level (0 = fastest, 9 = best compression)
           --insecure <INSECURE>      bypass SSH for data transfer: receiver uses `nc -l PORT | zfs receive`, sender uses `zfs send | nc HOST PORT`; format: host:port (mutually exclusive with --direct)

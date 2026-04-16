@@ -1,11 +1,13 @@
-use std::str::FromStr;
-
 use colored::Colorize;
 use serde_json::json;
 
-use crate::config::{Config, Location, Route};
+#[cfg(feature = "cli")]
+use crate::config::{Confirmation, OutputFmt};
+use crate::config::{Config, Location, Root, Route, TransferOptions};
 use crate::output::{Alignment, Table, TableColumn};
-use crate::transaction::{Transaction, TransactionList, TransferOptions};
+#[cfg(feature = "cli")]
+use crate::transaction::Force;
+use crate::transaction::{BaseBuilder, TransactionList, WhichBuilder, ZpoolListBuilder};
 
 use super::apool::Apool;
 use super::comparison::ApoolComparison;
@@ -16,45 +18,48 @@ pub struct Engine {
 }
 
 impl Engine {
+    fn assert_command(route: &Route, command: String) -> Result<(), EngineError> {
+        if !WhichBuilder::new(route, command.clone())
+            .build()
+            .map_err(EngineError::TransactionBuild)?
+            .run()
+            .map_err(EngineError::TransactionRun)?
+            .is_successful()
+        {
+            return Err(EngineError::CommandNotFound {
+                host: route.get_host_ref().to_string(),
+                user: route.get_user_ref().unwrap_or("[default]").to_string(),
+                command,
+            });
+        }
+        Ok(())
+    }
+
     pub fn from_detect() -> Result<Self, EngineError> {
-        let config = Config::from_detect().map_err(EngineError::ConfigError)?;
+        let config = Config::from_detect().map_err(EngineError::Config)?;
         Ok(Self { config })
     }
 
     #[cfg(feature = "cli")]
     pub fn free_cli(
         &self,
-        json: bool,
-        yes: bool,
+        outputfmt: &OutputFmt,
+        confirmation: &Confirmation,
         force: bool,
         source: &str,
         target: &str,
     ) -> Result<(), EngineError> {
+        let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
         let source_loc =
-            self.config.parse_location(source).map_err(EngineError::ConfigError)?;
+            self.config.parse_location(source).map_err(EngineError::Config)?;
         let target_loc =
-            self.config.parse_location(target).map_err(EngineError::ConfigError)?;
-        for (loc, err) in [
-            (&source_loc, EngineError::ZfsCommandNotFound {
-                host: source_loc.get_route_ref().get_host_ref().to_string(),
-            }),
-            (&target_loc, EngineError::ZfsCommandNotFound {
-                host: target_loc.get_route_ref().get_host_ref().to_string(),
-            }),
-        ] {
-            if !Transaction::new_which(loc.get_route_ref(), "zfs".to_string())
-                .map_err(EngineError::TransactionError)?
-                .run()
-                .map_err(EngineError::TransactionError)?
-                .is_successful()
-            {
-                return Err(err);
-            }
-        }
+            self.config.parse_location(target).map_err(EngineError::Config)?;
+        Self::assert_command(source_loc.get_route_ref(), "zfs".to_string())?;
+        Self::assert_command(target_loc.get_route_ref(), "zfs".to_string())?;
         let transactions = self.get_free_transactions(source, target)?;
         transactions
-            .run_cli(json, yes, force)
-            .map_err(EngineError::TransactionError)
+            .run_cli(outputfmt, confirmation, &force)
+            .map_err(EngineError::TransactionCli)
     }
 
     pub fn get_free_transactions(
@@ -65,11 +70,11 @@ impl Engine {
         let source = self
             .config
             .parse_location(source)
-            .map_err(EngineError::ConfigError)?;
+            .map_err(EngineError::Config)?;
         let target = self
             .config
             .parse_location(target)
-            .map_err(EngineError::ConfigError)?;
+            .map_err(EngineError::Config)?;
         let source_apool = Apool::from_location(source)?;
         let target_apool = Apool::from_location(target)?;
         ApoolComparison::new(&source_apool, &target_apool).get_free_transactions()
@@ -79,7 +84,7 @@ impl Engine {
         let location = self
             .config
             .parse_location(location)
-            .map_err(EngineError::ConfigError)?;
+            .map_err(EngineError::Config)?;
         let apool = Apool::from_location(location)?;
         apool.get_create_snapshot_transactions()
     }
@@ -88,30 +93,30 @@ impl Engine {
         &self,
         source: &str,
         target: &str,
-        direct: bool,
         options: &TransferOptions,
     ) -> Result<TransactionList, EngineError> {
         let source = self
             .config
             .parse_location(source)
-            .map_err(EngineError::ConfigError)?;
+            .map_err(EngineError::Config)?;
         let target = self
             .config
             .parse_location(target)
-            .map_err(EngineError::ConfigError)?;
+            .map_err(EngineError::Config)?;
         let source_apool = Apool::from_location(source)?;
         let target_apool = Apool::from_location(target)?;
-        ApoolComparison::new(&source_apool, &target_apool).get_sync_transactions(direct, options)
+        ApoolComparison::new(&source_apool, &target_apool).get_sync_transactions(options)
     }
 
     fn get_zpools(route: &Route) -> Result<Vec<Location>, EngineError> {
-        let zpool_list = Transaction::new_zpool_list(route)
-            .map_err(EngineError::TransactionError)?
+        let zpool_list = ZpoolListBuilder::new(route)
+            .build()
+            .map_err(EngineError::TransactionBuild)?
             .run()
-            .map_err(EngineError::TransactionError)?;
+            .map_err(EngineError::TransactionRun)?;
         zpool_list
             .assert_success()
-            .map_err(EngineError::TransactionError)?;
+            .map_err(EngineError::TransactionRun)?;
         let raw = zpool_list.get_data_ref().unwrap(); // safe operation
         let lines = raw.split('\n');
         let chars: &[_] = &[' ', '\t'];
@@ -122,8 +127,10 @@ impl Engine {
                 continue;
             }
             let fragments: Vec<&str> = line.split('\t').collect();
-            let location = format!("{}:{}", route.to_string(), fragments[0]);
-            locations.push(Location::from_str(&location).map_err(EngineError::ConfigError)?);
+            locations.push(Location::new(
+                route.to_owned(),
+                Root::new(fragments[0].to_string()).map_err(EngineError::Config)?,
+            ));
         }
         Ok(locations)
     }
@@ -131,8 +138,8 @@ impl Engine {
     #[cfg(feature = "cli")]
     pub fn ls_cli(&self, json: bool, location: Option<&str>) -> Result<(), EngineError> {
         if let Some(location) = location {
-            if let Some(clean_location) = location.strip_suffix(':') {
-                let route = Route::from_str(clean_location).map_err(EngineError::ConfigError)?;
+            let (route, root) = Route::from_str_prefix(location).map_err(EngineError::Config)?;
+            if root.is_empty() {
                 if json {
                     self.print_json(&route)
                 } else {
@@ -142,17 +149,8 @@ impl Engine {
                 let location = self
                     .config
                     .parse_location(location)
-                    .map_err(EngineError::ConfigError)?;
-                if !Transaction::new_which(location.get_route_ref(), "zfs".to_string())
-                    .map_err(EngineError::TransactionError)?
-                    .run()
-                    .map_err(EngineError::TransactionError)?
-                    .is_successful()
-                {
-                    return Err(EngineError::ZfsCommandNotFound {
-                        host: location.get_route_ref().get_host_ref().to_string(),
-                    });
-                }
+                    .map_err(EngineError::Config)?;
+                Self::assert_command(location.get_route_ref(), "zfs".to_string())?;
                 let apool = Apool::from_location(location)?;
                 if json {
                     apool.print_json()
@@ -161,7 +159,7 @@ impl Engine {
                 }
             }
         } else {
-            let route = Route::from_localhost();
+            let route = Route::from_localhost(None);
             if json {
                 self.print_json(&route)
             } else {
@@ -171,27 +169,20 @@ impl Engine {
     }
 
     pub fn print_json(&self, route: &Route) -> Result<(), EngineError> {
-        if *route == Route::from_localhost() {
+        if *route == Route::from_localhost(None) {
             for (alias, location) in self.config.get_apools_iter() {
                 println!(
                     "{}",
                     json!({
                         "alias": alias.to_owned(),
                         "route": location.get_route_ref().to_string(),
-                        "user": location.get_user_ref(),
+                        "user": location.get_route_ref().get_user_ref(),
                         "root": location.get_root_ref().to_string(),
                     })
                 );
             }
         }
-        if !Transaction::new_which(route, "zpool".to_string())
-            .map_err(EngineError::TransactionError)?
-            .run()
-            .map_err(EngineError::TransactionError)?
-            .is_successful()
-        {
-            return Err(EngineError::ZpoolCommandNotFound);
-        }
+        Self::assert_command(route, "zpool".to_string())?;
         for location in Self::get_zpools(route)? {
             if !self.config.contains(&location) {
                 println!(
@@ -199,7 +190,7 @@ impl Engine {
                     json!({
                         "alias": None::<String>,
                         "route": location.get_route_ref().to_string(),
-                        "user": location.get_user_ref(),
+                        "user": location.get_route_ref().get_user_ref(),
                         "root": location.get_root_ref().to_string(),
                     })
                 );
@@ -215,30 +206,23 @@ impl Engine {
             TableColumn::new("user".to_string(), Alignment::Left),
             TableColumn::new("root".to_string(), Alignment::Left),
         ]);
-        if *route == Route::from_localhost() {
+        if *route == Route::from_localhost(None) {
             for (alias, location) in self.config.get_apools_iter() {
                 table.push_row(vec![
                     alias.green().to_string(),
                     location.get_route_ref().to_string().green().to_string(),
-                    location.get_user_ref().unwrap_or(" ").green().to_string(),
+                    location.get_route_ref().get_user_ref().unwrap_or(" ").green().to_string(),
                     location.get_root_ref().to_string().green().to_string(),
                 ]);
             }
         }
-        if !Transaction::new_which(route, "zpool".to_string())
-            .map_err(EngineError::TransactionError)?
-            .run()
-            .map_err(EngineError::TransactionError)?
-            .is_successful()
-        {
-            return Err(EngineError::ZpoolCommandNotFound);
-        }
+        Self::assert_command(route, "zpool".to_string())?;
         for location in Self::get_zpools(route)? {
             if !self.config.contains(&location) {
                 table.push_row(vec![
                     " ".to_string(),
                     location.get_route_ref().to_string(),
-                    location.get_user_ref().unwrap_or(" ").to_owned(),
+                    location.get_route_ref().get_user_ref().unwrap_or(" ").to_owned(),
                     location.get_root_ref().to_string(),
                 ]);
             }
@@ -248,114 +232,47 @@ impl Engine {
     }
 
     #[cfg(feature = "cli")]
-    pub fn snap_cli(&self, json: bool, yes: bool, force: bool, location: &str) -> Result<(), EngineError> {
-        let loc = self.config.parse_location(location).map_err(EngineError::ConfigError)?;
-        if !Transaction::new_which(loc.get_route_ref(), "zfs".to_string())
-            .map_err(EngineError::TransactionError)?
-            .run()
-            .map_err(EngineError::TransactionError)?
-            .is_successful()
-        {
-            return Err(EngineError::ZfsCommandNotFound {
-                host: loc.get_route_ref().get_host_ref().to_string(),
-            });
-        }
+    pub fn snap_cli(&self, outputfmt: &OutputFmt, confirmation: &Confirmation, force: bool, location: &str) -> Result<(), EngineError> {
+        let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
+        let loc = self.config.parse_location(location).map_err(EngineError::Config)?;
+        Self::assert_command(loc.get_route_ref(), "zfs".to_string())?;
         let transactions = self.get_snap_transactions(location)?;
         transactions
-            .run_cli(json, yes, force)
-            .map_err(EngineError::TransactionError)
+            .run_cli(outputfmt, confirmation, &force)
+            .map_err(EngineError::TransactionCli)
     }
 
     #[cfg(feature = "cli")]
     pub fn sync_cli(
         &self,
-        json: bool,
-        yes: bool,
-        direct: bool,
+        outputfmt: &OutputFmt,
+        confirmation: &Confirmation,
+        options: &TransferOptions,
         force: bool,
-        rate_limit: Option<u64>,
-        compress: Option<u8>,
-        insecure: Option<(String, u16)>,
         source: &str,
         target: &str,
     ) -> Result<(), EngineError> {
-        if direct && insecure.is_some() {
-            return Err(EngineError::DirectAndInsecureConflict);
-        }
+        let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
         let source_loc =
-            self.config.parse_location(source).map_err(EngineError::ConfigError)?;
+            self.config.parse_location(source).map_err(EngineError::Config)?;
         let target_loc =
-            self.config.parse_location(target).map_err(EngineError::ConfigError)?;
-        for (loc, err) in [
-            (&source_loc, EngineError::ZfsCommandNotFound {
-                host: source_loc.get_route_ref().get_host_ref().to_string(),
-            }),
-            (&target_loc, EngineError::ZfsCommandNotFound {
-                host: target_loc.get_route_ref().get_host_ref().to_string(),
-            }),
-        ] {
-            if !Transaction::new_which(loc.get_route_ref(), "zfs".to_string())
-                .map_err(EngineError::TransactionError)?
-                .run()
-                .map_err(EngineError::TransactionError)?
-                .is_successful()
-            {
-                return Err(err);
-            }
+            self.config.parse_location(target).map_err(EngineError::Config)?;
+        Self::assert_command(source_loc.get_route_ref(), "zfs".to_string())?;
+        Self::assert_command(target_loc.get_route_ref(), "zfs".to_string())?;
+        if options.rate_limit.is_some() {
+            Self::assert_command(source_loc.get_route_ref(), "pv".to_string())?;
         }
-        if rate_limit.is_some()
-            && !Transaction::new_which(source_loc.get_route_ref(), "pv".to_string())
-                .map_err(EngineError::TransactionError)?
-                .run()
-                .map_err(EngineError::TransactionError)?
-                .is_successful()
-            {
-                return Err(EngineError::PvCommandNotFound {
-                    host: source_loc.get_route_ref().get_host_ref().to_string(),
-                });
-            }
-        if compress.is_some() {
-            for (loc, err) in [
-                (&source_loc, EngineError::XzCommandNotFound {
-                    host: source_loc.get_route_ref().get_host_ref().to_string(),
-                }),
-                (&target_loc, EngineError::XzCommandNotFound {
-                    host: target_loc.get_route_ref().get_host_ref().to_string(),
-                }),
-            ] {
-                if !Transaction::new_which(loc.get_route_ref(), "xz".to_string())
-                    .map_err(EngineError::TransactionError)?
-                    .run()
-                    .map_err(EngineError::TransactionError)?
-                    .is_successful()
-                {
-                    return Err(err);
-                }
-            }
+        if options.compress.is_some() {
+            Self::assert_command(source_loc.get_route_ref(), "xz".to_string())?;
+            Self::assert_command(target_loc.get_route_ref(), "xz".to_string())?;
         }
-        if insecure.is_some() {
-            for (loc, err) in [
-                (&source_loc, EngineError::NcCommandNotFound {
-                    host: source_loc.get_route_ref().get_host_ref().to_string(),
-                }),
-                (&target_loc, EngineError::NcCommandNotFound {
-                    host: target_loc.get_route_ref().get_host_ref().to_string(),
-                }),
-            ] {
-                if !Transaction::new_which(loc.get_route_ref(), "nc".to_string())
-                    .map_err(EngineError::TransactionError)?
-                    .run()
-                    .map_err(EngineError::TransactionError)?
-                    .is_successful()
-                {
-                    return Err(err);
-                }
-            }
+        if options.insecure.is_some() {
+            Self::assert_command(source_loc.get_route_ref(), "nc".to_string())?;
+            Self::assert_command(target_loc.get_route_ref(), "nc".to_string())?;
         }
-        let options = TransferOptions { rate_limit, compress, insecure };
-        let transactions = self.get_sync_transactions(source, target, direct, &options)?;
+        let transactions = self.get_sync_transactions(source, target, options)?;
         transactions
-            .run_cli(json, yes, force)
-            .map_err(EngineError::TransactionError)
+            .run_cli(outputfmt, confirmation, &force)
+            .map_err(EngineError::TransactionCli)
     }
 }

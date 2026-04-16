@@ -4,7 +4,7 @@
 
 - Sub-command for borrowing / lending a dataset temporarily to another zpool/machine while freezing it on the source
 - Sub-command for moving a dataset and its backup to other machines
-- Sub-command similar to `git branch` which creates a new dataset from a snapshot and optionally detached it
+- Sub-command similar to `git branch` which creates a new dataset from a snapshot and optionally detaches it
 - Sub-command which (very poorly) mimics `git merge --squash`, possibly relying on `rsync`
 - Resuming interrupted sending transactions, see [receive_resume_token](https://openzfs.github.io/openzfs-docs/man/master/8/zfs-receive.8.html#receive_resume_token)
 - Some kind of light-weight native GUI, i.e. no Web or Electron application

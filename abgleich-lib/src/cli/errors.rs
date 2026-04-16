@@ -1,5 +1,6 @@
 use thiserror::Error as ThisError;
 
+use crate::config::ConfigError;
 use crate::engine::EngineError;
 use crate::sys::SysError;
 use crate::traits::Traverse;
@@ -10,11 +11,14 @@ pub enum Exit {
 }
 
 #[derive(ThisError, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum CliError {
+    #[error("config subsystem error")]
+    Config(#[source] ConfigError),
     #[error("sys subsystem error")]
-    SysError(#[source] SysError),
+    Sys(#[source] SysError),
     #[error("engine subsystem error")]
-    EngineError(#[source] EngineError),
+    Engine(#[source] EngineError),
 }
 
 impl Traverse for CliError {}

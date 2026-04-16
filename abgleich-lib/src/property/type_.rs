@@ -1,16 +1,25 @@
 use std::str::FromStr;
 use std::string::ToString;
 
-use super::super::errors::EngineError;
+use super::error::ValueError;
+use super::raw::RawProperty;
+use super::value::BaseValue;
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum Type {
+pub enum TypeValue {
     Filesystem,
     Volume,
     Snapshot,
 }
 
-impl Type {
+impl BaseValue for TypeValue {
+    fn from_raw(raw: &RawProperty) -> Result<Self, ValueError> {
+        Self::from_str(&raw.value)
+    }
+}
+
+impl TypeValue {
+    #[must_use]
     pub fn to_char(&self) -> String {
         match self {
             Self::Filesystem => "f".to_string(),
@@ -20,21 +29,21 @@ impl Type {
     }
 }
 
-impl FromStr for Type {
-    type Err = EngineError;
+impl FromStr for TypeValue {
+    type Err = ValueError;
 
-    fn from_str(raw: &str) -> Result<Self, EngineError> {
+    fn from_str(raw: &str) -> Result<Self, ValueError> {
         match raw {
             "filesystem" => Ok(Self::Filesystem),
             "volume" => Ok(Self::Volume),
             "snapshot" => Ok(Self::Snapshot),
-            _ => Err(EngineError::TypeUnknownError),
+            _ => Err(ValueError::Type_ { value: raw.to_string() }),
         }
     }
 }
 
 #[allow(clippy::to_string_trait_impl)]
-impl ToString for Type {
+impl ToString for TypeValue {
     fn to_string(&self) -> String {
         match self {
             Self::Filesystem => "filesystem".to_string(),

@@ -2,8 +2,6 @@ use crate::config::{Location, Route};
 
 use super::command::Command;
 use super::errors::SubprocessError;
-use super::outcome::Outcome;
-use super::proc::Proc;
 
 /// A pipeline stage. Either a fully-routed single command (already wrapped
 /// with ssh/sudo via `on_location`) or a co-located group of plain commands
@@ -15,10 +13,9 @@ enum Stage {
     /// `user`. Rendered as:
     ///  - one command  → `[sudo[-u user]] cmd`, then SSH-wrapped if route non-empty
     ///  - many commands → `[sudo[-u user]] bash -c 'set -o pipefail; cmd1 | cmd2'`,
-    ///                    SSH-wrapped if route non-empty
+    ///    SSH-wrapped if route non-empty
     Group {
         route: Route,
-        user: Option<String>,
         commands: Vec<Command>,
     },
 }
@@ -27,9 +24,9 @@ impl Stage {
     fn render(&self) -> Result<String, SubprocessError> {
         match self {
             Self::Single(cmd) => Ok(cmd.to_string()),
-            Self::Group { route, user, commands } => {
+            Self::Group { route, commands } => {
                 debug_assert!(!commands.is_empty(), "Group stage must have at least one command");
-                let inner_cmd = if commands.len() == 1 {
+                let cmd = if commands.len() == 1 {
                     commands[0].clone()
                 } else {
                     // Wrap multiple commands in bash so pipefail applies within
@@ -42,11 +39,7 @@ impl Stage {
                     let shell_cmd = format!("set -o pipefail; {pipe_str}");
                     Command::new("bash".to_string(), vec!["-c".to_string(), shell_cmd])?
                 };
-                let user_cmd = match user.as_deref() {
-                    Some(u) => inner_cmd.with_user(u)?,
-                    None => inner_cmd,
-                };
-                user_cmd.on_route(route).map(|c| c.to_string())
+                cmd.on_route(route).map(|c| c.to_string())
             }
         }
     }
@@ -68,7 +61,7 @@ impl CommandChain {
     pub fn begin(command: Command) -> Self {
         Self {
             stages: vec![Stage::Single(command)],
-            entry_route: Route::from_localhost(),
+            entry_route: Route::from_localhost(None),
             background: None,
         }
     }
@@ -90,10 +83,9 @@ impl CommandChain {
         Self {
             stages: vec![Stage::Group {
                 route: location.get_route_ref().clone(),
-                user: location.get_user_ref().map(str::to_string),
                 commands,
             }],
-            entry_route: Route::from_localhost(),
+            entry_route: Route::from_localhost(None),
             background: None,
         }
     }
@@ -108,7 +100,6 @@ impl CommandChain {
     pub fn with_background_group(mut self, location: &Location, commands: Vec<Command>) -> Self {
         self.background = Some(Stage::Group {
             route: location.get_route_ref().clone(),
-            user: location.get_user_ref().map(str::to_string),
             commands,
         });
         self
@@ -119,16 +110,17 @@ impl CommandChain {
     pub fn pipe_group(mut self, location: &Location, commands: Vec<Command>) -> Self {
         self.stages.push(Stage::Group {
             route: location.get_route_ref().clone(),
-            user: location.get_user_ref().map(str::to_string),
             commands,
         });
         self
     }
 
-    #[must_use]
-    pub fn with_entry_route(mut self, route: Route) -> Self {
+    pub fn with_entry_route(mut self, route: Route) -> Result<Self, SubprocessError> {
+        if let Some(user) = route.get_user_ref() {
+            return Err(SubprocessError::EntryRouteUser(user.to_string()));
+        }
         self.entry_route = route;
-        self
+        Ok(self)
     }
 
     fn to_pipe_string(&self) -> Result<String, SubprocessError> {
@@ -149,7 +141,7 @@ impl CommandChain {
     // avoids having to manage a multi-process ProcChain and lets the shell
     // handle pipe wiring transparently, including the nested sub-pipelines
     // produced by Group stages for rate limiting and compression.
-    fn to_command(&self) -> Result<Command, SubprocessError> {
+    pub fn to_command(&self) -> Result<Command, SubprocessError> {
         // Fast path: single local Single stage with no background.
         if self.background.is_none() && self.stages.len() == 1 && self.entry_route.is_empty()
             && let Stage::Single(cmd) = &self.stages[0] {
@@ -167,11 +159,6 @@ impl CommandChain {
         Command::new("bash".to_string(), vec!["-c".to_string(), shell_cmd])?
             .on_route(&self.entry_route)
     }
-
-    pub fn run(&self) -> Result<Outcome, SubprocessError> {
-        let cmd = self.to_command()?;
-        Proc::from_command(&cmd, None)?.communicate()
-    }
 }
 
 #[allow(clippy::to_string_trait_impl)]
@@ -188,6 +175,7 @@ mod tests {
     use std::str::FromStr;
 
     use crate::config::{Location, Route};
+    use crate::consts::HOSTS_SUFFIX;
 
     use super::super::command::Command;
     use super::*;
@@ -201,7 +189,7 @@ mod tests {
     }
 
     fn route(s: &str) -> Route {
-        Route::from_str(s).unwrap()
+        Route::from_str(&format!("{s}{HOSTS_SUFFIX}")).unwrap()
     }
 
     fn loc(s: &str) -> Location {
@@ -258,7 +246,7 @@ mod tests {
         let recv = cmd("ssh", &["tgt", "zfs receive backup"]);
         let chain = CommandChain::begin(send)
             .pipe(recv)
-            .with_entry_route(route("linux-a"));
+            .with_entry_route(route("linux-a")).expect("there must not be an entry route user");
         let s = chain.to_string();
         assert!(s.starts_with("ssh linux-a "), "expected ssh linux-a prefix: {s}");
         assert!(s.contains("set -o pipefail"), "missing pipefail: {s}");
@@ -273,7 +261,7 @@ mod tests {
         let location = loc("linux-a:root%tank");
         let send_cmd = cmd("zfs", &["send", "tank@snap"]);
 
-        let via_location = send_cmd.clone().on_location(&location).unwrap().to_string();
+        let via_location = send_cmd.clone().on_route(location.get_route_ref()).unwrap().to_string();
 
         let chain = CommandChain::begin_group(&location, vec![send_cmd]);
         let s = chain.to_string();
