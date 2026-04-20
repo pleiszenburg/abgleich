@@ -180,9 +180,12 @@ impl<'a> SequenceComparison<'a> {
         }
         let position = if overlap > 0 {
             self.common_positions_reversed_iter()
-                .nth(usize::try_from(overlap - 1).map_err(
-                    |e| EngineError::ArchUsize{value: overlap, source: e}
-                )?)
+                .nth(
+                    usize::try_from(overlap - 1).map_err(|e| EngineError::ArchUsize {
+                        value: overlap,
+                        source: e,
+                    })?,
+                )
                 .unwrap_or(0)
         } else {
             0 // negative values cause all snapshots to be kept

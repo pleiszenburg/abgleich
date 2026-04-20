@@ -1,5 +1,8 @@
 use crate::config::{Location, TransferOptions};
-use crate::transaction::{BaseBuilder, DestroySnapshotBuilder, TransactionList, TransferIncrementalBuilder, TransferInitialBuilder};
+use crate::transaction::{
+    BaseBuilder, DestroySnapshotBuilder, TransactionList, TransferIncrementalBuilder,
+    TransferInitialBuilder,
+};
 
 use super::super::common::Common;
 use super::super::dataset::Dataset;
@@ -74,7 +77,9 @@ impl<'a> DatasetComparison<'a> {
             return Ok(transactions);
         }
         if source_dataset.len() == 0 {
-            return Err(EngineError::DatasetWithoutSnapshot{ dataset: source_dataset.get_name_ref().to_string() });
+            return Err(EngineError::DatasetWithoutSnapshot {
+                dataset: source_dataset.get_name_ref().to_string(),
+            });
         }
         if source_dataset.len() > 0 {
             transactions.push(

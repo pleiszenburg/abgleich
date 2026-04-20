@@ -37,7 +37,9 @@ impl FromStr for SnapValue {
             "always" => Ok(Self::Always),
             "never" => Ok(Self::Never),
             "changed" => Ok(Self::Changed),
-            _ => Err(ValueError::Snap { value: raw.to_string() }),
+            _ => Err(ValueError::Snap {
+                value: raw.to_string(),
+            }),
         }
     }
 }

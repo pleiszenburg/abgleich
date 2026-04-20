@@ -5,50 +5,35 @@ use thiserror::Error as ThisError;
 #[derive(ThisError, Debug)]
 pub enum PropertyError {
     #[error("at sign missing from presumed snapshot name in '{name}'")]
-    MissingAt {
-        name: String,
-    },
+    MissingAt { name: String },
     #[error("insufficient number of tab-separated fragments for a property in line: '{line}'")]
-    ParseFragments{
-        line: String,
-    },
+    ParseFragments { line: String },
     #[error("failed to parse property '{name}'")]
-    Value {
-        name: String,
-        source: ValueError,
-    },
+    Value { name: String, source: ValueError },
 }
 
 #[derive(ThisError, Debug)]
 pub enum ValueError {
     #[error("'{value}' into bool")]
-    Bool{
-        value: String,
-    },
+    Bool { value: String },
     #[error("'{value}' into float")]
-    Float{
+    Float {
         value: String,
         source: ParseFloatError,
     },
     #[error("'{value}' into int")]
-    Int{
+    Int {
         value: String,
         source: ParseIntError,
     },
     #[error("'{value}' into origin")]
-    Origin{
-        value: String,
-    },
+    Origin { value: String },
     #[error("'{value}' into snap")]
-    Snap{
-        value: String,
-    },
+    Snap { value: String },
     #[error("'{value}' into type")]
-    Type_{
-        value: String,
-    },
+    Type_ { value: String },
     #[error("'{value}' into uint")]
-    UInt{
+    UInt {
         value: String,
         source: ParseIntError,
     },

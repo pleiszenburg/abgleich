@@ -27,21 +27,24 @@ impl FromStr for OptionalUIntValue {
     type Err = ValueError;
 
     fn from_str(raw: &str) -> Result<Self, ValueError> {
-        Ok(Self{value: if raw == "none" {
-            None
-        } else {Some(raw
-            .parse::<u64>()
-            .map_err(|e| ValueError::UInt { value: raw.to_string(), source: e })?)
-        }})
+        Ok(Self {
+            value: if raw == "none" {
+                None
+            } else {
+                Some(raw.parse::<u64>().map_err(|e| ValueError::UInt {
+                    value: raw.to_string(),
+                    source: e,
+                })?)
+            },
+        })
     }
 }
 
 #[allow(clippy::to_string_trait_impl)]
 impl ToString for OptionalUIntValue {
     fn to_string(&self) -> String {
-        self.value.as_ref().map_or_else(
-            || "none".to_string(),
-            |value| format!("{value}")
-        )
+        self.value
+            .as_ref()
+            .map_or_else(|| "none".to_string(), |value| format!("{value}"))
     } // placeholder, currently unused
 }

@@ -2,9 +2,9 @@ use indexmap::IndexMap;
 use tracing::trace;
 
 use super::bool::BoolValue;
+use super::error::PropertyError;
 use super::float::FloatValue;
 use super::int::IntValue;
-use super::error::PropertyError;
 use super::optionaluint::OptionalUIntValue;
 use super::property::{BaseProperty, ImmutableProperty, MutableProperty};
 use super::raw::RawProperty;
@@ -111,48 +111,50 @@ impl Description {
 
     fn fill(&mut self, raw: &RawProperty) -> Result<(), PropertyError> {
         match raw.name.as_str() {
-            "abgleich:diff" => {self.abgleich_diff = Some(MutableProperty::from_raw(raw)?)},
-            "abgleich:format" =>{self.abgleich_format = Some(MutableProperty::from_raw(raw)?)},
-            "abgleich:overlap" => {self.abgleich_overlap = Some(MutableProperty::from_raw(raw)?)},
-            "abgleich:snap" => {self.abgleich_snap = Some(MutableProperty::from_raw(raw)?)},
-            "abgleich:sync" => {self.abgleich_sync = Some(MutableProperty::from_raw(raw)?)},
-            "abgleich:threshold" => {self.abgleich_threshold = Some(MutableProperty::from_raw(raw)?)},
-            "atime" => {self.atime = Some(MutableProperty::from_raw(raw)?)},
-            "available" => {self.available = Some(ImmutableProperty::from_raw(raw)?)},
-            "canmount" => {self.canmount = Some(MutableProperty::from_raw(raw)?)},
-            "checksum" => {self.checksum = Some(MutableProperty::from_raw(raw)?)},
-            "compression" => {self.compression = Some(MutableProperty::from_raw(raw)?)},
-            "compressratio" => {self.compressratio = Some(ImmutableProperty::from_raw(raw)?)},
-            "creation" => {self.creation = Some(ImmutableProperty::from_raw(raw)?)},
-            "dedup" => {self.dedup = Some(MutableProperty::from_raw(raw)?)},
-            "encryption" => {self.encryption = Some(MutableProperty::from_raw(raw)?)},
-            "filesystem_count" => {self.filesystem_count = Some(MutableProperty::from_raw(raw)?)},
-            "filesystem_limit" => {self.filesystem_limit = Some(MutableProperty::from_raw(raw)?)},
-            "guid" => {self.guid = Some(ImmutableProperty::from_raw(raw)?)},
-            "logicalreferenced" => {self.logicalreferenced = Some(ImmutableProperty::from_raw(raw)?)}
-            "logicalused" => {self.logicalused = Some(ImmutableProperty::from_raw(raw)?)},
-            "mounted" => {self.mounted = Some(ImmutableProperty::from_raw(raw)?)},
-            "mountpoint" => {self.mountpoint = Some(MutableProperty::from_raw(raw)?)},
-            "readonly" => {self.readonly = Some(MutableProperty::from_raw(raw)?)},
-            "redundant_metadata" => {self.redundant_metadata = Some(MutableProperty::from_raw(raw)?)},
-            "refcompressratio" => {self.refcompressratio = Some(ImmutableProperty::from_raw(raw)?)},
-            "referenced" => {self.referenced = Some(ImmutableProperty::from_raw(raw)?)},
-            "refquota" => {self.refquota = Some(MutableProperty::from_raw(raw)?)},
-            "relatime" => {self.relatime = Some(MutableProperty::from_raw(raw)?)},
-            "quota" => {self.quota = Some(MutableProperty::from_raw(raw)?)},
-            "sharenfs" => {self.sharenfs = Some(MutableProperty::from_raw(raw)?)},
-            "snapshot_count" => {self.snapshot_count = Some(MutableProperty::from_raw(raw)?)},
-            "snapshot_limit" => {self.snapshot_limit = Some(MutableProperty::from_raw(raw)?)},
-            "sync" => {self.sync = Some(MutableProperty::from_raw(raw)?)},
-            "type" => {self.type_ = Some(ImmutableProperty::from_raw(raw)?)},
-            "used" => {self.used = Some(ImmutableProperty::from_raw(raw)?)},
-            "usedbychildren" => {self.usedbychildren = Some(ImmutableProperty::from_raw(raw)?)},
-            "usedbydataset" => {self.usedbydataset = Some(ImmutableProperty::from_raw(raw)?)},
-            "usedbyrefreservation" => {self.usedbyrefreservation = Some(ImmutableProperty::from_raw(raw)?)},
-            "usedbysnapshots" => {self.usedbysnapshots = Some(ImmutableProperty::from_raw(raw)?)},
-            "version" => {self.version = Some(ImmutableProperty::from_raw(raw)?)},
-            "volmode" => {self.volmode = Some(MutableProperty::from_raw(raw)?)},
-            "written" => {self.written = Some(ImmutableProperty::from_raw(raw)?)},
+            "abgleich:diff" => self.abgleich_diff = Some(MutableProperty::from_raw(raw)?),
+            "abgleich:format" => self.abgleich_format = Some(MutableProperty::from_raw(raw)?),
+            "abgleich:overlap" => self.abgleich_overlap = Some(MutableProperty::from_raw(raw)?),
+            "abgleich:snap" => self.abgleich_snap = Some(MutableProperty::from_raw(raw)?),
+            "abgleich:sync" => self.abgleich_sync = Some(MutableProperty::from_raw(raw)?),
+            "abgleich:threshold" => self.abgleich_threshold = Some(MutableProperty::from_raw(raw)?),
+            "atime" => self.atime = Some(MutableProperty::from_raw(raw)?),
+            "available" => self.available = Some(ImmutableProperty::from_raw(raw)?),
+            "canmount" => self.canmount = Some(MutableProperty::from_raw(raw)?),
+            "checksum" => self.checksum = Some(MutableProperty::from_raw(raw)?),
+            "compression" => self.compression = Some(MutableProperty::from_raw(raw)?),
+            "compressratio" => self.compressratio = Some(ImmutableProperty::from_raw(raw)?),
+            "creation" => self.creation = Some(ImmutableProperty::from_raw(raw)?),
+            "dedup" => self.dedup = Some(MutableProperty::from_raw(raw)?),
+            "encryption" => self.encryption = Some(MutableProperty::from_raw(raw)?),
+            "filesystem_count" => self.filesystem_count = Some(MutableProperty::from_raw(raw)?),
+            "filesystem_limit" => self.filesystem_limit = Some(MutableProperty::from_raw(raw)?),
+            "guid" => self.guid = Some(ImmutableProperty::from_raw(raw)?),
+            "logicalreferenced" => self.logicalreferenced = Some(ImmutableProperty::from_raw(raw)?),
+            "logicalused" => self.logicalused = Some(ImmutableProperty::from_raw(raw)?),
+            "mounted" => self.mounted = Some(ImmutableProperty::from_raw(raw)?),
+            "mountpoint" => self.mountpoint = Some(MutableProperty::from_raw(raw)?),
+            "readonly" => self.readonly = Some(MutableProperty::from_raw(raw)?),
+            "redundant_metadata" => self.redundant_metadata = Some(MutableProperty::from_raw(raw)?),
+            "refcompressratio" => self.refcompressratio = Some(ImmutableProperty::from_raw(raw)?),
+            "referenced" => self.referenced = Some(ImmutableProperty::from_raw(raw)?),
+            "refquota" => self.refquota = Some(MutableProperty::from_raw(raw)?),
+            "relatime" => self.relatime = Some(MutableProperty::from_raw(raw)?),
+            "quota" => self.quota = Some(MutableProperty::from_raw(raw)?),
+            "sharenfs" => self.sharenfs = Some(MutableProperty::from_raw(raw)?),
+            "snapshot_count" => self.snapshot_count = Some(MutableProperty::from_raw(raw)?),
+            "snapshot_limit" => self.snapshot_limit = Some(MutableProperty::from_raw(raw)?),
+            "sync" => self.sync = Some(MutableProperty::from_raw(raw)?),
+            "type" => self.type_ = Some(ImmutableProperty::from_raw(raw)?),
+            "used" => self.used = Some(ImmutableProperty::from_raw(raw)?),
+            "usedbychildren" => self.usedbychildren = Some(ImmutableProperty::from_raw(raw)?),
+            "usedbydataset" => self.usedbydataset = Some(ImmutableProperty::from_raw(raw)?),
+            "usedbyrefreservation" => {
+                self.usedbyrefreservation = Some(ImmutableProperty::from_raw(raw)?);
+            }
+            "usedbysnapshots" => self.usedbysnapshots = Some(ImmutableProperty::from_raw(raw)?),
+            "version" => self.version = Some(ImmutableProperty::from_raw(raw)?),
+            "volmode" => self.volmode = Some(MutableProperty::from_raw(raw)?),
+            "written" => self.written = Some(ImmutableProperty::from_raw(raw)?),
             _ => {
                 trace!("failed to match raw property name {}", raw.name);
             }
@@ -175,7 +177,9 @@ impl Description {
 
     pub fn fix_snapshot_relative(&mut self, root: &str) -> Result<String, PropertyError> {
         let name = self.name.clone();
-        let (parent, child) = name.split_once('@').ok_or_else(|| PropertyError::MissingAt{name: name.clone()})?;
+        let (parent, child) = name
+            .split_once('@')
+            .ok_or_else(|| PropertyError::MissingAt { name: name.clone() })?;
         self.name = child.to_string();
         Ok(Self::fix_name(parent, root))
     }

@@ -27,7 +27,9 @@ impl FromStr for StringValue {
     type Err = ValueError;
 
     fn from_str(raw: &str) -> Result<Self, ValueError> {
-        Ok(Self{value: raw.to_string()})
+        Ok(Self {
+            value: raw.to_string(),
+        })
     }
 }
 

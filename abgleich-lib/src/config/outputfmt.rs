@@ -6,10 +6,6 @@ pub enum OutputFmt {
 impl OutputFmt {
     #[must_use]
     pub const fn from_json_flag(flag: bool) -> Self {
-        if flag {
-            Self::Json
-        } else {
-            Self::Human
-        }
+        if flag { Self::Json } else { Self::Human }
     }
 }

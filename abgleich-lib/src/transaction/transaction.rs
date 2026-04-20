@@ -25,11 +25,7 @@ pub struct Transaction {
 
 impl Transaction {
     #[must_use]
-    pub const fn new(
-        meta: TransactionMeta,
-        command: Command,
-        mutation: bool,
-    ) -> Self {
+    pub const fn new(meta: TransactionMeta, command: Command, mutation: bool) -> Self {
         Self {
             meta,
             command,
@@ -39,7 +35,8 @@ impl Transaction {
 
     pub fn run(&self) -> Result<TransactionOutcome, TransactionRunError> {
         if self.mutation {
-            println!("{}",
+            println!(
+                "{}",
                 json!({
                     "message": format!("[RUN] {}", self.meta.to_description(false, false)),
                     "command": self.command.to_string(),
@@ -61,16 +58,27 @@ impl Transaction {
         match &success {
             OutcomeSuccess::Yes => {
                 if self.mutation {
-                    println!("{}", json!({"message": format!("[OK] {}", self.meta.to_description(false, false))}));
+                    println!(
+                        "{}",
+                        json!({"message": format!("[OK] {}", self.meta.to_description(false, false))})
+                    );
                 } else {
                     info!(message = format!("[OK] {}", self.meta.to_description(false, false)));
                 }
-            },
+            }
             OutcomeSuccess::No(reason) => {
                 if self.mutation {
-                    println!("{}", json!({"message": format!("[FAILED: {reason}] {}", self.meta.to_description(false, false))}));
+                    println!(
+                        "{}",
+                        json!({"message": format!("[FAILED: {reason}] {}", self.meta.to_description(false, false))})
+                    );
                 } else {
-                    info!(message = format!("[FAILED: {reason}] {}", self.meta.to_description(false, false)));
+                    info!(
+                        message = format!(
+                            "[FAILED: {reason}] {}",
+                            self.meta.to_description(false, false)
+                        )
+                    );
                 }
             }
         }

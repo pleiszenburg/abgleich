@@ -43,7 +43,7 @@ impl Apool {
             match description
                 .type_
                 .as_ref()
-                .ok_or(EngineError::DatasetTypeUnknown{
+                .ok_or(EngineError::DatasetTypeUnknown {
                     name: name.clone(),
                     root: location.get_root_ref().to_string(),
                 })?
@@ -61,17 +61,22 @@ impl Apool {
                 descriptions.shift_remove(&name).unwrap()
             };
             description.fix_dataset_relative(location.get_root_ref().as_str());
-            datasets.insert(description.name.clone(), Dataset::from_description(description));
+            datasets.insert(
+                description.name.clone(),
+                Dataset::from_description(description),
+            );
         }
         for name in snapshot_names {
             let mut description = {
                 #[expect(clippy::missing_panics_doc, reason = "infallible")]
                 descriptions.shift_remove(&name).unwrap()
             };
-            let parent = description.fix_snapshot_relative(location.get_root_ref().as_str()).map_err(EngineError::Property)?;
+            let parent = description
+                .fix_snapshot_relative(location.get_root_ref().as_str())
+                .map_err(EngineError::Property)?;
             datasets
                 .get_mut(&parent)
-                .ok_or(EngineError::DatasetUnknown{
+                .ok_or(EngineError::DatasetUnknown {
                     name: parent.clone(),
                     root: location.get_root_ref().to_string(),
                 })?

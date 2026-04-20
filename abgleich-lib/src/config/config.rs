@@ -52,31 +52,27 @@ impl Config {
         let mut f = OpenOptions::new()
             .read(true)
             .open(path)
-            .map_err(|e| ConfigError::Io{
+            .map_err(|e| ConfigError::Io {
                 action: "opening".to_string(),
                 path: path.to_string_lossy().to_string(),
                 source: e,
             })?;
         let mut buf = Vec::new();
-        f.read_to_end(&mut buf).map_err(|e| ConfigError::Io{
+        f.read_to_end(&mut buf).map_err(|e| ConfigError::Io {
             action: "reading".to_string(),
             path: path.to_string_lossy().to_string(),
             source: e,
         })?;
         drop(f);
-        let raw = String::from_utf8(buf).map_err(
-            |e| ConfigError::Utf8Decoding{
+        let raw = String::from_utf8(buf).map_err(|e| ConfigError::Utf8Decoding {
+            path: path.to_string_lossy().to_string(),
+            source: e,
+        })?;
+        let config: ConfigSerializable =
+            serde_yaml::from_str(&raw).map_err(|e| ConfigError::YamlDeserializing {
                 path: path.to_string_lossy().to_string(),
                 source: e,
-            }
-        )?;
-        let config: ConfigSerializable =
-            serde_yaml::from_str(&raw).map_err(
-                |e| ConfigError::YamlDeserializing{
-                    path: path.to_string_lossy().to_string(),
-                    source: e,
-                }
-            )?;
+            })?;
         Self::from_serializable(config)
     }
 

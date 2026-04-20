@@ -62,7 +62,11 @@ impl<'a> CreateSnapshotBuilder<'a> {
 
 impl BaseBuilder for CreateSnapshotBuilder<'_> {
     fn build(self) -> Result<Transaction, TransactionBuildError> {
-        let dataset_name = if self.dataset == "/" { "" } else { &self.dataset };
+        let dataset_name = if self.dataset == "/" {
+            ""
+        } else {
+            &self.dataset
+        };
         let argument = format!(
             "{}{}@{}",
             self.location.get_root_ref().as_str(),
@@ -76,13 +80,7 @@ impl BaseBuilder for CreateSnapshotBuilder<'_> {
                 dataset: self.dataset,
                 snapshot: self.snapshot,
             }),
-            Command::new(
-                    "zfs".to_string(),
-                    vec![
-                        "snapshot".to_string(),
-                        argument,
-                    ],
-                )
+            Command::new("zfs".to_string(), vec!["snapshot".to_string(), argument])
                 .map_err(TransactionBuildError::Subprocess)?
                 .on_route(self.location.get_route_ref())
                 .map_err(TransactionBuildError::Subprocess)?,

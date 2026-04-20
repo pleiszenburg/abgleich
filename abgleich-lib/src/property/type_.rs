@@ -37,7 +37,9 @@ impl FromStr for TypeValue {
             "filesystem" => Ok(Self::Filesystem),
             "volume" => Ok(Self::Volume),
             "snapshot" => Ok(Self::Snapshot),
-            _ => Err(ValueError::Type_ { value: raw.to_string() }),
+            _ => Err(ValueError::Type_ {
+                value: raw.to_string(),
+            }),
         }
     }
 }

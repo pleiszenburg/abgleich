@@ -32,17 +32,32 @@ impl Dataset {
     }
 
     fn contains_changes(&self, location: &Location) -> Result<bool, EngineError> {
-        let written = self.description.written.as_ref().ok_or(
-            EngineError::UnknownWritten { root: location.get_root_ref().to_string(), name: self.description.name.clone() }
-        )?.get_value_ref().unpack();
+        let written = self
+            .description
+            .written
+            .as_ref()
+            .ok_or(EngineError::UnknownWritten {
+                root: location.get_root_ref().to_string(),
+                name: self.description.name.clone(),
+            })?
+            .get_value_ref()
+            .unpack();
         debug!(contains_changes = "start", written = written);
         if *written == 0 {
             debug!(contains_changes = "exit", written = 0);
             return Ok(false);
         }
-        if self.description.type_.as_ref().ok_or(
-            EngineError::DatasetTypeUnknown { root: location.get_root_ref().to_string(), name: self.description.name.clone() }
-        )?.get_value_ref() == &TypeValue::Volume {
+        if self
+            .description
+            .type_
+            .as_ref()
+            .ok_or(EngineError::DatasetTypeUnknown {
+                root: location.get_root_ref().to_string(),
+                name: self.description.name.clone(),
+            })?
+            .get_value_ref()
+            == &TypeValue::Volume
+        {
             debug!(contains_changes = "exit", type_ = "volume");
             return Ok(true);
         }
@@ -57,10 +72,13 @@ impl Dataset {
         }
         if let Some(mounted) = self.is_mounted() {
             if !mounted {
-                return Ok(true)
+                return Ok(true);
             }
         } else {
-            return Err(EngineError::UnknownMounted { root: location.get_root_ref().to_string(), name: self.description.name.clone() })
+            return Err(EngineError::UnknownMounted {
+                root: location.get_root_ref().to_string(),
+                name: self.description.name.clone(),
+            });
         }
         debug!(contains_changes = "diff");
         let outcome = DiffBuilder::new(
@@ -103,10 +121,11 @@ impl Dataset {
             location,
             self.description.name.clone(),
             snapshot,
-            *self.description
+            *self
+                .description
                 .written
                 .as_ref()
-                .ok_or(EngineError::UnknownWritten{
+                .ok_or(EngineError::UnknownWritten {
                     name: self.get_name_ref().to_string(),
                     root: location.get_root_ref().to_string(),
                 })?
@@ -128,61 +147,69 @@ impl Dataset {
 
     fn get_snapshot_option_diff(&self) -> Result<bool, EngineError> {
         Ok(envvar2bool(VAR_DIFF)
-            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_DIFF.to_string(), source: e })?
+            .map_err(|e| EngineError::EnvironmentVariable {
+                name: VAR_DIFF.to_string(),
+                source: e,
+            })?
             .unwrap_or_else(|| {
-                self.description.abgleich_diff.as_ref().map_or(
-                    DEFAULT_DIFF,
-                    |value| bool::from(value.get_value_ref())
-                )
-            })
-        )
+                self.description
+                    .abgleich_diff
+                    .as_ref()
+                    .map_or(DEFAULT_DIFF, |value| bool::from(value.get_value_ref()))
+            }))
     }
 
     fn get_snapshot_option_format(&self) -> String {
         envvar2string(VAR_FORMAT).unwrap_or_else(|| {
             self.description.abgleich_format.as_ref().map_or_else(
                 || DEFAULT_FORMAT.to_owned(),
-                |value| value.get_value_ref().to_string()
+                |value| value.get_value_ref().to_string(),
             )
         })
     }
 
     pub fn get_snapshot_option_overlap(&self) -> Result<i64, EngineError> {
         Ok(envvar2type::<i64>(VAR_OVERLAP)
-            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_OVERLAP.to_string(), source: e })?
+            .map_err(|e| EngineError::EnvironmentVariable {
+                name: VAR_OVERLAP.to_string(),
+                source: e,
+            })?
             .unwrap_or_else(|| {
-                self.description.abgleich_overlap.as_ref().map_or(
-                    DEFAULT_OVERLAP,
-                    |value| *value.get_value_ref().unpack()
-                )
-            })
-        )
+                self.description
+                    .abgleich_overlap
+                    .as_ref()
+                    .map_or(DEFAULT_OVERLAP, |value| *value.get_value_ref().unpack())
+            }))
     }
 
     pub fn get_snapshot_option_snap(&self) -> Result<SnapValue, EngineError> {
         Ok(match envvar2string(VAR_SNAP) {
-            Some(env_value) => SnapValue::from_str(&env_value).map_err(
-                |e| EngineError::Value { name: "env(abgleich:snap)".to_string(), source: e }
-            )?,
+            Some(env_value) => SnapValue::from_str(&env_value).map_err(|e| EngineError::Value {
+                name: "env(abgleich:snap)".to_string(),
+                source: e,
+            })?,
             None => match &self.description.abgleich_snap {
                 Some(value) => value.get_value_ref().clone(),
-                _ => SnapValue::from_str(DEFAULT_SNAP).map_err(
-                    |e| EngineError::Value { name: "default(abgleich:snap)".to_string(), source: e }
-                )?,
+                _ => SnapValue::from_str(DEFAULT_SNAP).map_err(|e| EngineError::Value {
+                    name: "default(abgleich:snap)".to_string(),
+                    source: e,
+                })?,
             },
         })
     }
 
     fn get_snapshot_option_threshold(&self) -> Result<u64, EngineError> {
         Ok(envvar2type::<u64>(VAR_THRESHOLD)
-            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_THRESHOLD.to_string(), source: e })?
+            .map_err(|e| EngineError::EnvironmentVariable {
+                name: VAR_THRESHOLD.to_string(),
+                source: e,
+            })?
             .unwrap_or_else(|| {
-                self.description.abgleich_threshold.as_ref().map_or(
-                    DEFAULT_THRESHOLD,
-                    |value| *value.get_value_ref().unpack()
-                )
-            })
-        )
+                self.description
+                    .abgleich_threshold
+                    .as_ref()
+                    .map_or(DEFAULT_THRESHOLD, |value| *value.get_value_ref().unpack())
+            }))
     }
 
     pub fn get_snapshot_position(&self, name: &str) -> Option<usize> {
@@ -261,20 +288,23 @@ impl Dataset {
 
     pub fn get_sync_option(&self) -> Result<bool, EngineError> {
         Ok(envvar2bool(VAR_SYNC)
-            .map_err(|e| EngineError::EnvironmentVariable { name: VAR_SYNC.to_string(), source: e })?
+            .map_err(|e| EngineError::EnvironmentVariable {
+                name: VAR_SYNC.to_string(),
+                source: e,
+            })?
             .unwrap_or_else(|| {
-                self.description.abgleich_sync.as_ref().map_or(
-                    DEFAULT_SYNC,
-                    |value| bool::from(value.get_value_ref())
-                )
-            })
-        )
+                self.description
+                    .abgleich_sync
+                    .as_ref()
+                    .map_or(DEFAULT_SYNC, |value| bool::from(value.get_value_ref()))
+            }))
     }
 
     pub fn is_mounted(&self) -> Option<bool> {
-        self.description.mounted.as_ref().map(
-            |mounted| bool::from(mounted.get_value_ref())
-        )
+        self.description
+            .mounted
+            .as_ref()
+            .map(|mounted| bool::from(mounted.get_value_ref()))
     }
 
     pub fn is_snapshot_creation_monotonic(&self) -> bool {

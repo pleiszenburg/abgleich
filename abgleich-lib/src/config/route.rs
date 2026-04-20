@@ -17,7 +17,10 @@ pub struct Route {
 impl Route {
     #[must_use]
     pub const fn from_localhost(user: Option<String>) -> Self {
-        Self { hosts: Vec::new(), user }
+        Self {
+            hosts: Vec::new(),
+            user,
+        }
     }
 
     pub fn from_str_prefix(raw: &'_ str) -> Result<(Self, &'_ str), ConfigError> {
@@ -28,14 +31,18 @@ impl Route {
         let (hosts, raw) = if raw.contains(HOSTS_SUFFIX) {
             let fragments: Vec<&str> = raw.split(HOSTS_SUFFIX).collect();
             if fragments.len() > 2 {
-                return Err(ConfigError::RouteParser{msg: format!("encountered hosts suffix '{HOSTS_SUFFIX}' more than once")});
+                return Err(ConfigError::RouteParser {
+                    msg: format!("encountered hosts suffix '{HOSTS_SUFFIX}' more than once"),
+                });
             }
             let mut hosts: Vec<&str> = fragments[0].split(HOSTS_DELIMITER).collect();
             if !hosts.is_empty() && (hosts[0] == LOCALHOST || hosts[0].is_empty()) {
                 hosts.remove(0);
             }
             if hosts.iter().filter(|host| **host == LOCALHOST).count() > 0 {
-                return Err(ConfigError::RouteParser{msg: "encountered host 'localhost' in unexpected position".to_string()});
+                return Err(ConfigError::RouteParser {
+                    msg: "encountered host 'localhost' in unexpected position".to_string(),
+                });
             }
             let hosts: Vec<String> = hosts.iter().map(std::string::ToString::to_string).collect();
             (hosts, fragments[1])
@@ -45,20 +52,21 @@ impl Route {
         let (user, raw) = if raw.contains(USER_SUFFIX) {
             let fragments: Vec<&str> = raw.split(USER_SUFFIX).collect();
             if fragments.len() > 2 {
-                return Err(ConfigError::RouteParser{msg: format!("encountered user suffix '{USER_SUFFIX}' more than once")});
+                return Err(ConfigError::RouteParser {
+                    msg: format!("encountered user suffix '{USER_SUFFIX}' more than once"),
+                });
             }
             let user = fragments[0].to_string();
             if user.is_empty() {
-                return Err(ConfigError::RouteParser { msg: "user field provided but empty".to_string() })
+                return Err(ConfigError::RouteParser {
+                    msg: "user field provided but empty".to_string(),
+                });
             }
             (Some(user), fragments[1])
         } else {
             (None, raw)
         };
-        Ok((Self {
-            hosts,
-            user,
-        }, raw))
+        Ok((Self { hosts, user }, raw))
     }
 
     #[must_use]
@@ -92,7 +100,9 @@ impl FromStr for Route {
     fn from_str(raw: &str) -> Result<Self, ConfigError> {
         let (route, raw) = Self::from_str_prefix(raw)?;
         if !raw.is_empty() {
-            return Err(ConfigError::RouteParser{msg: "unexpected route fragment".to_string()});
+            return Err(ConfigError::RouteParser {
+                msg: "unexpected route fragment".to_string(),
+            });
         }
         Ok(route)
     }

@@ -13,19 +13,27 @@ impl RawProperty {
         let raw_property = Self {
             dataset: fragments
                 .next()
-                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
+                .ok_or_else(|| PropertyError::ParseFragments {
+                    line: line.to_string(),
+                })?
                 .to_string(),
             name: fragments
                 .next()
-                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
+                .ok_or_else(|| PropertyError::ParseFragments {
+                    line: line.to_string(),
+                })?
                 .to_string(),
             value: fragments
                 .next()
-                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
+                .ok_or_else(|| PropertyError::ParseFragments {
+                    line: line.to_string(),
+                })?
                 .to_string(),
             origin: fragments
                 .next()
-                .ok_or_else(|| PropertyError::ParseFragments{line: line.to_string()})?
+                .ok_or_else(|| PropertyError::ParseFragments {
+                    line: line.to_string(),
+                })?
                 .to_string(),
         };
         Ok(raw_property)

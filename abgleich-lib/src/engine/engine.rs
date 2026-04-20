@@ -1,9 +1,9 @@
 use colored::Colorize;
 use serde_json::json;
 
+use crate::config::{Config, Location, Root, Route, TransferOptions};
 #[cfg(feature = "cli")]
 use crate::config::{Confirmation, OutputFmt};
-use crate::config::{Config, Location, Root, Route, TransferOptions};
 use crate::output::{Alignment, Table, TableColumn};
 #[cfg(feature = "cli")]
 use crate::transaction::Force;
@@ -50,10 +50,14 @@ impl Engine {
         target: &str,
     ) -> Result<(), EngineError> {
         let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
-        let source_loc =
-            self.config.parse_location(source).map_err(EngineError::Config)?;
-        let target_loc =
-            self.config.parse_location(target).map_err(EngineError::Config)?;
+        let source_loc = self
+            .config
+            .parse_location(source)
+            .map_err(EngineError::Config)?;
+        let target_loc = self
+            .config
+            .parse_location(target)
+            .map_err(EngineError::Config)?;
         Self::assert_command(source_loc.get_route_ref(), "zfs".to_string())?;
         Self::assert_command(target_loc.get_route_ref(), "zfs".to_string())?;
         let transactions = self.get_free_transactions(source, target)?;
@@ -211,7 +215,12 @@ impl Engine {
                 table.push_row(vec![
                     alias.green().to_string(),
                     location.get_route_ref().to_string().green().to_string(),
-                    location.get_route_ref().get_user_ref().unwrap_or(" ").green().to_string(),
+                    location
+                        .get_route_ref()
+                        .get_user_ref()
+                        .unwrap_or(" ")
+                        .green()
+                        .to_string(),
                     location.get_root_ref().to_string().green().to_string(),
                 ]);
             }
@@ -222,7 +231,11 @@ impl Engine {
                 table.push_row(vec![
                     " ".to_string(),
                     location.get_route_ref().to_string(),
-                    location.get_route_ref().get_user_ref().unwrap_or(" ").to_owned(),
+                    location
+                        .get_route_ref()
+                        .get_user_ref()
+                        .unwrap_or(" ")
+                        .to_owned(),
                     location.get_root_ref().to_string(),
                 ]);
             }
@@ -232,9 +245,18 @@ impl Engine {
     }
 
     #[cfg(feature = "cli")]
-    pub fn snap_cli(&self, outputfmt: &OutputFmt, confirmation: &Confirmation, force: bool, location: &str) -> Result<(), EngineError> {
+    pub fn snap_cli(
+        &self,
+        outputfmt: &OutputFmt,
+        confirmation: &Confirmation,
+        force: bool,
+        location: &str,
+    ) -> Result<(), EngineError> {
         let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
-        let loc = self.config.parse_location(location).map_err(EngineError::Config)?;
+        let loc = self
+            .config
+            .parse_location(location)
+            .map_err(EngineError::Config)?;
         Self::assert_command(loc.get_route_ref(), "zfs".to_string())?;
         let transactions = self.get_snap_transactions(location)?;
         transactions
@@ -253,10 +275,14 @@ impl Engine {
         target: &str,
     ) -> Result<(), EngineError> {
         let force = Force::from_bool(force).map_err(EngineError::TransactionBuild)?;
-        let source_loc =
-            self.config.parse_location(source).map_err(EngineError::Config)?;
-        let target_loc =
-            self.config.parse_location(target).map_err(EngineError::Config)?;
+        let source_loc = self
+            .config
+            .parse_location(source)
+            .map_err(EngineError::Config)?;
+        let target_loc = self
+            .config
+            .parse_location(target)
+            .map_err(EngineError::Config)?;
         Self::assert_command(source_loc.get_route_ref(), "zfs".to_string())?;
         Self::assert_command(target_loc.get_route_ref(), "zfs".to_string())?;
         if options.rate_limit.is_some() {

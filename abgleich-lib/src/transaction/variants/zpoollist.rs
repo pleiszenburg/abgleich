@@ -24,12 +24,8 @@ pub struct ZpoolListBuilder<'a> {
 
 impl<'a> ZpoolListBuilder<'a> {
     #[must_use]
-    pub const fn new(
-        route: &'a Route,
-    ) -> Self {
-        Self {
-            route,
-        }
+    pub const fn new(route: &'a Route) -> Self {
+        Self { route }
     }
 }
 
@@ -40,12 +36,12 @@ impl BaseBuilder for ZpoolListBuilder<'_> {
                 host: self.route.get_host_ref().to_string(),
             }),
             Command::new(
-                    "zpool".to_string(),
-                    vec!["list".to_string(), "-Hp".to_string()],
-                )
-                .map_err(TransactionBuildError::Subprocess)?
-                .on_route(self.route)
-                .map_err(TransactionBuildError::Subprocess)?,
+                "zpool".to_string(),
+                vec!["list".to_string(), "-Hp".to_string()],
+            )
+            .map_err(TransactionBuildError::Subprocess)?
+            .on_route(self.route)
+            .map_err(TransactionBuildError::Subprocess)?,
             false,
         ))
     }

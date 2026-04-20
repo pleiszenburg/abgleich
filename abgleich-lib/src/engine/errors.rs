@@ -12,10 +12,7 @@ use crate::transaction::{TransactionBuildError, TransactionRunError};
 #[derive(ThisError, Debug)]
 pub enum EngineError {
     #[error("usize exceeds value than can be handled on less than 64 bit arch: {value}")]
-    ArchUsize{
-        value: i64,
-        source: TryFromIntError,
-    },
+    ArchUsize { value: i64, source: TryFromIntError },
     #[error("command {command} not found on {host} for user {user}")]
     CommandNotFound {
         host: String,
@@ -25,35 +22,22 @@ pub enum EngineError {
     #[error("config subsystem error")]
     Config(#[source] ConfigError),
     #[error("type of dataset '{name}' in '{root}' is unknown")]
-    DatasetTypeUnknown{
-        root: String,
-        name: String,
-    },
+    DatasetTypeUnknown { root: String, name: String },
     #[error("dataset '{name}' in '{root}' is unknown")]
-    DatasetUnknown{
-        root: String,
-        name: String,
-    },
+    DatasetUnknown { root: String, name: String },
     #[error("dataset {dataset} does not have snapshots and can not be transferred")]
     DatasetWithoutSnapshot { dataset: String },
     #[error("failed to load value from environment variable '{name}'")]
-    EnvironmentVariable{
-        name: String,
-        source: SysError,
-    },
+    EnvironmentVariable { name: String, source: SysError },
     #[error("property subsystem error")]
     Property(#[source] PropertyError),
     #[error("unknown mount status of dataset '{name}' in '{root}'")]
-    UnknownMounted{
-        root: String,
-        name: String,
-    },
+    UnknownMounted { root: String, name: String },
     #[error("unknown number of written bytes for dataset '{name}' in '{root}'")]
-    UnknownWritten{
-        root: String,
-        name: String,
-    },
-    #[error("snapshot sequence comparison failed for source '{src}' and target '{tgt}' datasets: {msg}")]
+    UnknownWritten { root: String, name: String },
+    #[error(
+        "snapshot sequence comparison failed for source '{src}' and target '{tgt}' datasets: {msg}"
+    )]
     Sequence {
         msg: String,
         src: String,
@@ -67,8 +51,5 @@ pub enum EngineError {
     #[error("transaction run subsystem error")]
     TransactionRun(#[source] TransactionRunError),
     #[error("failed to parse property '{name}'")]
-    Value {
-        name: String,
-        source: ValueError,
-    },
+    Value { name: String, source: ValueError },
 }

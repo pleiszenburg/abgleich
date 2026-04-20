@@ -32,7 +32,9 @@ impl FromStr for BoolValue {
         match raw.to_lowercase().as_str() {
             "on" | "yes" => Ok(Self::On),
             "off" | "no" => Ok(Self::Off),
-            _ => Err(ValueError::Bool { value: raw.to_string() }),
+            _ => Err(ValueError::Bool {
+                value: raw.to_string(),
+            }),
         }
     }
 }

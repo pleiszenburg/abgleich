@@ -1,12 +1,10 @@
 use super::errors::ConfigError;
 
-
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct InsecureHost {
     pub hostname: String,
     pub port: u16,
 }
-
 
 #[derive(Clone, Debug, Default)]
 pub struct TransferOptions {
@@ -15,7 +13,6 @@ pub struct TransferOptions {
     pub insecure: Option<InsecureHost>,
     pub rate_limit: Option<u64>,
 }
-
 
 impl TransferOptions {
     #[must_use]

@@ -1,4 +1,4 @@
-use tracing::{debug, Value};
+use tracing::{Value, debug};
 
 use std::env;
 use std::str::FromStr;

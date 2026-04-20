@@ -42,7 +42,11 @@ impl<'a> TransferInitialBuilder<'a> {
         options: &'a TransferOptions,
     ) -> Self {
         Self {
-            source, target, dataset, snapshot, options
+            source,
+            target,
+            dataset,
+            snapshot,
+            options,
         }
     }
 
@@ -66,9 +70,10 @@ impl<'a> TransferInitialBuilder<'a> {
             self.dataset,
             self.snapshot,
         ));
-        let mut send_cmds =
-            vec![Command::new("zfs".to_string(), zfs_send_args)
-                .map_err(TransactionBuildError::Subprocess)?];
+        let mut send_cmds = vec![
+            Command::new("zfs".to_string(), zfs_send_args)
+                .map_err(TransactionBuildError::Subprocess)?,
+        ];
         if let Some(level) = self.options.compress {
             send_cmds.push(
                 Command::new("xz".to_string(), vec![format!("-{level}")])
@@ -85,14 +90,19 @@ impl<'a> TransferInitialBuilder<'a> {
             );
         }
         send_cmds.push(
-            Command::new("nc".to_string(), vec![insecure.hostname.clone(), insecure.port.to_string()])
-                .map_err(TransactionBuildError::Subprocess)?,
+            Command::new(
+                "nc".to_string(),
+                vec![insecure.hostname.clone(), insecure.port.to_string()],
+            )
+            .map_err(TransactionBuildError::Subprocess)?,
         );
-        let mut recv_cmds = vec![Command::new(
-            "nc".to_string(),
-            vec!["-l".to_string(), insecure.port.to_string()],
-        )
-        .map_err(TransactionBuildError::Subprocess)?];
+        let mut recv_cmds = vec![
+            Command::new(
+                "nc".to_string(),
+                vec!["-l".to_string(), insecure.port.to_string()],
+            )
+            .map_err(TransactionBuildError::Subprocess)?,
+        ];
         if self.options.compress.is_some() {
             recv_cmds.push(
                 Command::new("xz".to_string(), vec!["-d".to_string()])
@@ -128,11 +138,21 @@ impl<'a> TransferInitialBuilder<'a> {
         let (entry_route, source_relative, target_relative) = if self.options.direct {
             Self::check_direct_route(self.source.get_route_ref())?;
             Self::check_direct_route(self.target.get_route_ref())?;
-            let (entry_route, source_route, target_route) =
-                Route::split_common_prefix(self.source.get_route_ref(), self.target.get_route_ref());
-            (entry_route, self.source.with_route(source_route), self.target.with_route(target_route))
+            let (entry_route, source_route, target_route) = Route::split_common_prefix(
+                self.source.get_route_ref(),
+                self.target.get_route_ref(),
+            );
+            (
+                entry_route,
+                self.source.with_route(source_route),
+                self.target.with_route(target_route),
+            )
         } else {
-            (Route::from_localhost(None), self.source.clone(), self.target.clone())
+            (
+                Route::from_localhost(None),
+                self.source.clone(),
+                self.target.clone(),
+            )
         };
         let mut zfs_send_args = vec!["send".to_string()];
         if self.options.compress.is_none() {
@@ -144,9 +164,10 @@ impl<'a> TransferInitialBuilder<'a> {
             self.dataset,
             self.snapshot
         ));
-        let mut src_cmds =
-            vec![Command::new("zfs".to_string(), zfs_send_args)
-                .map_err(TransactionBuildError::Subprocess)?];
+        let mut src_cmds = vec![
+            Command::new("zfs".to_string(), zfs_send_args)
+                .map_err(TransactionBuildError::Subprocess)?,
+        ];
         if let Some(level) = self.options.compress {
             src_cmds.push(
                 Command::new("xz".to_string(), vec![format!("-{level}")])

@@ -32,10 +32,14 @@ impl Root {
 
     fn assert_valid(value: &str) -> Result<(), ConfigError> {
         if value.is_empty() {
-            return Err(ConfigError::RootParser { msg: "location root fragment is empty".to_string() });
+            return Err(ConfigError::RootParser {
+                msg: "location root fragment is empty".to_string(),
+            });
         }
         if value.chars().nth(0).unwrap() == ROOT_DELIMITER {
-            return Err(ConfigError::RootParser { msg: "location root fragment begins with a slash".to_string() });
+            return Err(ConfigError::RootParser {
+                msg: "location root fragment begins with a slash".to_string(),
+            });
         }
         Ok(())
     }

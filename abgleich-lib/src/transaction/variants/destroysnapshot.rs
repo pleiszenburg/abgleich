@@ -31,20 +31,22 @@ pub struct DestroySnapshotBuilder<'a> {
 
 impl<'a> DestroySnapshotBuilder<'a> {
     #[must_use]
-    pub const fn new(
-        location: &'a Location,
-        dataset: String,
-        snapshot: String,
-    ) -> Self {
+    pub const fn new(location: &'a Location, dataset: String, snapshot: String) -> Self {
         Self {
-            location, dataset, snapshot
+            location,
+            dataset,
+            snapshot,
         }
     }
 }
 
 impl BaseBuilder for DestroySnapshotBuilder<'_> {
     fn build(self) -> Result<Transaction, TransactionBuildError> {
-        let dataset_name = if self.dataset == "/" { "" } else { &self.dataset };
+        let dataset_name = if self.dataset == "/" {
+            ""
+        } else {
+            &self.dataset
+        };
         let argument = format!(
             "{}{}@{}",
             self.location.get_root_ref().as_str(),
@@ -57,13 +59,7 @@ impl BaseBuilder for DestroySnapshotBuilder<'_> {
                 dataset: self.dataset,
                 snapshot: self.snapshot,
             }),
-            Command::new(
-                    "zfs".to_string(),
-                    vec![
-                        "destroy".to_string(),
-                        argument,
-                    ],
-                )
+            Command::new("zfs".to_string(), vec!["destroy".to_string(), argument])
                 .map_err(TransactionBuildError::Subprocess)?
                 .on_route(self.location.get_route_ref())
                 .map_err(TransactionBuildError::Subprocess)?,

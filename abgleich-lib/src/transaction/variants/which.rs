@@ -26,13 +26,8 @@ pub struct WhichBuilder<'a> {
 
 impl<'a> WhichBuilder<'a> {
     #[must_use]
-    pub const fn new(
-        route: &'a Route,
-        command: String,
-    ) -> Self {
-        Self {
-            route, command,
-        }
+    pub const fn new(route: &'a Route, command: String) -> Self {
+        Self { route, command }
     }
 }
 
@@ -44,9 +39,9 @@ impl BaseBuilder for WhichBuilder<'_> {
                 command: self.command.clone(),
             }),
             Command::new("which".to_string(), vec![self.command])
-                    .map_err(TransactionBuildError::Subprocess)?
-                    .on_route(self.route)
-                    .map_err(TransactionBuildError::Subprocess)?,
+                .map_err(TransactionBuildError::Subprocess)?
+                .on_route(self.route)
+                .map_err(TransactionBuildError::Subprocess)?,
             false,
         ))
     }

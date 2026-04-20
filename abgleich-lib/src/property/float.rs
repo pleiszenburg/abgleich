@@ -27,9 +27,11 @@ impl FromStr for FloatValue {
     type Err = ValueError;
 
     fn from_str(raw: &str) -> Result<Self, ValueError> {
-        Ok(Self{value: raw
-            .parse::<f32>()
-            .map_err(|e| ValueError::Float { value: raw.to_string(), source: e })?
+        Ok(Self {
+            value: raw.parse::<f32>().map_err(|e| ValueError::Float {
+                value: raw.to_string(),
+                source: e,
+            })?,
         })
     }
 }

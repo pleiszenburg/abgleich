@@ -17,7 +17,8 @@ impl Force {
         }
         let full = envvar2bool(VAR_FULLFORCE)
             .map_err(|e| TransactionBuildError::EnvironmentVariable {
-                name: VAR_FULLFORCE.to_string(), source: e
+                name: VAR_FULLFORCE.to_string(),
+                source: e,
             })?
             .unwrap_or(DEFAULT_FULLFORCE);
         if !full {

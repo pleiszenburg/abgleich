@@ -8,7 +8,7 @@ mod which;
 mod zpoollist;
 
 pub use createsnapshot::{CreateSnapshotBuilder, CreateSnapshotMeta};
-pub use destroysnapshot::{DestroySnapshotMeta, DestroySnapshotBuilder};
+pub use destroysnapshot::{DestroySnapshotBuilder, DestroySnapshotMeta};
 pub use diff::{DiffBuilder, DiffMeta};
 pub use inventory::{InventoryBuilder, InventoryMeta};
 pub use transferincremental::{TransferIncrementalBuilder, TransferIncrementalMeta};

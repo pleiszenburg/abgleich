@@ -51,7 +51,10 @@ impl TransactionList {
                 Ok(outcome) => outcome,
                 Err(err) => {
                     if *force == Force::Full {
-                        error!(msg = "ignoring error with full force", traceback = err.traverse());
+                        error!(
+                            msg = "ignoring error with full force",
+                            traceback = err.traverse()
+                        );
                         failures += 1;
                         continue;
                     }
@@ -60,7 +63,10 @@ impl TransactionList {
             };
             match outcome.assert_success() {
                 Ok(()) => {}
-                Err(TransactionRunError::Failed{reason: _, description: _}) if *force != Force::No => failures += 1, // logged by transaction already
+                Err(TransactionRunError::Failed {
+                    reason: _,
+                    description: _,
+                }) if *force != Force::No => failures += 1, // logged by transaction already
                 Err(err) => return Err(err),
             }
         }
@@ -71,7 +77,12 @@ impl TransactionList {
     }
 
     #[cfg(feature = "cli")]
-    pub fn run_cli(&self, outputfmt: &OutputFmt, confirmation: &Confirmation, force: &Force) -> Result<(), TransactionCliError> {
+    pub fn run_cli(
+        &self,
+        outputfmt: &OutputFmt,
+        confirmation: &Confirmation,
+        force: &Force,
+    ) -> Result<(), TransactionCliError> {
         match outputfmt {
             OutputFmt::Human => self.print_table(),
             OutputFmt::Json => self.print_json(),
@@ -85,7 +96,7 @@ impl TransactionList {
                 if !confirmation {
                     return Ok(());
                 }
-            },
+            }
             Confirmation::Yes => println!("{}", json!({"run": true})),
         }
         self.run(force).map_err(TransactionCliError::Run)

@@ -40,12 +40,8 @@ pub struct InventoryBuilder<'a> {
 
 impl<'a> InventoryBuilder<'a> {
     #[must_use]
-    pub const fn new(
-        location: &'a Location
-    ) -> Self {
-        Self {
-            location
-        }
+    pub const fn new(location: &'a Location) -> Self {
+        Self { location }
     }
 }
 
@@ -57,17 +53,17 @@ impl BaseBuilder for InventoryBuilder<'_> {
                 root: self.location.get_root_ref().to_string(),
             }),
             Command::new(
-                    "zfs".to_string(),
-                    vec![
-                        "get".to_string(),
-                        "-rHp".to_string(),
-                        "all".to_string(),
-                        self.location.get_root_ref().to_clean_string(),
-                    ],
-                )
-                .map_err(TransactionBuildError::Subprocess)?
-                .on_route(self.location.get_route_ref())
-                .map_err(TransactionBuildError::Subprocess)?,
+                "zfs".to_string(),
+                vec![
+                    "get".to_string(),
+                    "-rHp".to_string(),
+                    "all".to_string(),
+                    self.location.get_root_ref().to_clean_string(),
+                ],
+            )
+            .map_err(TransactionBuildError::Subprocess)?
+            .on_route(self.location.get_route_ref())
+            .map_err(TransactionBuildError::Subprocess)?,
             false,
         ))
     }

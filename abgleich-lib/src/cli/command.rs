@@ -55,7 +55,10 @@ pub fn parse_insecure(s: &str) -> Result<InsecureHost, String> {
     let port: u16 = port_str
         .parse()
         .map_err(|_| format!("invalid port '{port_str}' in '{s}'"))?;
-    Ok(InsecureHost{hostname: host.to_string(), port})
+    Ok(InsecureHost {
+        hostname: host.to_string(),
+        port,
+    })
 }
 
 /// Parse an xz compression level string into a `u8`.
@@ -262,7 +265,10 @@ mod tests {
     fn insecure_hostname_port() {
         assert_eq!(
             parse_insecure("linux-b:18432"),
-            Ok(InsecureHost{hostname: "linux-b".to_string(), port: 18432})
+            Ok(InsecureHost {
+                hostname: "linux-b".to_string(),
+                port: 18432
+            })
         );
     }
 
@@ -270,7 +276,10 @@ mod tests {
     fn insecure_ip_port() {
         assert_eq!(
             parse_insecure("192.168.56.21:18432"),
-            Ok(InsecureHost{hostname: "192.168.56.21".to_string(), port: 18432})
+            Ok(InsecureHost {
+                hostname: "192.168.56.21".to_string(),
+                port: 18432
+            })
         );
     }
 
@@ -278,7 +287,13 @@ mod tests {
     fn insecure_ipv6_last_colon_used_for_split() {
         // Bare IPv6: last colon separates port.
         let result = parse_insecure("::1:18432");
-        assert_eq!(result, Ok(InsecureHost{hostname: "::1".to_string(), port: 18432}));
+        assert_eq!(
+            result,
+            Ok(InsecureHost {
+                hostname: "::1".to_string(),
+                port: 18432
+            })
+        );
     }
 
     #[test]

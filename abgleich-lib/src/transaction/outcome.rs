@@ -21,9 +21,9 @@ impl TransactionOutcome {
     pub fn assert_success(&self) -> Result<(), TransactionRunError> {
         match &self.success {
             OutcomeSuccess::Yes => Ok(()),
-            OutcomeSuccess::No(reason) => Err(TransactionRunError::Failed{
+            OutcomeSuccess::No(reason) => Err(TransactionRunError::Failed {
                 reason: reason.clone(),
-                description: self.meta.to_description(false, false)
+                description: self.meta.to_description(false, false),
             }),
         }
     }

@@ -24,7 +24,13 @@ pub fn dispatch() -> Result<(), CliError> {
         } => {
             Engine::from_detect()
                 .map_err(CliError::Engine)?
-                .free_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), force, &source, &target)
+                .free_cli(
+                    &OutputFmt::from_json_flag(json),
+                    &Confirmation::from_yes_flag(yes),
+                    force,
+                    &source,
+                    &target,
+                )
                 .map_err(CliError::Engine)?;
         }
 
@@ -43,7 +49,12 @@ pub fn dispatch() -> Result<(), CliError> {
         } => {
             Engine::from_detect()
                 .map_err(CliError::Engine)?
-                .snap_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), force, &location)
+                .snap_cli(
+                    &OutputFmt::from_json_flag(json),
+                    &Confirmation::from_yes_flag(yes),
+                    force,
+                    &location,
+                )
                 .map_err(CliError::Engine)?;
         }
 
@@ -61,11 +72,20 @@ pub fn dispatch() -> Result<(), CliError> {
             let options = TransferOptions::new()
                 .with_compress(compress)
                 .with_rate_limit(rate_limit)
-                .with_insecure(insecure).map_err(CliError::Config)?
-                .with_direct(direct).map_err(CliError::Config)?;
+                .with_insecure(insecure)
+                .map_err(CliError::Config)?
+                .with_direct(direct)
+                .map_err(CliError::Config)?;
             Engine::from_detect()
                 .map_err(CliError::Engine)?
-                .sync_cli(&OutputFmt::from_json_flag(json), &Confirmation::from_yes_flag(yes), &options, force, &source, &target)
+                .sync_cli(
+                    &OutputFmt::from_json_flag(json),
+                    &Confirmation::from_yes_flag(yes),
+                    &options,
+                    force,
+                    &source,
+                    &target,
+                )
                 .map_err(CliError::Engine)?;
         }
 

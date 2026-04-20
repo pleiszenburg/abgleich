@@ -4,14 +4,14 @@ use super::errors::{Stream, SubprocessError};
 
 pub enum OutcomeSuccess {
     Yes,
-    No(String),  // reason
+    No(String), // reason
 }
 
 pub struct Outcome {
     stdout: Vec<u8>,
     stderr: Vec<u8>,
     status: ExitStatus,
-    meta: String,  // only for error reporting
+    meta: String, // only for error reporting
 }
 
 impl Outcome {
@@ -31,15 +31,19 @@ impl Outcome {
     }
 
     pub fn stdout_as_str_ref(&self) -> Result<&str, SubprocessError> {
-        str::from_utf8(&self.stdout).map_err(
-            |e| SubprocessError::StreamDecoding{command: self.meta.clone(), source: e, stream: Stream::Stdout}
-        )
+        str::from_utf8(&self.stdout).map_err(|e| SubprocessError::StreamDecoding {
+            command: self.meta.clone(),
+            source: e,
+            stream: Stream::Stdout,
+        })
     }
 
     pub fn stderr_as_str_ref(&self) -> Result<&str, SubprocessError> {
-        str::from_utf8(&self.stderr).map_err(
-            |e| SubprocessError::StreamDecoding{command: self.meta.clone(), source: e, stream: Stream::Stderr}
-        )
+        str::from_utf8(&self.stderr).map_err(|e| SubprocessError::StreamDecoding {
+            command: self.meta.clone(),
+            source: e,
+            stream: Stream::Stderr,
+        })
     }
 
     #[must_use]
@@ -49,7 +53,7 @@ impl Outcome {
         }
         OutcomeSuccess::No(self.status.code().map_or_else(
             || "terminated by signal".to_string(),
-            |code| format!("exited with code {code}")),
-        )
+            |code| format!("exited with code {code}"),
+        ))
     }
 }

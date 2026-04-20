@@ -30,7 +30,9 @@ impl FromStr for Origin {
         if let Some(parent) = raw.strip_prefix("inherited from ") {
             return Ok(Self::Inherited(parent.to_string()));
         }
-        Err(ValueError::Origin { value: raw.to_string() })
+        Err(ValueError::Origin {
+            value: raw.to_string(),
+        })
     }
 }
 

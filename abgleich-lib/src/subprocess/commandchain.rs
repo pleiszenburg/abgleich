@@ -25,7 +25,10 @@ impl Stage {
         match self {
             Self::Single(cmd) => Ok(cmd.to_string()),
             Self::Group { route, commands } => {
-                debug_assert!(!commands.is_empty(), "Group stage must have at least one command");
+                debug_assert!(
+                    !commands.is_empty(),
+                    "Group stage must have at least one command"
+                );
                 let cmd = if commands.len() == 1 {
                     commands[0].clone()
                 } else {
@@ -143,10 +146,13 @@ impl CommandChain {
     // produced by Group stages for rate limiting and compression.
     pub fn to_command(&self) -> Result<Command, SubprocessError> {
         // Fast path: single local Single stage with no background.
-        if self.background.is_none() && self.stages.len() == 1 && self.entry_route.is_empty()
-            && let Stage::Single(cmd) = &self.stages[0] {
-                return Ok(cmd.clone());
-            }
+        if self.background.is_none()
+            && self.stages.len() == 1
+            && self.entry_route.is_empty()
+            && let Stage::Single(cmd) = &self.stages[0]
+        {
+            return Ok(cmd.clone());
+        }
         let fg_str = self.to_pipe_string()?;
         let shell_cmd = if let Some(bg) = &self.background {
             let bg_str = bg.render()?;
@@ -246,9 +252,13 @@ mod tests {
         let recv = cmd("ssh", &["tgt", "zfs receive backup"]);
         let chain = CommandChain::begin(send)
             .pipe(recv)
-            .with_entry_route(route("linux-a")).expect("there must not be an entry route user");
+            .with_entry_route(route("linux-a"))
+            .expect("there must not be an entry route user");
         let s = chain.to_string();
-        assert!(s.starts_with("ssh linux-a "), "expected ssh linux-a prefix: {s}");
+        assert!(
+            s.starts_with("ssh linux-a "),
+            "expected ssh linux-a prefix: {s}"
+        );
         assert!(s.contains("set -o pipefail"), "missing pipefail: {s}");
     }
 
@@ -261,7 +271,11 @@ mod tests {
         let location = loc("linux-a:root%tank");
         let send_cmd = cmd("zfs", &["send", "tank@snap"]);
 
-        let via_location = send_cmd.clone().on_route(location.get_route_ref()).unwrap().to_string();
+        let via_location = send_cmd
+            .clone()
+            .on_route(location.get_route_ref())
+            .unwrap()
+            .to_string();
 
         let chain = CommandChain::begin_group(&location, vec![send_cmd]);
         let s = chain.to_string();
@@ -344,11 +358,17 @@ mod tests {
 
         let chain = CommandChain::begin_group(
             &src_loc,
-            vec![cmd("zfs", &["send", "tank@snap"]), cmd("nc", &["linux-b", "18432"])],
+            vec![
+                cmd("zfs", &["send", "tank@snap"]),
+                cmd("nc", &["linux-b", "18432"]),
+            ],
         )
         .with_background_group(
             &tgt_loc,
-            vec![cmd("nc", &["-l", "18432"]), cmd("zfs", &["receive", "backup"])],
+            vec![
+                cmd("nc", &["-l", "18432"]),
+                cmd("zfs", &["receive", "backup"]),
+            ],
         );
 
         let s = raw_script(&chain);
@@ -368,11 +388,17 @@ mod tests {
 
         let chain = CommandChain::begin_group(
             &src_loc,
-            vec![cmd("zfs", &["send", "tank@snap"]), cmd("nc", &["linux-b", "18432"])],
+            vec![
+                cmd("zfs", &["send", "tank@snap"]),
+                cmd("nc", &["linux-b", "18432"]),
+            ],
         )
         .with_background_group(
             &tgt_loc,
-            vec![cmd("nc", &["-l", "18432"]), cmd("zfs", &["receive", "backup"])],
+            vec![
+                cmd("nc", &["-l", "18432"]),
+                cmd("zfs", &["receive", "backup"]),
+            ],
         );
 
         let s = raw_script(&chain);
@@ -395,10 +421,7 @@ mod tests {
     #[test]
     fn snapshot_name_with_timestamp_survives_quoting() {
         // Snapshot names contain colons; shlex must preserve them verbatim.
-        let chain = CommandChain::begin(cmd(
-            "zfs",
-            &["snapshot", "tank/data@2025-01-15T12:00:00"],
-        ));
+        let chain = CommandChain::begin(cmd("zfs", &["snapshot", "tank/data@2025-01-15T12:00:00"]));
         let s = chain.to_string();
         assert!(
             s.contains("tank/data@2025-01-15T12:00:00"),

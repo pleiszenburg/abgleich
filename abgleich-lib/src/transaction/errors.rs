@@ -8,13 +8,12 @@ use crate::traits::Traverse;
 
 #[derive(ThisError, Debug)]
 pub enum TransactionBuildError {
-    #[error("--direct cannot be used with route '{0}': consecutive duplicate hosts would cause a host to SSH to itself after route rewriting")]
+    #[error(
+        "--direct cannot be used with route '{0}': consecutive duplicate hosts would cause a host to SSH to itself after route rewriting"
+    )]
     DirectConsecutiveDuplicateHosts(String),
     #[error("failed to load value from environment variable '{name}'")]
-    EnvironmentVariable{
-        name: String,
-        source: SysError,
-    },
+    EnvironmentVariable { name: String, source: SysError },
     #[error("subprocess subsystem error")]
     Subprocess(#[source] SubprocessError),
 }
@@ -31,10 +30,7 @@ pub enum TransactionCliError {
 #[derive(ThisError, Debug)]
 pub enum TransactionRunError {
     #[error("transaction failed, {reason}: {description}")]
-    Failed{
-        reason: String,
-        description: String,
-    },
+    Failed { reason: String, description: String },
     #[error("{0} transaction(s) failed")]
     SomeFailed(usize),
     #[error("subprocess subsystem error")]

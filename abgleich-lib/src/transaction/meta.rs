@@ -1,13 +1,7 @@
 use super::basemeta::BaseMeta;
 use super::variants::{
-    CreateSnapshotMeta,
-    DestroySnapshotMeta,
-    DiffMeta,
-    InventoryMeta,
-    TransferIncrementalMeta,
-    TransferInitialMeta,
-    WhichMeta,
-    ZpoolListMeta,
+    CreateSnapshotMeta, DestroySnapshotMeta, DiffMeta, InventoryMeta, TransferIncrementalMeta,
+    TransferInitialMeta, WhichMeta, ZpoolListMeta,
 };
 
 #[derive(Clone)]

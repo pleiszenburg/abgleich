@@ -27,9 +27,11 @@ impl FromStr for UIntValue {
     type Err = ValueError;
 
     fn from_str(raw: &str) -> Result<Self, ValueError> {
-        Ok(Self{value: raw
-            .parse::<u64>()
-            .map_err(|e| ValueError::UInt { value: raw.to_string(), source: e })?
+        Ok(Self {
+            value: raw.parse::<u64>().map_err(|e| ValueError::UInt {
+                value: raw.to_string(),
+                source: e,
+            })?,
         })
     }
 }

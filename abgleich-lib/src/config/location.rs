@@ -16,7 +16,7 @@ pub struct Location {
 impl Location {
     #[must_use]
     pub const fn new(route: Route, root: Root) -> Self {
-        Self {route, root}
+        Self { route, root }
     }
 
     #[must_use]

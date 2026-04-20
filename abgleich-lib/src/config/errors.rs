@@ -11,22 +11,19 @@ pub enum ConfigError {
     #[error("--direct and --insecure cannot be used together")]
     DirectAndInsecureConflict,
     #[error("i/o error, while {action}: {path}")]
-    Io{
+    Io {
         action: String,
         path: String,
         source: IoError,
     },
     #[error("{msg}")]
-    RouteParser {msg: String},
+    RouteParser { msg: String },
     #[error("{msg}")]
-    RootParser {msg: String},
+    RootParser { msg: String },
     #[error("utf8 decoding error: {path}")]
-    Utf8Decoding{
-        path: String,
-        source: FromUtf8Error,
-    },
+    Utf8Decoding { path: String, source: FromUtf8Error },
     #[error("deserializing yaml failed: {path}")]
-    YamlDeserializing{
+    YamlDeserializing {
         path: String,
         source: YamlDeserializingError,
     },
