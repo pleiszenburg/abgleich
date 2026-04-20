@@ -478,5 +478,67 @@ def test_snap_threshold_with_initial_snapshot(ctx: Context, json: bool):
     assert len(set((ctx[Host.localhost][_ZPOOL_B] / "two").snapshots)) == 0  # nothing
 
 
+@pytest.mark.parametrize("json", (False, True))
+@Environment(TestConfig(
+    zpools = [
+        Zpool(
+            name = _ZPOOL_A,
+            aproperties = AProperties.from_defaults(),
+            snapshots = [
+                Snapshot(_SNAP),
+            ],
+            datasets = [
+                Filesystem(
+                    name = "one",
+                    aproperties = AProperties.from_defaults(),
+                    snapshots = [
+                        Snapshot(_SNAP),
+                    ],
+                ),
+            ],
+        ),
+    ],
+))
+def test_snap_unmounted_nodiff(ctx: Context, json: bool):
+    """
+    check if a diff is only performed if the dataset is not mounted
+    """
+
+    # write some bytes into one, below threshold, also meta data
+    (Path((ctx[Host.localhost][_ZPOOL_A] / "one").mountpoint_abs) / _FN).randomize(host = Host.localhost, count = 1, bs = 2 ** 10)
+    ctx[Host.localhost].sync()  # flush changes to make sure test words deterministically
+
+    # umount to make diff crash in case it is used
+    (ctx[Host.localhost][_ZPOOL_A] / "one").umount(Host.localhost)
+
+    zpool = f'root%{_ZPOOL_A:s}'
+    query = zpool
+    json_args = ("-j",) if json else tuple()
+
+    res = ctx.abgleich(Subcmd.snap, *json_args, "-y", query)  # yes to all
+    res.assert_exitcode(0)
+
+    ctx.reload()
+
+    transactions = ctx.parse_transactions(res.stdout, json = json)
+
+    assert len(transactions) == 1 # transactions / new snapshots
+    assert all(isinstance(transaction, CreateSnapshotTransaction) for transaction in transactions)
+
+    assert {transaction.dataset for transaction in transactions} == {"/one"}
+
+    for transaction in transactions:
+        assert ctx[Host.localhost][_ZPOOL_A].aproperties.matches_snapshot_name(transaction.snapshot)
+
+    root_snaps = set(ctx[Host.localhost][_ZPOOL_A].snapshots)
+    assert root_snaps == {Snapshot(_SNAP)}
+
+    one_snaps = set((ctx[Host.localhost][_ZPOOL_A] / "one").snapshots)
+    assert len(one_snaps) == 2
+    one_snaps -= {Snapshot(_SNAP)}
+    assert len(one_snaps) == 1
+    assert ctx[Host.localhost][_ZPOOL_A].aproperties.matches_snapshot_name(one_snaps.pop().name)
+
+
 # TODO check if written > threshold, no diff is performed
 # TODO check "if volume, no diff etc, snapshot is directly taken"

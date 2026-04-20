@@ -55,6 +55,13 @@ impl Dataset {
             debug!(contains_changes = "exit", diff = "off");
             return Ok(true);
         }
+        if let Some(mounted) = self.is_mounted() {
+            if !mounted {
+                return Ok(true)
+            }
+        } else {
+            return Err(EngineError::UnknownMounted { root: location.get_root_ref().to_string(), name: self.description.name.clone() })
+        }
         debug!(contains_changes = "diff");
         let outcome = DiffBuilder::new(
             location,
@@ -261,6 +268,12 @@ impl Dataset {
                     |value| bool::from(value.get_value_ref())
                 )
             })
+        )
+    }
+
+    pub fn is_mounted(&self) -> Option<bool> {
+        self.description.mounted.as_ref().map(
+            |mounted| bool::from(mounted.get_value_ref())
         )
     }
 

@@ -66,6 +66,16 @@ class MntLocal(Mountpoint):
 
         return self._value
 
+    def to_disk(self, dataset: str, host: Host):
+        """
+        set mountpoint property on disk
+        """
+
+        value = "none" if self._value is None else self._value
+
+        res = Command("zfs", "set", f"mountpoint={value:s}", dataset).with_sudo().on_host(host).run()
+        res.assert_exitcode(0)
+
     def to_value_abs(self, root: str):
         """
         join value with root if value is relative, else return value only

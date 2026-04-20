@@ -6,7 +6,7 @@ from typeguard import typechecked
 from ._command import Command
 from ._dataset import Dataset
 from ._host import Host
-from ._mountpoint import Mountpoint, MntInherit
+from ._mountpoint import Mountpoint, MntInherit, MntLocal
 
 
 @typechecked
@@ -121,8 +121,19 @@ class Filesystem(Dataset):
         """
 
         self._mountpoint = Mountpoint.from_disk(self.full_name, host = host)
+        # TODO update self._mountpoint_abs, refactor code from `create`
 
         super().reload(host = host)
+
+    def umount(self, host: Host):
+        """
+        umount filesystem
+        """
+
+        self._mountpoint = MntLocal.from_option("none")
+        self._mountpoint_abs = None
+
+        self._mountpoint.to_disk(dataset = self.full_name, host = host)
 
     @classmethod
     def from_name(cls, name: str, parent: Dataset, host: Host):

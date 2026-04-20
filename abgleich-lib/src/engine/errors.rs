@@ -43,6 +43,11 @@ pub enum EngineError {
     },
     #[error("property subsystem error")]
     Property(#[source] PropertyError),
+    #[error("unknown mount status of dataset '{name}' in '{root}'")]
+    UnknownMounted{
+        root: String,
+        name: String,
+    },
     #[error("unknown number of written bytes for dataset '{name}' in '{root}'")]
     UnknownWritten{
         root: String,
